@@ -18,11 +18,9 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 
 ## Screenshot
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-gameplay-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/assets/screenshot-gameplay-light.png">
-  <img alt="Sokoban Gameplay Theme Preview" src="docs/assets/screenshot-gameplay-light.png">
-</picture>
+![Sokoban dark theme](docs/assets/screenshot-gameplay-dark.png)
+
+Light theme preview [docs/assets/screenshot-gameplay-light.png](docs/assets/screenshot-gameplay-light.png)
 
 ## Tech stack
 
