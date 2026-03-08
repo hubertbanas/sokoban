@@ -110,6 +110,12 @@
     background-color: var(--tile-surface);
 }
 
+.element.void {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
 .element.wall {
     background-image: url("../assets/wall.png");
     background-size: 100%;

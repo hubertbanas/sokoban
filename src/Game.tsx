@@ -65,7 +65,7 @@ function Game() {
               <div
                 className={cn(
                   style.element,
-                  styleFrom(block)!,
+                  styleFrom(block) ?? "",
                   [Block.player, Block.playerOnObjective].includes(block)
                     ? styleDirection(level.playerDirection)
                     : ""
