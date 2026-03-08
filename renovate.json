@@ -1,5 +1,26 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
+  ],
+  "schedule": [
+    "after 10pm Friday",
+    "before 5am Monday"
+  ],
+  "timezone": "America/New_York",
+  "dependencyDashboard": true,
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major dependencies",
+      "automerge": false
+    }
+  ],
+  "assignees": [
+    "hubertbanas"
   ]
 }
