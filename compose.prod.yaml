@@ -1,7 +1,7 @@
 services:
-  sokoban:
-    image: ghcr.io/hubertbanas/sokoban:1.3.0
+  sokoban-prod:
+    image: ghcr.io/hubertbanas/sokoban:latest
     container_name: sokoban-prod
     ports:
-      - "8081:80"
+      - "8080:80"
     restart: unless-stopped
