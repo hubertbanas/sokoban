@@ -8,6 +8,7 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 * **Massive Puzzle Library:** Play through nearly 500 classic Sokoban levels.
 * **Unlimited Undo:** Made a wrong move? Rewind your steps all the way back to the beginning.
 * **Modern Frontend:** Rebuilt with React 18 and Vite for lightning-fast performance.
+* **Adaptive Theme:** Built-in theme switcher (Auto/Dark/Light) keeps the board readable in any lighting and remembers your preference.
 * **DevOps Ready:** Fully containerized with Docker and deployed via GitHub Actions.
 
 ## Attribution
@@ -17,7 +18,11 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 
 ## Screenshot
 
-![game screenshot](sokoban.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-gameplay-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/screenshot-gameplay-light.png">
+  <img alt="Sokoban Gameplay Theme Preview" src="docs/assets/screenshot-gameplay-light.png">
+</picture>
 
 ## Tech stack
 
