@@ -1,6 +1,7 @@
 import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
+import { ThemeSwitcher } from "./components/theme-switcher";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
 import { Block } from "./hooks/levels";
@@ -49,9 +50,12 @@ function Game() {
   );
   return (
     <div className="game">
-      <div className={style.state}>
-        <div className={style.levelPrefix}>Level {index + 1} :</div>
-        <div className={style.levelTitle}>{level.name}</div>
+      <div className={style.header}>
+        <div className={style.state}>
+          <div className={style.levelPrefix}>Level {index + 1} :</div>
+          <div className={style.levelTitle}>{level.name}</div>
+        </div>
+        <ThemeSwitcher />
       </div>
 
       <div className={style.board}>
@@ -61,7 +65,7 @@ function Game() {
               <div
                 className={cn(
                   style.element,
-                  styleFrom(block)!,
+                  styleFrom(block) ?? "",
                   [Block.player, Block.playerOnObjective].includes(block)
                     ? styleDirection(level.playerDirection)
                     : ""

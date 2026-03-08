@@ -3,6 +3,7 @@ import style from "../components/sokoban.module.css";
 import { Direction } from "../hooks/sokoban";
 
 const styles = new Map<Block, string>();
+styles.set(Block.void, style.void);
 styles.set(Block.empty, style.empty);
 styles.set(Block.box, style.box);
 styles.set(Block.boxOnObjective, style.boxjective);
@@ -18,7 +19,7 @@ dirStyles.set(Direction.Bottom, style.playerdown);
 dirStyles.set(Direction.Top, style.playerup);
 
 export function styleFrom(block: Block) {
-  return styles.get(block)!;
+  return styles.get(block);
 }
 
 export function styleDirection(direction: Direction) {

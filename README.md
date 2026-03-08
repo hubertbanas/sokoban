@@ -8,6 +8,7 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 * **Massive Puzzle Library:** Play through nearly 500 classic Sokoban levels.
 * **Unlimited Undo:** Made a wrong move? Rewind your steps all the way back to the beginning.
 * **Modern Frontend:** Rebuilt with React 18 and Vite for lightning-fast performance.
+* **Adaptive Theme:** Built-in theme switcher (Auto/Dark/Light) keeps the board readable in any lighting and remembers your preference.
 * **DevOps Ready:** Fully containerized with Docker and deployed via GitHub Actions.
 
 ## Attribution
@@ -17,7 +18,9 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 
 ## Screenshot
 
-![game screenshot](sokoban.png)
+![Sokoban dark theme](docs/assets/screenshot-gameplay-dark.png)
+
+Light theme preview [docs/assets/screenshot-gameplay-light.png](docs/assets/screenshot-gameplay-light.png)
 
 ## Tech stack
 
@@ -25,6 +28,10 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 - React integration: @vitejs/plugin-react
 - Language: TypeScript
 - Production output directory: dist/
+
+## Theme & appearance
+
+There is a manual theme switcher in the header that lets you lock the UI to **Auto**, **Dark**, or **Light** mode. Auto respects the `VITE_DEFAULT_THEME` environment variable when it is set (accepts `dark` or `light`) and otherwise follows your OS `prefers-color-scheme`. The preference is stored in local storage, and you can override Auto in build/deploy pipelines by setting `VITE_DEFAULT_THEME` in an `.env` file or Docker Compose environment block.
 
 ## Docker build (without installing Node locally)
 

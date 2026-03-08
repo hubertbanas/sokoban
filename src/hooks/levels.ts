@@ -31,13 +31,14 @@ export interface SokobanLevel {
 }
 
 export enum Block {
-  empty,
-  objective,
-  box,
-  boxOnObjective,
-  player,
-  playerOnObjective,
-  wall,
+  void = -1,
+  empty = 0,
+  objective = 1,
+  box = 2,
+  boxOnObjective = 3,
+  player = 4,
+  playerOnObjective = 5,
+  wall = 6,
 }
 
 const levelBlocks = {
@@ -52,6 +53,47 @@ const levelBlocks = {
 
 type LevelBlock = keyof typeof levelBlocks;
 
+function markExteriorVoid(grid: Block[][]): Block[][] {
+  const height = grid.length;
+  const width = grid[0]?.length ?? 0;
+  const inBounds = (r: number, c: number) => r >= 0 && c >= 0 && r < height && c < width;
+  const queue: Array<[number, number]> = [];
+  const seen = Array.from({ length: height }, () => Array<boolean>(width).fill(false));
+
+  for (let r = 0; r < height; r++) {
+    for (let c = 0; c < width; c++) {
+      const onEdge = r === 0 || c === 0 || r === height - 1 || c === width - 1;
+      if (onEdge && grid[r][c] === Block.empty) {
+        queue.push([r, c]);
+        seen[r][c] = true;
+      }
+    }
+  }
+
+  const deltas = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ];
+
+  while (queue.length) {
+    const [r, c] = queue.shift()!;
+    grid[r][c] = Block.void;
+    for (const [dr, dc] of deltas) {
+      const nr = r + dr;
+      const nc = c + dc;
+      if (!inBounds(nr, nc) || seen[nr][nc]) continue;
+      if (grid[nr][nc] === Block.empty) {
+        seen[nr][nc] = true;
+        queue.push([nr, nc]);
+      }
+    }
+  }
+
+  return grid;
+}
+
 const SOKOBAN_LEVEL_KEY = "SokobanLevel";
 
 function loadLevels() {
@@ -63,14 +105,25 @@ function loadLevels() {
     Atlas04,
   ] as SokobanLevels[];
   return AllLevels.flatMap((levels) =>
-    levels.LevelCollection.Level.map((level) => ({
-      name: level.Id,
-      shape: level.L.map((row) =>
-        Array.from(row).map((item) => levelBlocks[item as LevelBlock])
-      ),
-      width: Number(level.Width),
-      height: Number(level.Height),
-    }))
+    levels.LevelCollection.Level.map((level) => {
+      const width = Number(level.Width);
+      const height = Number(level.Height);
+
+      const filled = Array.from({ length: height }, (_, r) => {
+        const row = level.L[r] ?? "";
+        return Array.from({ length: width }, (_, c) => {
+          const char = row[c] ?? " ";
+          return levelBlocks[char as LevelBlock] ?? Block.empty;
+        });
+      });
+
+      return {
+        name: level.Id,
+        shape: markExteriorVoid(filled),
+        width,
+        height,
+      };
+    })
   );
 }
 
