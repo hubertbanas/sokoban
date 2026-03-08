@@ -1,20 +1,118 @@
 # Sokoban
 
-This project is a Sokoban clone to just demonstrate the use of React and Hooks.  
-It features unlimited undo, and almost 500 sokoban puzzles.
+A retro Sokoban clone modernized with React Hooks and Vite. Features nearly 500 puzzles, unlimited undo, and a fully automated Docker CI/CD pipeline.
 
-You can play it [here](http://ecyrbe.github.io/sokoban).
+You can play it here: https://hubertbanas.github.io/sokoban/
 
+## 🎮 Features
+* **Massive Puzzle Library:** Play through nearly 500 classic Sokoban levels.
+* **Unlimited Undo:** Made a wrong move? Rewind your steps all the way back to the beginning.
+* **Modern Frontend:** Rebuilt with React 18 and Vite for lightning-fast performance.
+* **DevOps Ready:** Fully containerized with Docker and deployed via GitHub Actions.
+
+## Attribution
+
+- Original creator: ecyrbe
+- Forked from: https://github.com/ecyrbe/sokoban
 
 ## Screenshot
 
 ![game screenshot](sokoban.png)
 
+## Tech stack
+
+- Build tool and dev server: Vite
+- React integration: @vitejs/plugin-react
+- Language: TypeScript
+- Production output directory: dist/
+
+## Docker build (without installing Node locally)
+
+Install dependencies using Node in Docker:
+
+```bash
+docker run --rm -v "$PWD":/app -w /app node:24-alpine yarn install
+```
+
+Build and list the generated output:
+
+```bash
+docker run --rm -v "$PWD":/app -w /app node:24-alpine sh -c "yarn build && ls -R dist"
+```
+
+## Docker Compose
+
+### Development image (`compose.dev.yaml`)
+
+Build locally with full logs and no cache:
+
+```bash
+docker compose -f compose.dev.yaml build --progress=plain --no-cache
+```
+
+Start the dev compose stack:
+
+```bash
+docker compose -f compose.dev.yaml up -d
+```
+
+Open:
+
+- http://example.local:8080/
+- or your machine IP address on port 8080 (for example `http://<your-ip>:8080/`)
+
+### Production image (`compose.prod.yaml`)
+
+This file uses the published image `ghcr.io/hubertbanas/sokoban:1.3.0` (no local build).
+
+Start the prod compose stack:
+
+```bash
+docker compose -f compose.prod.yaml up -d
+```
+
+Open:
+
+- http://example.local:8081/
+- or your machine IP address on port 8081 (for example `http://<your-ip>:8081/`)
+
+## Local development (Node installed)
+
+Install dependencies:
+
+```bash
+yarn install
+```
+
+Run the dev server:
+
+```bash
+yarn dev
+```
+
+Open the local URL shown in the terminal (typically `http://localhost:5173`).
+
+## Local production build (no Docker)
+
+Create the production build:
+
+```bash
+yarn build
+```
+
+Preview the production build locally:
+
+```bash
+yarn preview
+```
+
+## GitHub Pages deployment
+
+Deployment is automated through GitHub Actions in `.github/workflows/pages.yml`.
+
+- Trigger: push to `master` or `main` (or manual run via `workflow_dispatch`)
+- Build output: `dist/`
+- Live URL: https://hubertbanas.github.io/sokoban/
+
 ## Licensing
-Copyright 2020 ecyrbe
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
