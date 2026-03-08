@@ -26,6 +26,10 @@ You can play it here: https://hubertbanas.github.io/sokoban/
 - Language: TypeScript
 - Production output directory: dist/
 
+## Theme & appearance
+
+There is a manual theme switcher in the header that lets you lock the UI to **Auto**, **Dark**, or **Light** mode. Auto respects the `VITE_DEFAULT_THEME` environment variable when it is set (accepts `dark` or `light`) and otherwise follows your OS `prefers-color-scheme`. The preference is stored in local storage, and you can override Auto in build/deploy pipelines by setting `VITE_DEFAULT_THEME` in an `.env` file or Docker Compose environment block.
+
 ## Docker build (without installing Node locally)
 
 Install dependencies using Node in Docker:
