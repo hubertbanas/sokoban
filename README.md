@@ -4,7 +4,7 @@ A retro Sokoban clone modernized with React Hooks and Vite. Features nearly 500 
 
 You can play it here: https://hubertbanas.github.io/sokoban/
 
-## 🎮 Features
+## Features
 * **Massive Puzzle Library:** Play through nearly 500 classic Sokoban levels.
 * **Unlimited Undo:** Made a wrong move? Rewind your steps all the way back to the beginning.
 * **Modern Frontend:** Rebuilt with React 18 and Vite for lightning-fast performance.
@@ -42,6 +42,7 @@ docker run --rm -v "$PWD":/app -w /app node:24-alpine sh -c "yarn build && ls -R
 
 ## Docker Compose
 
+
 ### Development image (`compose.dev.yaml`)
 
 Build locally with full logs and no cache:
@@ -56,14 +57,17 @@ Start the dev compose stack:
 docker compose -f compose.dev.yaml up -d
 ```
 
-Open:
+Notes:
 
-- http://example.local:8080/
-- or your machine IP address on port 8080 (for example `http://<your-ip>:8080/`)
+- Service name: `sokoban-dev`
+- Container name: `sokoban-dev`
+- Host port mapped to container port 80: `8081`
+
+Open the app in your browser at `http://localhost:8081/` or `http://<your-ip>:8081/`.
 
 ### Production image (`compose.prod.yaml`)
 
-This file uses the published image `ghcr.io/hubertbanas/sokoban:1.3.0` (no local build).
+This file uses the published image `ghcr.io/hubertbanas/sokoban:latest` (no local build required).
 
 Start the prod compose stack:
 
@@ -71,10 +75,13 @@ Start the prod compose stack:
 docker compose -f compose.prod.yaml up -d
 ```
 
-Open:
+Notes:
 
-- http://example.local:8081/
-- or your machine IP address on port 8081 (for example `http://<your-ip>:8081/`)
+- Service name: `sokoban-prod`
+- Container name: `sokoban-prod`
+- Host port mapped to container port 80: `8080`
+
+Open the production service at `http://localhost:8080/` or `http://<your-ip>:8080/`.
 
 ## Local development (Node installed)
 

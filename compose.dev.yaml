@@ -1,8 +1,8 @@
 services:
-  sokoban:
+  sokoban-dev:
     build:
       context: .
     container_name: sokoban-dev
     ports:
-      - "8080:80"
+      - "8081:80"
     restart: unless-stopped
