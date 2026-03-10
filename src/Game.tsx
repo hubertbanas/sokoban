@@ -11,6 +11,11 @@ import { styleFrom, styleDirection } from "./utils/block-styles";
 
 function Game() {
   const { index, level, state, move, next, undo, restart } = useSokoban();
+  const boardVars = {
+    "--level-width": level.width,
+    "--level-height": level.height,
+  } as React.CSSProperties;
+
   useKeyBoard(
     (event) => {
       switch (event.code) {
@@ -58,22 +63,24 @@ function Game() {
         <ThemeSwitcher />
       </div>
 
-      <div className={style.board}>
-        {level.shape.map((row) => (
-          <div className={style.level}>
-            {row.map((block) => (
-              <div
-                className={cn(
-                  style.element,
-                  styleFrom(block) ?? "",
-                  [Block.player, Block.playerOnObjective].includes(block)
-                    ? styleDirection(level.playerDirection)
-                    : ""
-                )}
-              />
-            ))}
-          </div>
-        ))}
+      <div className={style.boardViewport}>
+        <div className={style.board} style={boardVars}>
+          {level.shape.map((row) => (
+            <div className={style.level}>
+              {row.map((block) => (
+                <div
+                  className={cn(
+                    style.element,
+                    styleFrom(block) ?? "",
+                    [Block.player, Block.playerOnObjective].includes(block)
+                      ? styleDirection(level.playerDirection)
+                      : ""
+                  )}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
       <Help />
       {state === State.completed && (

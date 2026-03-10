@@ -23,10 +23,41 @@
 }
 
 .board {
+    --level-width: 19;
+    --level-height: 16;
+    --tile-gap: 1px;
+    --reserved-inline-space: clamp(24px, 8vw, 140px);
+    --reserved-block-space: clamp(170px, 34dvh, 320px);
+    --usable-board-width: max(160px, calc(100vw - var(--reserved-inline-space)));
+    --usable-board-height: max(160px, calc(100dvh - var(--reserved-block-space)));
+    --tile-size: clamp(10px,
+            min(calc(var(--usable-board-width) / var(--level-width) - (var(--tile-gap) * 2)),
+                calc(var(--usable-board-height) / var(--level-height) - (var(--tile-gap) * 2))),
+            36px);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 30px;
+    width: max-content;
+}
+
+.boardViewport {
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .board {
+        --tile-gap: 0.5px;
+        --reserved-inline-space: 16px;
+        --reserved-block-space: clamp(150px, 38dvh, 260px);
+        --tile-size: clamp(8px,
+                min(calc(var(--usable-board-width) / var(--level-width) - (var(--tile-gap) * 2)),
+                    calc(var(--usable-board-height) / var(--level-height) - (var(--tile-gap) * 2))),
+                34px);
+    }
 }
 
 .level {
@@ -98,10 +129,10 @@
 }
 
 .element {
-    width: 36px;
-    height: 36px;
+    width: var(--tile-size);
+    height: var(--tile-size);
     border-radius: 5px;
-    margin: 1px;
+    margin: var(--tile-gap);
     background: var(--tile-surface);
     border: 1px solid var(--tile-border);
 }
