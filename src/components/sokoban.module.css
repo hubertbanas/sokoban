@@ -27,7 +27,7 @@
     --level-height: 16;
     --tile-gap: 1px;
     --reserved-inline-space: clamp(24px, 8vw, 140px);
-    --reserved-block-space: clamp(170px, 34dvh, 320px);
+    --reserved-block-space: clamp(120px, 26dvh, 220px);
     --usable-board-width: max(160px, calc(100vw - var(--reserved-inline-space)));
     --usable-board-height: max(160px, calc(100dvh - var(--reserved-block-space)));
     --tile-size: clamp(10px,
@@ -52,7 +52,7 @@
     .board {
         --tile-gap: 0.5px;
         --reserved-inline-space: 16px;
-        --reserved-block-space: clamp(150px, 38dvh, 260px);
+        --reserved-block-space: clamp(110px, 30dvh, 190px);
         --tile-size: clamp(8px,
                 min(calc(var(--usable-board-width) / var(--level-width) - (var(--tile-gap) * 2)),
                     calc(var(--usable-board-height) / var(--level-height) - (var(--tile-gap) * 2))),
@@ -105,27 +105,92 @@
 
 .help {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    font-size: 1em;
-    color: var(--muted);
+    justify-content: flex-end;
     width: 100%;
 }
 
-.descriptions {
-    font-weight: 800;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.aboutButton {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+    color: var(--foreground);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.instructions {
-    margin-left: 15px;
+.aboutButton:hover {
+    border-color: var(--accent);
+}
+
+.aboutButton:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 30;
+}
+
+.modalCard {
+    width: min(560px, 100%);
+    max-height: 85dvh;
+    overflow: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    color: var(--foreground);
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modalTitle {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+.modalCloseButton {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--foreground);
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.modalBody {
+    padding: 16px 18px 20px;
+}
+
+.helpRows {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 14px;
+    align-items: center;
+    color: var(--muted);
+}
+
+.helpRows>div:nth-child(odd) {
+    font-weight: 800;
+    color: var(--foreground);
 }
 
 .element {
