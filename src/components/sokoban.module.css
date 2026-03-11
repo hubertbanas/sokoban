@@ -212,7 +212,7 @@
 
 .helpRows {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: minmax(72px, auto) 1fr;
     gap: 8px 14px;
     align-items: center;
     color: var(--muted);
@@ -221,6 +221,8 @@
 .helpRows>div:nth-child(odd) {
     font-weight: 800;
     color: var(--foreground);
+    text-align: center;
+    white-space: nowrap;
 }
 
 .element {
