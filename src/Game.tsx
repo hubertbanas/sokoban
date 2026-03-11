@@ -10,7 +10,12 @@ import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
 
 function Game() {
-  const { index, level, state, move, next, undo, restart } = useSokoban();
+  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
+  const boardVars = {
+    "--level-width": level.width,
+    "--level-height": level.height,
+  } as React.CSSProperties;
+
   useKeyBoard(
     (event) => {
       switch (event.code) {
@@ -35,6 +40,12 @@ function Game() {
         case "Escape":
           restart();
           break;
+        case "BracketLeft":
+          previousLevel();
+          break;
+        case "BracketRight":
+          nextLevel();
+          break;
       }
       event.preventDefault();
     },
@@ -46,6 +57,8 @@ function Game() {
       "Enter",
       "Backspace",
       "Escape",
+      "BracketLeft",
+      "BracketRight",
     ]
   );
   return (
@@ -55,31 +68,49 @@ function Game() {
           <div className={style.levelPrefix}>Level {index + 1} :</div>
           <div className={style.levelTitle}>{level.name}</div>
         </div>
-        <ThemeSwitcher />
+        <div className={style.headerActions}>
+          <button
+            type="button"
+            className={style.levelNavButton}
+            onClick={previousLevel}
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            className={style.levelNavButton}
+            onClick={nextLevel}
+          >
+            Next
+          </button>
+          <Help />
+          <ThemeSwitcher />
+        </div>
       </div>
 
-      <div className={style.board}>
-        {level.shape.map((row) => (
-          <div className={style.level}>
-            {row.map((block) => (
-              <div
-                className={cn(
-                  style.element,
-                  styleFrom(block) ?? "",
-                  [Block.player, Block.playerOnObjective].includes(block)
-                    ? styleDirection(level.playerDirection)
-                    : ""
-                )}
-              />
-            ))}
-          </div>
-        ))}
+      <div className={style.boardViewport}>
+        <div className={style.board} style={boardVars}>
+          {level.shape.map((row) => (
+            <div className={style.level}>
+              {row.map((block) => (
+                <div
+                  className={cn(
+                    style.element,
+                    styleFrom(block) ?? "",
+                    [Block.player, Block.playerOnObjective].includes(block)
+                      ? styleDirection(level.playerDirection)
+                      : ""
+                  )}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
-      <Help />
       {state === State.completed && (
         <div className={style.state}>
           <div className={style.levelState}>LEVEL completed </div>
-          <div className={style.helpNext}>Press ENTER to load next LEVEL</div>
+          <div className={style.helpNext}>Press ENTER or ] to load next LEVEL</div>
         </div>
       )}
     </div>

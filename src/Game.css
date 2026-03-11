@@ -1,5 +1,6 @@
 .game {
-  width: min(960px, 100%);
+  width: max-content;
+  min-width: min(960px, 100%);
   margin: clamp(32px, 6vw, 56px) auto;
   padding: clamp(24px, 4vw, 36px);
   display: flex;

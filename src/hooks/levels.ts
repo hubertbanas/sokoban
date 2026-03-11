@@ -96,6 +96,11 @@ function markExteriorVoid(grid: Block[][]): Block[][] {
 
 const SOKOBAN_LEVEL_KEY = "SokobanLevel";
 
+function normalizeIndex(index: number, length: number) {
+  if (length === 0) return 0;
+  return ((index % length) + length) % length;
+}
+
 function loadLevels() {
   const AllLevels = [
     Original,
@@ -129,14 +134,31 @@ function loadLevels() {
 
 export function useLevels() {
   const [levels] = useState<Level[]>(loadLevels);
-  const [index, setIndex] = useState(() =>
-    Number(localStorage.getItem(SOKOBAN_LEVEL_KEY))
-  );
+  const [index, setIndex] = useState(() => {
+    const stored = Number(localStorage.getItem(SOKOBAN_LEVEL_KEY));
+    const initial = Number.isFinite(stored) ? stored : 0;
+    return normalizeIndex(initial, levels.length);
+  });
   const level = useMemo(() => levels[index], [levels, index]);
-  const loadNext = useCallback(() => {
-    setIndex(index + 1);
-    localStorage.setItem(SOKOBAN_LEVEL_KEY, String(index + 1));
-  }, [index]);
 
-  return { index, level, loadNext };
+  const updateIndex = useCallback(
+    (delta: number) => {
+      setIndex((current) => {
+        const nextIndex = normalizeIndex(current + delta, levels.length);
+        localStorage.setItem(SOKOBAN_LEVEL_KEY, String(nextIndex));
+        return nextIndex;
+      });
+    },
+    [levels.length]
+  );
+
+  const loadNext = useCallback(() => {
+    updateIndex(1);
+  }, [updateIndex]);
+
+  const loadPrevious = useCallback(() => {
+    updateIndex(-1);
+  }, [updateIndex]);
+
+  return { index, level, loadNext, loadPrevious };
 }
