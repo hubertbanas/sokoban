@@ -54,21 +54,19 @@ function HelpImpl() {
 
               <div className={style.helpRows}>
                 <div>&uarr;</div>
-                <div>Move up</div>
+                <div>Move Up</div>
                 <div>&larr;&nbsp;&rarr;</div>
-                <div>Move left / right</div>
+                <div>Move Left / Right</div>
                 <div>&darr;</div>
-                <div>Move down</div>
+                <div>Move Down</div>
                 <div>Backspace</div>
                 <div>Undo</div>
                 <div>Escape</div>
-                <div>Restart level</div>
+                <div>Restart Level</div>
                 <div>Enter</div>
-                <div>Next level (after completion)</div>
-                <div>[</div>
-                <div>Previous level</div>
-                <div>]</div>
-                <div>Next level</div>
+                <div>Next Level (after completion)</div>
+                <div>[&nbsp;/&nbsp;]</div>
+                <div>Previous / Next Level</div>
               </div>
             </div>
           </div>
