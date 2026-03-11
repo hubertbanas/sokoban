@@ -10,7 +10,7 @@ import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
 
 function Game() {
-  const { index, level, state, move, next, undo, restart } = useSokoban();
+  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
   const boardVars = {
     "--level-width": level.width,
     "--level-height": level.height,
@@ -40,6 +40,12 @@ function Game() {
         case "Escape":
           restart();
           break;
+        case "BracketLeft":
+          previousLevel();
+          break;
+        case "BracketRight":
+          nextLevel();
+          break;
       }
       event.preventDefault();
     },
@@ -51,6 +57,8 @@ function Game() {
       "Enter",
       "Backspace",
       "Escape",
+      "BracketLeft",
+      "BracketRight",
     ]
   );
   return (
@@ -61,6 +69,20 @@ function Game() {
           <div className={style.levelTitle}>{level.name}</div>
         </div>
         <div className={style.headerActions}>
+          <button
+            type="button"
+            className={style.levelNavButton}
+            onClick={previousLevel}
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            className={style.levelNavButton}
+            onClick={nextLevel}
+          >
+            Next
+          </button>
           <Help />
           <ThemeSwitcher />
         </div>
@@ -88,7 +110,7 @@ function Game() {
       {state === State.completed && (
         <div className={style.state}>
           <div className={style.levelState}>LEVEL completed </div>
-          <div className={style.helpNext}>Press ENTER to load next LEVEL</div>
+          <div className={style.helpNext}>Press ENTER or ] to load next LEVEL</div>
         </div>
       )}
     </div>

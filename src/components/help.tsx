@@ -60,6 +60,10 @@ function HelpImpl() {
                 <div>Restart level</div>
                 <div>Enter</div>
                 <div>Next level (after completion)</div>
+                <div>[</div>
+                <div>Previous level</div>
+                <div>]</div>
+                <div>Next level</div>
               </div>
             </div>
           </div>
