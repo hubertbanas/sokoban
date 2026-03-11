@@ -47,6 +47,11 @@ function HelpImpl() {
             </div>
 
             <div className={style.modalBody}>
+              {/* Version Number Injection */}
+              <div style={{ textAlign: "center", marginBottom: "16px", color: "gray", fontSize: "0.9em" }}>
+                Version {__APP_VERSION__}
+              </div>
+
               <div className={style.helpRows}>
                 <div>&uarr;</div>
                 <div>Move up</div>
