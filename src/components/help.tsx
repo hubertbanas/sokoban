@@ -17,15 +17,13 @@ function HelpImpl() {
 
   return (
     <>
-      <div className={style.help}>
-        <button
-          type="button"
-          className={style.aboutButton}
-          onClick={() => setOpen(true)}
-        >
-          About
-        </button>
-      </div>
+      <button
+        type="button"
+        className={style.aboutButton}
+        onClick={() => setOpen(true)}
+      >
+        About
+      </button>
 
       {open && (
         <div className={style.modalOverlay} onClick={() => setOpen(false)}>

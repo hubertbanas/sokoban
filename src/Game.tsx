@@ -60,7 +60,10 @@ function Game() {
           <div className={style.levelPrefix}>Level {index + 1} :</div>
           <div className={style.levelTitle}>{level.name}</div>
         </div>
-        <ThemeSwitcher />
+        <div className={style.headerActions}>
+          <Help />
+          <ThemeSwitcher />
+        </div>
       </div>
 
       <div className={style.boardViewport}>
@@ -82,7 +85,6 @@ function Game() {
           ))}
         </div>
       </div>
-      <Help />
       {state === State.completed && (
         <div className={style.state}>
           <div className={style.levelState}>LEVEL completed </div>
