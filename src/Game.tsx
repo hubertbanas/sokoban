@@ -110,7 +110,7 @@ function Game() {
       {state === State.completed && (
         <div className={style.state}>
           <div className={style.levelState}>LEVEL completed </div>
-          <div className={style.helpNext}>Press ENTER or ] to load next LEVEL</div>
+          <div className={style.helpNext}>Press ENTER to load next LEVEL</div>
         </div>
       )}
     </div>
