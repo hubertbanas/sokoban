@@ -1,60 +1,85 @@
 name: Auto Tag Release
 
 on:
-    push:
-        branches:
-            - main
-        paths:
-            - "package.json" # This action ONLY runs when package.json changes
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - "package.json" # This action ONLY runs when package.json changes
 
 jobs:
-    create-tag:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write # Grants the action permission to push tags
+  create-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants the action permission to push tags
+    outputs:
+      current_version: ${{ steps.detect.outputs.current_version }}
+      skip_tag: ${{ steps.detect.outputs.skip_tag }}
+      tag_created: ${{ steps.create_tag.outputs.tag_created }}
 
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Pulls down all existing tags to avoid duplicates
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Pulls down all existing tags to avoid duplicates
 
-            - name: Detect Version Change
-              id: detect
-              run: |
-                  CURRENT_VERSION="$(jq -r .version package.json)"
-                  PREVIOUS_VERSION="$(git show HEAD^:package.json 2>/dev/null | jq -r .version || true)"
+      - name: Detect Version Change
+        id: detect
+        run: |
+          CURRENT_VERSION="$(jq -r .version package.json)"
+          BEFORE_SHA="${{ github.event.before }}"
 
-                  echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-                  echo "previous_version=$PREVIOUS_VERSION" >> "$GITHUB_OUTPUT"
+          if [ -n "$BEFORE_SHA" ] \
+            && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ] \
+            && git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            PREVIOUS_VERSION="$(git show "$BEFORE_SHA":package.json 2>/dev/null | jq -r .version || true)"
+          else
+            PREVIOUS_VERSION=""
+          fi
 
-                  if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "null" ]; then
-                    echo "No valid version found in package.json"
-                    exit 1
-                  fi
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "previous_version=$PREVIOUS_VERSION" >> "$GITHUB_OUTPUT"
 
-                  if [ "$CURRENT_VERSION" = "$PREVIOUS_VERSION" ]; then
-                    echo "Version unchanged ($CURRENT_VERSION). Skipping tag creation."
-                    echo "skip_tag=true" >> "$GITHUB_OUTPUT"
-                  else
-                    echo "Version changed: $PREVIOUS_VERSION -> $CURRENT_VERSION"
-                    echo "skip_tag=false" >> "$GITHUB_OUTPUT"
-                  fi
+          if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "null" ]; then
+            echo "No valid version found in package.json"
+            exit 1
+          fi
 
-            - name: Create and Push Tag
-              if: steps.detect.outputs.skip_tag != 'true'
-              env:
-                  REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-              run: |
-                  TAG="v${{ steps.detect.outputs.current_version }}"
+          if [ "$CURRENT_VERSION" = "$PREVIOUS_VERSION" ]; then
+            echo "Version unchanged ($CURRENT_VERSION). Skipping tag creation."
+            echo "skip_tag=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version changed: $PREVIOUS_VERSION -> $CURRENT_VERSION"
+            echo "skip_tag=false" >> "$GITHUB_OUTPUT"
+          fi
 
-                  # Check GitHub repo directly to avoid remote-name assumptions
-                  if git ls-remote --tags "$REPO_URL" "refs/tags/$TAG" | grep -q "refs/tags/$TAG"; then
-                    echo "Tag $TAG already exists. Skipping."
-                  else
-                    echo "Creating new tag: $TAG"
-                    git config user.name "github-actions[bot]"
-                    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                    git tag -a "$TAG" -m "Release $TAG"
-                    git push "$REPO_URL" "$TAG"
-                  fi
+      - name: Create and Push Tag
+        id: create_tag
+        if: steps.detect.outputs.skip_tag != 'true'
+        env:
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          TAG="v${{ steps.detect.outputs.current_version }}"
+
+          # Check GitHub repo directly to avoid remote-name assumptions
+          if git ls-remote --tags "$REPO_URL" "refs/tags/$TAG" | grep -q "refs/tags/$TAG"; then
+            echo "Tag $TAG already exists. Skipping."
+            echo "tag_created=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Creating new tag: $TAG"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "Release $TAG"
+            git push "$REPO_URL" "$TAG"
+            echo "tag_created=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  docker-build-and-push:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.current_version }}
+      publish_latest: true
+    secrets: inherit
