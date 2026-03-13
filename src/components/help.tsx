@@ -52,22 +52,42 @@ function HelpImpl() {
                 Version {__APP_VERSION__}
               </div>
 
-              <div className={style.helpRows}>
-                <div>&uarr;</div>
-                <div>Move Up</div>
-                <div>&larr;&nbsp;&rarr;</div>
-                <div>Move Left / Right</div>
-                <div>&darr;</div>
-                <div>Move Down</div>
-                <div>Backspace</div>
-                <div>Undo</div>
-                <div>Escape</div>
-                <div>Restart Level</div>
-                <div>Enter</div>
-                <div>Next Level (after completion)</div>
-                <div>[&nbsp;/&nbsp;]</div>
-                <div>Previous / Next Level</div>
-              </div>
+              <section className={style.aboutSection} aria-label="Project links">
+                <h3 className={style.aboutSectionTitle}>Built with</h3>
+                <p className={style.aboutText}>React, TypeScript, and Vite.</p>
+                <h3 className={style.aboutSectionTitle}>Project</h3>
+                <div className={style.aboutLinks}>
+                  <a
+                    className={style.aboutLink}
+                    href="https://github.com/hubertbanas/sokoban"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    github.com/hubertbanas/sokoban
+                  </a>
+                </div>
+              </section>
+
+              <section className={style.aboutSection} aria-label="Controls">
+                <h3 className={style.aboutSectionTitle}>Controls</h3>
+                <div className={style.helpRows}>
+                  <div>&uarr;</div>
+                  <div>Move Up</div>
+                  <div>&larr;&nbsp;&rarr;</div>
+                  <div>Move Left / Right</div>
+                  <div>&darr;</div>
+                  <div>Move Down</div>
+                  <div>Backspace</div>
+                  <div>Undo</div>
+                  <div>Escape</div>
+                  <div>Restart Level</div>
+                  <div>Enter</div>
+                  <div>Next Level (after completion)</div>
+                  <div>[&nbsp;/&nbsp;]</div>
+                  <div>Previous / Next Level</div>
+                </div>
+              </section>
+
             </div>
           </div>
         </div>
