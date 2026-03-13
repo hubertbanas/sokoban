@@ -9,8 +9,62 @@ import style from "./components/sokoban.module.css";
 import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
 
+function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
+  const timeoutRef = React.useRef<number | null>(null);
+  const intervalRef = React.useRef<number | null>(null);
+  const suppressNextClickRef = React.useRef(false);
+
+  const stop = React.useCallback(() => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (intervalRef.current !== null) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  const start = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.button !== 0) return;
+
+      suppressNextClickRef.current = true;
+      action();
+      stop();
+
+      timeoutRef.current = window.setTimeout(() => {
+        intervalRef.current = window.setInterval(action, interval);
+      }, delay);
+    },
+    [action, delay, interval, stop]
+  );
+
+  const onClick = React.useCallback(() => {
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
+
+    action();
+  }, [action]);
+
+  React.useEffect(() => stop, [stop]);
+
+  return {
+    onClick,
+    onPointerDown: start,
+    onPointerUp: stop,
+    onPointerLeave: stop,
+    onPointerCancel: stop,
+  };
+}
+
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
+  const previousButtonHandlers = useHoldToRepeat(previousLevel);
+  const nextButtonHandlers = useHoldToRepeat(nextLevel);
   const boardVars = {
     "--level-width": level.width,
     "--level-height": level.height,
@@ -72,14 +126,14 @@ function Game() {
           <button
             type="button"
             className={style.levelNavButton}
-            onClick={previousLevel}
+            {...previousButtonHandlers}
           >
             Previous
           </button>
           <button
             type="button"
             className={style.levelNavButton}
-            onClick={nextLevel}
+            {...nextButtonHandlers}
           >
             Next
           </button>
