@@ -89,7 +89,8 @@ function Game() {
         if (availableWidth <= 0 || availableHeight <= 0) return;
 
         const minTileSize = 2;
-        const maxTileSize = 34;
+        const levelArea = level.width * level.height;
+        const maxTileSize = levelArea <= 180 ? 34 : levelArea <= 320 ? 46 : 60;
         const preferredGap = availableWidth < 768 ? 0.5 : 1;
         const widthPerTile =
           (availableWidth - level.width * preferredGap * 2) / level.width;
