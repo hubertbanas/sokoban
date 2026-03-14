@@ -76,8 +76,16 @@ function Game() {
     const updateTileSize = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        const availableWidth = viewport.clientWidth;
-        const availableHeight = viewport.clientHeight;
+        const viewportStyle = window.getComputedStyle(viewport);
+        const paddingX =
+          Number.parseFloat(viewportStyle.paddingLeft) +
+          Number.parseFloat(viewportStyle.paddingRight);
+        const paddingY =
+          Number.parseFloat(viewportStyle.paddingTop) +
+          Number.parseFloat(viewportStyle.paddingBottom);
+        const safetySlack = 2;
+        const availableWidth = viewport.clientWidth - paddingX - safetySlack;
+        const availableHeight = viewport.clientHeight - paddingY - safetySlack;
         if (availableWidth <= 0 || availableHeight <= 0) return;
 
         const minTileSize = 2;
@@ -110,11 +118,13 @@ function Game() {
   }, [level.width, level.height]);
 
   const tileGap = tileSize < 12 ? 0.5 : 1;
+  const tileRadius = Math.max(1, Math.min(4, Math.floor(tileSize * 0.16)));
   const boardVars = {
     "--level-width": level.width,
     "--level-height": level.height,
     "--tile-size": `${tileSize}px`,
     "--tile-gap": `${tileGap}px`,
+    "--tile-radius": `${tileRadius}px`,
   } as React.CSSProperties;
 
   useKeyBoard(
