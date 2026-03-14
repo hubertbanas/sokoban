@@ -343,6 +343,10 @@
     border-radius: var(--tile-radius);
     margin: var(--tile-gap);
     background: var(--tile-surface);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    overflow: hidden;
     border: 1px solid var(--tile-border);
 }
 
@@ -358,7 +362,6 @@
 
 .element.wall {
     background-image: url("../assets/wall.png");
-    background-size: 100%;
 }
 
 .element.objective {
@@ -370,12 +373,10 @@
 
 .element.box {
     background-image: url("../assets/box-closed.png");
-    background-size: 100%;
 }
 
 .element.boxjective {
     background-image: url("../assets/box-opened.png");
-    background-size: 100%;
 }
 
 .element.player .element.playerJective {
@@ -384,22 +385,18 @@
 
 .playerup {
     background-image: url("../assets/up.png");
-    background-size: 100%;
 }
 
 .playerdown {
     background-image: url("../assets/down.png");
-    background-size: 100%;
 }
 
 .playerleft {
     background-image: url("../assets/left.png");
-    background-size: 100%;
 }
 
 .playerright {
     background-image: url("../assets/right.png");
-    background-size: 100%;
 }
 
 .themeSwitcher {
