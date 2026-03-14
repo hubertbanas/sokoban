@@ -179,9 +179,6 @@ function Game() {
         <div className={style.levelInfo}>
           <div className={style.levelNumber}>Level {index + 1}</div>
           <div className={style.levelTitle}>{level.name}</div>
-          {state === State.completed && (
-            <div className={style.completedState}>Completed, press Enter for next level</div>
-          )}
         </div>
         <div className={style.topBarActions}>
           <button
@@ -225,6 +222,18 @@ function Game() {
           </div>
         </div>
       </section>
+
+      {state === State.completed && (
+        <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
+          <div className={style.completionCard}>
+            <h2 className={style.completionTitle}>Congratulations!</h2>
+            <p className={style.completionText}>You completed this level.</p>
+            <button type="button" className={style.completionButton} onClick={next}>
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
