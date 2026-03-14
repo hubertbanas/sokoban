@@ -1,14 +1,15 @@
 .game {
-  width: max-content;
-  min-width: min(960px, 100%);
+  width: min(1200px, 100%);
+  min-height: min(94vh, 980px);
   margin: clamp(32px, 6vw, 56px) auto;
   padding: clamp(24px, 4vw, 36px);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   background: var(--surface);
   border-radius: 28px;
   box-shadow: var(--shadow);
   color: var(--foreground);
   align-items: stretch;
+  overflow: hidden;
 }

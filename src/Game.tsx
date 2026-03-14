@@ -117,12 +117,15 @@ function Game() {
   );
   return (
     <div className="game">
-      <div className={style.header}>
-        <div className={style.state}>
-          <div className={style.levelPrefix}>Level {index + 1} :</div>
+      <header className={style.topBar}>
+        <div className={style.levelInfo}>
+          <div className={style.levelNumber}>Level {index + 1}</div>
           <div className={style.levelTitle}>{level.name}</div>
+          {state === State.completed && (
+            <div className={style.completedState}>Completed, press Enter for next level</div>
+          )}
         </div>
-        <div className={style.headerActions}>
+        <div className={style.topBarActions}>
           <button
             type="button"
             className={style.levelNavButton}
@@ -140,33 +143,30 @@ function Game() {
           <Help />
           <ThemeSwitcher />
         </div>
-      </div>
+      </header>
 
-      <div className={style.boardViewport}>
-        <div className={style.board} style={boardVars}>
-          {level.shape.map((row) => (
-            <div className={style.level}>
-              {row.map((block) => (
-                <div
-                  className={cn(
-                    style.element,
-                    styleFrom(block) ?? "",
-                    [Block.player, Block.playerOnObjective].includes(block)
-                      ? styleDirection(level.playerDirection)
-                      : ""
-                  )}
-                />
-              ))}
-            </div>
-          ))}
+      <section className={style.mapArea} aria-label="Sokoban board">
+        <div className={style.boardViewport}>
+          <div className={style.board} style={boardVars}>
+            {level.shape.map((row, rowIndex) => (
+              <div className={style.level} key={`row-${rowIndex}`}>
+                {row.map((block, blockIndex) => (
+                  <div
+                    key={`tile-${rowIndex}-${blockIndex}`}
+                    className={cn(
+                      style.element,
+                      styleFrom(block) ?? "",
+                      [Block.player, Block.playerOnObjective].includes(block)
+                        ? styleDirection(level.playerDirection)
+                        : ""
+                    )}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      {state === State.completed && (
-        <div className={style.state}>
-          <div className={style.levelState}>LEVEL completed </div>
-          <div className={style.helpNext}>Press ENTER to load next LEVEL</div>
-        </div>
-      )}
+      </section>
     </div>
   );
 }
