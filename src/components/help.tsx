@@ -81,8 +81,6 @@ function HelpImpl() {
                   <div>Undo</div>
                   <div>Escape</div>
                   <div>Restart Level</div>
-                  <div>Enter</div>
-                  <div>Next Level (after completion)</div>
                   <div>[&nbsp;/&nbsp;]</div>
                   <div>Previous / Next Level</div>
                 </div>

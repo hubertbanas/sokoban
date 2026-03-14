@@ -65,9 +65,67 @@ function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
   const previousButtonHandlers = useHoldToRepeat(previousLevel);
   const nextButtonHandlers = useHoldToRepeat(nextLevel);
+  const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
+  const [tileSize, setTileSize] = React.useState(24);
+
+  React.useEffect(() => {
+    const viewport = boardViewportRef.current;
+    if (!viewport) return;
+
+    let frame = 0;
+    const updateTileSize = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const viewportStyle = window.getComputedStyle(viewport);
+        const paddingX =
+          Number.parseFloat(viewportStyle.paddingLeft) +
+          Number.parseFloat(viewportStyle.paddingRight);
+        const paddingY =
+          Number.parseFloat(viewportStyle.paddingTop) +
+          Number.parseFloat(viewportStyle.paddingBottom);
+        const safetySlack = 2;
+        const availableWidth = viewport.clientWidth - paddingX - safetySlack;
+        const availableHeight = viewport.clientHeight - paddingY - safetySlack;
+        if (availableWidth <= 0 || availableHeight <= 0) return;
+
+        const minTileSize = 2;
+        // Use a stable cap to avoid abrupt size jumps between nearby level dimensions.
+        const maxTileSize = availableWidth < 768 ? 32 : 44;
+        const preferredGap = availableWidth < 768 ? 0.5 : 1;
+        const widthPerTile =
+          (availableWidth - level.width * preferredGap * 2) / level.width;
+        const heightPerTile =
+          (availableHeight - level.height * preferredGap * 2) / level.height;
+        const nextSize = Math.max(
+          minTileSize,
+          Math.min(maxTileSize, Math.floor(Math.min(widthPerTile, heightPerTile)))
+        );
+
+        setTileSize((current) => (current === nextSize ? current : nextSize));
+      });
+    };
+
+    updateTileSize();
+
+    const observer = new ResizeObserver(updateTileSize);
+    observer.observe(viewport);
+    window.addEventListener("orientationchange", updateTileSize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("orientationchange", updateTileSize);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [level.width, level.height]);
+
+  const tileGap = tileSize < 12 ? 0.5 : 1;
+  const tileRadius = Math.max(1, Math.min(4, Math.floor(tileSize * 0.16)));
   const boardVars = {
     "--level-width": level.width,
     "--level-height": level.height,
+    "--tile-size": `${tileSize}px`,
+    "--tile-gap": `${tileGap}px`,
+    "--tile-radius": `${tileRadius}px`,
   } as React.CSSProperties;
 
   useKeyBoard(
@@ -117,12 +175,12 @@ function Game() {
   );
   return (
     <div className="game">
-      <div className={style.header}>
-        <div className={style.state}>
-          <div className={style.levelPrefix}>Level {index + 1} :</div>
+      <header className={style.topBar}>
+        <div className={style.levelInfo}>
+          <div className={style.levelNumber}>Level {index + 1}</div>
           <div className={style.levelTitle}>{level.name}</div>
         </div>
-        <div className={style.headerActions}>
+        <div className={style.topBarActions}>
           <button
             type="button"
             className={style.levelNavButton}
@@ -140,31 +198,40 @@ function Game() {
           <Help />
           <ThemeSwitcher />
         </div>
-      </div>
+      </header>
 
-      <div className={style.boardViewport}>
-        <div className={style.board} style={boardVars}>
-          {level.shape.map((row) => (
-            <div className={style.level}>
-              {row.map((block) => (
-                <div
-                  className={cn(
-                    style.element,
-                    styleFrom(block) ?? "",
-                    [Block.player, Block.playerOnObjective].includes(block)
-                      ? styleDirection(level.playerDirection)
-                      : ""
-                  )}
-                />
-              ))}
-            </div>
-          ))}
+      <section className={style.mapArea} aria-label="Sokoban board">
+        <div className={style.boardViewport} ref={boardViewportRef}>
+          <div className={style.board} style={boardVars}>
+            {level.shape.map((row, rowIndex) => (
+              <div className={style.level} key={`row-${rowIndex}`}>
+                {row.map((block, blockIndex) => (
+                  <div
+                    key={`tile-${rowIndex}-${blockIndex}`}
+                    className={cn(
+                      style.element,
+                      styleFrom(block) ?? "",
+                      [Block.player, Block.playerOnObjective].includes(block)
+                        ? styleDirection(level.playerDirection)
+                        : ""
+                    )}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
+
       {state === State.completed && (
-        <div className={style.state}>
-          <div className={style.levelState}>LEVEL completed </div>
-          <div className={style.helpNext}>Press ENTER to load next LEVEL</div>
+        <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
+          <div className={style.completionCard}>
+            <h2 className={style.completionTitle}>Congratulations!</h2>
+            <p className={style.completionText}>You completed this level.</p>
+            <button type="button" className={style.completionButton} onClick={next}>
+              Continue
+            </button>
+          </div>
         </div>
       )}
     </div>
