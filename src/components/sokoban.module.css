@@ -5,6 +5,7 @@
     gap: 16px;
     padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
 }
 
 .levelInfo {
@@ -25,6 +26,7 @@
     flex: 1;
     min-height: 0;
     display: flex;
+    overflow: hidden;
 }
 
 @media (min-width: 900px) {
@@ -44,36 +46,75 @@
     --level-width: 19;
     --level-height: 16;
     --tile-gap: 1px;
-    --reserved-inline-space: clamp(24px, 8vw, 140px);
-    --reserved-block-space: clamp(120px, 26dvh, 220px);
-    --usable-board-width: max(160px, calc(100vw - var(--reserved-inline-space)));
-    --usable-board-height: max(160px, calc(100dvh - var(--reserved-block-space)));
-    --tile-size: clamp(10px,
-            min(calc(var(--usable-board-width) / var(--level-width) - (var(--tile-gap) * 2)),
-                calc(var(--usable-board-height) / var(--level-height) - (var(--tile-gap) * 2))),
-            36px);
+    --tile-size: 24px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     width: max-content;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .boardViewport {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
     width: 100%;
-    max-width: 100%;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(6px, 1.4vw, 14px);
 }
 
 @media (max-width: 768px) {
     .board {
         --tile-gap: 0.5px;
-        --reserved-inline-space: 16px;
-        --reserved-block-space: clamp(110px, 30dvh, 190px);
-        --tile-size: clamp(8px,
-                min(calc(var(--usable-board-width) / var(--level-width) - (var(--tile-gap) * 2)),
-                    calc(var(--usable-board-height) / var(--level-height) - (var(--tile-gap) * 2))),
-                34px);
+    }
+}
+
+@media (max-width: 700px),
+(max-height: 760px) {
+    .topBar {
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+
+    .topBarActions {
+        gap: 6px;
+    }
+
+    .levelNumber {
+        font-size: 0.72rem;
+    }
+
+    .levelTitle {
+        font-size: clamp(1.05rem, 4.4vw, 1.4rem);
+    }
+
+    .completedState {
+        font-size: 0.82rem;
+    }
+
+    .aboutButton,
+    .levelNavButton {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .themeToggleLabel {
+        width: 50px;
+        height: 26px;
+    }
+
+    .themeToggleBall {
+        width: 20px;
+        height: 20px;
+    }
+
+    .themeToggleCheckbox:checked+.themeToggleLabel .themeToggleBall {
+        transform: translateX(24px);
     }
 }
 

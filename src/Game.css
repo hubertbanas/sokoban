@@ -1,7 +1,7 @@
 .game {
   width: min(1200px, 100%);
-  min-height: min(94vh, 980px);
-  margin: clamp(32px, 6vw, 56px) auto;
+  height: min(94dvh, 980px);
+  margin: clamp(12px, 3vw, 28px) auto;
   padding: clamp(24px, 4vw, 36px);
   display: flex;
   flex-direction: column;
@@ -12,4 +12,13 @@
   color: var(--foreground);
   align-items: stretch;
   overflow: hidden;
+}
+
+@media (max-width: 700px),
+(max-height: 760px) {
+  .game {
+    padding: clamp(12px, 2.8vw, 18px);
+    gap: 12px;
+    border-radius: 20px;
+  }
 }

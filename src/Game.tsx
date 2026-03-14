@@ -65,9 +65,56 @@ function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
   const previousButtonHandlers = useHoldToRepeat(previousLevel);
   const nextButtonHandlers = useHoldToRepeat(nextLevel);
+  const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
+  const [tileSize, setTileSize] = React.useState(24);
+
+  React.useEffect(() => {
+    const viewport = boardViewportRef.current;
+    if (!viewport) return;
+
+    let frame = 0;
+    const updateTileSize = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const availableWidth = viewport.clientWidth;
+        const availableHeight = viewport.clientHeight;
+        if (availableWidth <= 0 || availableHeight <= 0) return;
+
+        const minTileSize = 2;
+        const maxTileSize = 34;
+        const preferredGap = availableWidth < 768 ? 0.5 : 1;
+        const widthPerTile =
+          (availableWidth - level.width * preferredGap * 2) / level.width;
+        const heightPerTile =
+          (availableHeight - level.height * preferredGap * 2) / level.height;
+        const nextSize = Math.max(
+          minTileSize,
+          Math.min(maxTileSize, Math.floor(Math.min(widthPerTile, heightPerTile)))
+        );
+
+        setTileSize((current) => (current === nextSize ? current : nextSize));
+      });
+    };
+
+    updateTileSize();
+
+    const observer = new ResizeObserver(updateTileSize);
+    observer.observe(viewport);
+    window.addEventListener("orientationchange", updateTileSize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("orientationchange", updateTileSize);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [level.width, level.height]);
+
+  const tileGap = tileSize < 12 ? 0.5 : 1;
   const boardVars = {
     "--level-width": level.width,
     "--level-height": level.height,
+    "--tile-size": `${tileSize}px`,
+    "--tile-gap": `${tileGap}px`,
   } as React.CSSProperties;
 
   useKeyBoard(
@@ -146,7 +193,7 @@ function Game() {
       </header>
 
       <section className={style.mapArea} aria-label="Sokoban board">
-        <div className={style.boardViewport}>
+        <div className={style.boardViewport} ref={boardViewportRef}>
           <div className={style.board} style={boardVars}>
             {level.shape.map((row, rowIndex) => (
               <div className={style.level} key={`row-${rowIndex}`}>
