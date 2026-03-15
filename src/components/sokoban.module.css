@@ -617,7 +617,7 @@
     top: 50%;
     display: block;
     width: clamp(14px, 3vw, 20px);
-    height: clamp(12px, 2.5vw, 17px);
+    height: clamp(14px, 3vw, 20px);
     background: color-mix(in srgb, var(--foreground) 68%, transparent);
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     transform: translate(calc(-50% + var(--mobile-marker-x, 0%)),
@@ -642,7 +642,7 @@
     --mobile-control-fill: linear-gradient(to top,
             color-mix(in srgb, var(--surface) 48%, transparent) 0%,
             color-mix(in srgb, var(--surface) 68%, transparent) 100%);
-    --mobile-marker-y: -155%;
+    --mobile-marker-y: -200%;
     --mobile-marker-rotate: 0deg;
 }
 
@@ -651,7 +651,7 @@
     --mobile-control-fill: linear-gradient(to left,
             color-mix(in srgb, var(--surface) 48%, transparent) 0%,
             color-mix(in srgb, var(--surface) 68%, transparent) 100%);
-    --mobile-marker-x: -155%;
+    --mobile-marker-x: -200%;
     --mobile-marker-rotate: -90deg;
 }
 
@@ -660,7 +660,7 @@
     --mobile-control-fill: linear-gradient(to right,
             color-mix(in srgb, var(--surface) 48%, transparent) 0%,
             color-mix(in srgb, var(--surface) 68%, transparent) 100%);
-    --mobile-marker-x: 155%;
+    --mobile-marker-x: 200%;
     --mobile-marker-rotate: 90deg;
 }
 
@@ -669,7 +669,7 @@
     --mobile-control-fill: linear-gradient(to bottom,
             color-mix(in srgb, var(--surface) 48%, transparent) 0%,
             color-mix(in srgb, var(--surface) 68%, transparent) 100%);
-    --mobile-marker-y: 155%;
+    --mobile-marker-y: 200%;
     --mobile-marker-rotate: 180deg;
 }
 
