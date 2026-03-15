@@ -51,6 +51,15 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
     action();
   }, [action]);
 
+  const onContextMenu = React.useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      // Firefox device emulation may emit contextmenu on long mouse-press.
+      // Prevent default menu without interrupting the active hold-repeat loop.
+      event.preventDefault();
+    },
+    []
+  );
+
   React.useEffect(() => stop, [stop]);
 
   return {
@@ -59,6 +68,7 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
     onPointerUp: stop,
     onPointerLeave: stop,
     onPointerCancel: stop,
+    onContextMenu,
   };
 }
 

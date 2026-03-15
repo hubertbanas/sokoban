@@ -73,6 +73,15 @@ function useHoldToRepeat(action: () => void, delay = 160, interval = 95) {
         [stop]
     );
 
+    const onContextMenu = React.useCallback(
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            // Firefox device emulation can emit contextmenu on long mouse-press.
+            // Prevent it without interrupting the active hold-repeat loop.
+            event.preventDefault();
+        },
+        []
+    );
+
     const onClick = React.useCallback(() => {
         if (suppressNextClickRef.current) {
             suppressNextClickRef.current = false;
@@ -90,6 +99,7 @@ function useHoldToRepeat(action: () => void, delay = 160, interval = 95) {
         onPointerUp: stopByPointer,
         onPointerCancel: stopByPointer,
         onLostPointerCapture: stop,
+        onContextMenu,
     };
 }
 
@@ -237,6 +247,15 @@ function MobileControls({ onMove }: MobileControlsProps) {
         setPosition(getDefaultPosition());
     }, [getDefaultPosition]);
 
+    const onHandleContextMenu = React.useCallback(
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            event.preventDefault();
+            dragRef.current = null;
+            setIsDragging(false);
+        },
+        []
+    );
+
     return (
         <div
             ref={controlsRef}
@@ -287,6 +306,7 @@ function MobileControls({ onMove }: MobileControlsProps) {
                 onPointerUp={onDragPointerEnd}
                 onPointerCancel={onDragPointerEnd}
                 onDoubleClick={onResetPosition}
+                onContextMenu={onHandleContextMenu}
             >
                 <span aria-hidden="true">+</span>
             </button>
