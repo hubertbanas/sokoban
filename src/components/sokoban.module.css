@@ -517,3 +517,173 @@
 .themeToggleCheckbox:checked+.themeToggleLabel .themeToggleBall {
     transform: translateX(28px);
 }
+
+.mobileControls {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    width: clamp(148px, 34vw, 188px);
+    aspect-ratio: 1 / 1;
+    display: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 9px;
+    border-radius: 24px;
+    border: 2px solid color-mix(in srgb, var(--foreground) 22%, var(--border) 78%);
+    background: color-mix(in srgb, var(--surface) 30%, transparent);
+    backdrop-filter: blur(4px);
+    opacity: 0.35;
+    z-index: 25;
+    touch-action: none;
+    transition: opacity 120ms ease;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--foreground) 14%, transparent),
+        0 3px 12px color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+
+.mobileControls::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    background:
+        linear-gradient(45deg,
+            transparent calc(50% - 1px),
+            color-mix(in srgb, var(--foreground) 26%, var(--border) 74%) 50%,
+            transparent calc(50% + 1px)),
+        linear-gradient(-45deg,
+            transparent calc(50% - 1px),
+            color-mix(in srgb, var(--foreground) 26%, var(--border) 74%) 50%,
+            transparent calc(50% + 1px));
+}
+
+.mobileControlsDragging {
+    opacity: 0.95;
+}
+
+.mobileControls:hover,
+.mobileControls:focus-within {
+    opacity: 0.95;
+}
+
+@media (hover: none),
+(pointer: coarse) {
+    .mobileControls {
+        display: grid;
+    }
+}
+
+.mobileControlButton,
+.mobileControlHandle {
+    border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+    background: color-mix(in srgb, var(--surface) 56%, transparent);
+    color: var(--foreground);
+    border-radius: 18px;
+    font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+    font-weight: 800;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.mobileControlButton {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: var(--mobile-control-fill, color-mix(in srgb, var(--surface) 48%, transparent));
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 0;
+    line-height: 1;
+    z-index: 0;
+    cursor: pointer;
+    transition: none;
+}
+
+.mobileControlButton::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: block;
+    width: clamp(14px, 3vw, 20px);
+    height: clamp(14px, 3vw, 20px);
+    background: color-mix(in srgb, var(--foreground) 68%, transparent);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    transform: translate(calc(-50% + var(--mobile-marker-x, 0%)),
+            calc(-50% + var(--mobile-marker-y, 0%))) rotate(var(--mobile-marker-rotate, 0deg));
+    opacity: 1;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.mobileControlHandle:active {
+    transform: scale(0.97);
+}
+
+.mobileControlButton:focus-visible,
+.mobileControlHandle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.mobileControlUp {
+    clip-path: polygon(0% 0%, 100% 0%, 64% 36%, 60% 40%, 55% 43%, 50% 44%, 45% 43%, 40% 40%, 36% 36%);
+    --mobile-control-fill: linear-gradient(to top,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
+    --mobile-marker-y: -200%;
+    --mobile-marker-rotate: 0deg;
+}
+
+.mobileControlLeft {
+    clip-path: polygon(0% 0%, 36% 36%, 40% 40%, 43% 45%, 44% 50%, 43% 55%, 40% 60%, 36% 64%, 0% 100%);
+    --mobile-control-fill: linear-gradient(to left,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
+    --mobile-marker-x: -200%;
+    --mobile-marker-rotate: -90deg;
+}
+
+.mobileControlRight {
+    clip-path: polygon(100% 0%, 100% 100%, 64% 64%, 60% 60%, 57% 55%, 56% 50%, 57% 45%, 60% 40%, 64% 36%);
+    --mobile-control-fill: linear-gradient(to right,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
+    --mobile-marker-x: 200%;
+    --mobile-marker-rotate: 90deg;
+}
+
+.mobileControlDown {
+    clip-path: polygon(0% 100%, 100% 100%, 64% 64%, 60% 60%, 55% 57%, 50% 56%, 45% 57%, 40% 60%, 36% 64%);
+    --mobile-control-fill: linear-gradient(to bottom,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
+    --mobile-marker-y: 200%;
+    --mobile-marker-rotate: 180deg;
+}
+
+.mobileControlHandle {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: clamp(1.2rem, 3.1vw, 1.5rem);
+    line-height: 1;
+    cursor: grab;
+    z-index: 2;
+    border: 2px solid color-mix(in srgb, var(--foreground) 26%, var(--border) 74%);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.mobileControlHandle:active {
+    cursor: grabbing;
+}

@@ -1,96 +1,61 @@
 # Sokoban
 
-A retro Sokoban clone modernized with React Hooks and Vite. Features nearly 500 puzzles, unlimited undo, and a fully automated Docker CI/CD pipeline.
+A modernized Sokoban implementation built with React + TypeScript + Vite.
 
-You can play it here: https://hubertbanas.github.io/sokoban/
+Live app: https://hubertbanas.github.io/sokoban/
 
-## Features
-* **Massive Puzzle Library:** Play through nearly 500 classic Sokoban levels.
-* **Unlimited Undo:** Made a wrong move? Rewind your steps all the way back to the beginning.
-* **Modern Frontend:** Rebuilt with React 18 and Vite for lightning-fast performance.
-* **Adaptive Theme:** Built-in icon toggle defaults to your OS color-scheme and lets you quickly switch between light and dark.
-* **DevOps Ready:** Fully containerized with Docker and deployed via GitHub Actions.
+## What Is Included
 
-## Attribution
+- 490 bundled puzzle levels (`Original`, `Atlas01` to `Atlas04`)
+- Keyboard gameplay controls (move, undo, restart, level navigation)
+- Mobile/coarse-pointer touch controls with a draggable dpad
+- Hold-to-repeat behavior for level and direction controls
+- Light/dark theme support with persisted user preference
+- About modal with runtime app version from `package.json`
+- Docker and Docker Compose support for dev/prod usage
+- GitHub Actions for Pages deploy, auto-tagging, and container publishing
 
-- Original creator: ecyrbe
-- Forked from: https://github.com/ecyrbe/sokoban
+## Mobile Touch Controls
 
-## Screenshot
+The mobile dpad appears automatically on coarse-pointer/hoverless devices.
 
-![Sokoban dark theme](docs/assets/screenshot-gameplay-dark.png)
+- Four directional touch regions (up/left/right/down)
+- Press-and-hold repeats movement
+- Center `+` handle can be dragged to reposition the control
+- Double-tap the center `+` to reset dpad position
+- Dpad position is persisted in `localStorage`
+- Long-press context menu is suppressed for stable hold behavior (including Firefox emulation scenarios)
 
-Light theme preview [docs/assets/screenshot-gameplay-light.png](docs/assets/screenshot-gameplay-light.png)
+## Controls
 
-## Tech stack
+- `ArrowUp` / `ArrowDown` / `ArrowLeft` / `ArrowRight`: Move
+- `Backspace`: Undo
+- `Escape`: Restart current level
+- `[` and `]`: Previous / Next level
+- `Enter`: Continue after completion
 
-- Build tool and dev server: Vite
-- React integration: @vitejs/plugin-react
-- Language: TypeScript
-- Production output directory: dist/
+UI controls:
 
-## Theme & appearance
+- `Previous` / `Next` buttons support press-and-hold repeat
+- `About` opens controls/project info and app version
+- Theme switch toggles between light and dark mode
 
-There is a compact icon toggle in the header for light/dark mode. On first load, the app follows your OS `prefers-color-scheme` (or `VITE_DEFAULT_THEME` when set to `dark` or `light`), then remembers your last manual toggle choice in local storage.
+## Game Behavior Notes
 
-## Docker build (without installing Node locally)
+- The board tile size adapts to viewport dimensions and level size.
+- Level index is persisted in `localStorage` (`SokobanLevel`).
+- Theme mode is persisted in `localStorage` (`sokoban-theme-mode`).
+- When mode is `auto`, theme follows `prefers-color-scheme` unless `VITE_DEFAULT_THEME` is set to `dark` or `light`.
 
-Install dependencies using Node in Docker:
+## Tech Stack
 
-```bash
-docker run --rm -v "$PWD":/app -w /app node:24-alpine yarn install
-```
+- React 18
+- TypeScript
+- Vite 5
+- Lodash (deep cloning board state)
+- CSS Modules for component styling
 
-Build and list the generated output:
-
-```bash
-docker run --rm -v "$PWD":/app -w /app node:24-alpine sh -c "yarn build && ls -R dist"
-```
-
-## Docker Compose
-
-
-### Development image (`compose.dev.yaml`)
-
-Build locally with full logs and no cache:
-
-```bash
-docker compose -f compose.dev.yaml build --progress=plain --no-cache
-```
-
-Start the dev compose stack:
-
-```bash
-docker compose -f compose.dev.yaml up -d
-```
-
-Notes:
-
-- Service name: `sokoban-dev`
-- Container name: `sokoban-dev`
-- Host port mapped to container port 80: `8081`
-
-Open the app in your browser at `http://localhost:8081/` or `http://<your-ip>:8081/`.
-
-### Production image (`compose.prod.yaml`)
-
-This file uses the published image `ghcr.io/hubertbanas/sokoban:latest` (no local build required).
-
-Start the prod compose stack:
-
-```bash
-docker compose -f compose.prod.yaml up -d
-```
-
-Notes:
-
-- Service name: `sokoban-prod`
-- Container name: `sokoban-prod`
-- Host port mapped to container port 80: `8080`
-
-Open the production service at `http://localhost:8080/` or `http://<your-ip>:8080/`.
-
-## Local development (Node installed)
+## Quick Start (Node)
 
 Install dependencies:
 
@@ -98,35 +63,89 @@ Install dependencies:
 yarn install
 ```
 
-Run the dev server:
+Start development server:
 
 ```bash
 yarn dev
 ```
 
-Open the local URL shown in the terminal (typically `http://localhost:5173`).
-
-## Local production build (no Docker)
-
-Create the production build:
+Build production bundle:
 
 ```bash
 yarn build
 ```
 
-Preview the production build locally:
+Preview production bundle:
 
 ```bash
 yarn preview
 ```
 
-## GitHub Pages deployment
+Equivalent `npm` commands work as well (`npm install`, `npm run dev`, `npm run build`, `npm run preview`).
 
-Deployment is automated through GitHub Actions in `.github/workflows/pages.yml`.
+## Docker
 
-- Trigger: push to `master` or `main` (or manual run via `workflow_dispatch`)
-- Build output: `dist/`
-- Live URL: https://hubertbanas.github.io/sokoban/
+Build and run fully inside Docker (without local Node install):
 
-## Licensing
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+```bash
+docker run --rm -v "$PWD":/app -w /app node:24-alpine yarn install
+docker run --rm -v "$PWD":/app -w /app node:24-alpine sh -c "yarn build && ls -R dist"
+```
+
+Project `Dockerfile` is multi-stage:
+
+- Stage 1: `node:24-alpine` builds `dist/`
+- Stage 2: `nginx:alpine` serves static files on port `80`
+
+## Docker Compose
+
+### Development (`compose.dev.yaml`)
+
+```bash
+docker compose -f compose.dev.yaml build --progress=plain --no-cache
+docker compose -f compose.dev.yaml up -d
+```
+
+- Service/container: `sokoban-dev`
+- Host port: `8081` -> container `80`
+
+### Production (`compose.prod.yaml`)
+
+```bash
+docker compose -f compose.prod.yaml up -d
+```
+
+- Pulls image: `ghcr.io/hubertbanas/sokoban:latest`
+- Service/container: `sokoban-prod`
+- Host port: `8080` -> container `80`
+
+## CI/CD Workflows
+
+- `pages.yml`: Builds and deploys `dist/` to GitHub Pages on push to `main`/`master`.
+- `auto-tag.yml`: Creates `v<version>` tag when `package.json` version changes on `main`/`master`.
+- `reusable-docker-publish.yml`: Builds and pushes GHCR image tags from release tags.
+- `codeql-analysis.yml`: Static security analysis.
+
+## Project Layout
+
+- `src/Game.tsx`: Main game UI and keyboard bindings
+- `src/hooks/sokoban.ts`: Core move logic and board history
+- `src/hooks/levels.ts`: Level loading and parsing
+- `src/components/mobile-controls.tsx`: Touch dpad behavior
+- `src/components/sokoban.module.css`: Main game/control styling
+- `src/hooks/theme.tsx`: Theme resolution and persistence
+
+## Screenshots
+
+![Sokoban dark theme](docs/assets/screenshot-gameplay-dark.png)
+
+Light theme preview: [docs/assets/screenshot-gameplay-light.png](docs/assets/screenshot-gameplay-light.png)
+
+## Attribution
+
+- Original project: https://github.com/ecyrbe/sokoban
+- Current repository: https://github.com/hubertbanas/sokoban
+
+## License
+
+MIT. See `LICENSE`.

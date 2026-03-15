@@ -1,8 +1,33 @@
 {
   "name": "sokoban",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "private": true,
   "type": "module",
+  "description": "A retro Sokoban puzzle game built with modern tooling: Vite, React Hooks, TypeScript, Docker, and GitHub Actions. Forked from ecyrbe/sokoban.",
+  "author": "Hubert Banas",
+  "contributors": [
+    {
+      "name": "ecyrbe",
+      "url": "https://github.com/ecyrbe/sokoban"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://hubertbanas.github.io/sokoban/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hubertbanas/sokoban.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hubertbanas/sokoban/issues"
+  },
+  "keywords": [
+    "sokoban",
+    "puzzle-game",
+    "react",
+    "vite",
+    "typescript",
+    "docker"
+  ],
   "dependencies": {
     "lodash": "4.17.21",
     "react": "18.2.0",
