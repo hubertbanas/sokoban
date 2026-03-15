@@ -23,6 +23,7 @@ The mobile dpad appears automatically on coarse-pointer/hoverless devices.
 - Press-and-hold repeats movement
 - Center `+` handle can be dragged to reposition the control
 - Double-tap the center `+` to reset dpad position
+- Dedicated `Undo` and `Restart` touch buttons (mapped to Backspace and Escape actions)
 - Dpad position is persisted in `localStorage`
 - Long-press context menu is suppressed for stable hold behavior (including Firefox emulation scenarios)
 
@@ -37,6 +38,7 @@ The mobile dpad appears automatically on coarse-pointer/hoverless devices.
 UI controls:
 
 - `Previous` / `Next` buttons support press-and-hold repeat
+- Touch action buttons provide `Undo` and `Restart level` on mobile/coarse-pointer devices
 - `About` opens controls/project info and app version
 - Theme switch toggles between light and dark mode
 

@@ -518,13 +518,32 @@
     transform: translateX(28px);
 }
 
-.mobileControls {
+.mobileControlsShell {
     position: fixed;
     left: 10px;
     top: 10px;
     width: clamp(148px, 34vw, 188px);
-    aspect-ratio: 1 / 1;
     display: none;
+    z-index: 25;
+    touch-action: none;
+    opacity: 0.35;
+    transition: opacity 120ms ease;
+}
+
+.mobileControlsShellDragging {
+    opacity: 0.95;
+}
+
+.mobileControlsShell:hover,
+.mobileControlsShell:focus-within {
+    opacity: 0.95;
+}
+
+.mobileControls {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: 8px;
@@ -533,10 +552,6 @@
     border: 2px solid color-mix(in srgb, var(--foreground) 22%, var(--border) 78%);
     background: color-mix(in srgb, var(--surface) 30%, transparent);
     backdrop-filter: blur(4px);
-    opacity: 0.35;
-    z-index: 25;
-    touch-action: none;
-    transition: opacity 120ms ease;
     overflow: hidden;
     box-shadow:
         inset 0 0 0 1px color-mix(in srgb, var(--foreground) 14%, transparent),
@@ -561,20 +576,38 @@
             transparent calc(50% + 1px));
 }
 
-.mobileControlsDragging {
-    opacity: 0.95;
-}
-
-.mobileControls:hover,
-.mobileControls:focus-within {
-    opacity: 0.95;
-}
-
 @media (hover: none),
 (pointer: coarse) {
-    .mobileControls {
-        display: grid;
+    .mobileControlsShell {
+        display: block;
     }
+}
+
+.mobileControlActions {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.mobileControlActionButton {
+    border: 2px solid color-mix(in srgb, var(--foreground) 26%, var(--border) 74%);
+    background: color-mix(in srgb, var(--surface) 84%, var(--text) 16%);
+    color: var(--foreground);
+    border-radius: 12px;
+    padding: 8px 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.mobileControlActionButton:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
 }
 
 .mobileControlButton,
@@ -676,6 +709,8 @@
 .mobileControlHandle {
     grid-column: 2;
     grid-row: 2;
+    justify-self: stretch;
+    align-self: stretch;
     font-size: clamp(1.2rem, 3.1vw, 1.5rem);
     line-height: 1;
     cursor: grab;

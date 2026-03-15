@@ -234,7 +234,7 @@ function Game() {
         </div>
       </section>
 
-      <MobileControls onMove={move} />
+      <MobileControls onMove={move} onUndo={undo} onRestart={restart} />
 
       {state === State.completed && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
