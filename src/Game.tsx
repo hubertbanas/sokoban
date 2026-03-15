@@ -2,6 +2,7 @@ import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
 import { ThemeSwitcher } from "./components/theme-switcher";
+import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
 import { Block } from "./hooks/levels";
@@ -222,6 +223,8 @@ function Game() {
           </div>
         </div>
       </section>
+
+      <MobileControls onMove={move} />
 
       {state === State.completed && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
