@@ -177,7 +177,20 @@ function Game() {
           move(Direction.Right);
           break;
         case "Enter":
-          next();
+          if (isRestartDialogOpen) {
+            const activeElement = document.activeElement;
+            const isRestartConfirmFocused =
+              activeElement instanceof HTMLButtonElement &&
+              activeElement.dataset.restartAction === "confirm";
+
+            if (isRestartConfirmFocused) {
+              onConfirmRestart();
+            } else {
+              onCancelRestart();
+            }
+          } else {
+            next();
+          }
           break;
         case "Backspace":
           undo();
@@ -272,10 +285,15 @@ function Game() {
             Restarting now will erase your progress on this level.
           </p>
           <div className={style.modalActions}>
-            <button type="button" className={style.levelNavButton} onClick={onCancelRestart}>
+            <button type="button" className={style.levelNavButton} onClick={onCancelRestart} autoFocus>
               Cancel
             </button>
-            <button type="button" className={style.levelNavButton} onClick={onConfirmRestart}>
+            <button
+              type="button"
+              className={style.levelNavButton}
+              onClick={onConfirmRestart}
+              data-restart-action="confirm"
+            >
               Restart Level
             </button>
           </div>
