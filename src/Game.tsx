@@ -163,6 +163,26 @@ function Game() {
 
   useKeyBoard(
     (event) => {
+      if (isRestartDialogOpen) {
+        if (event.code === "Enter") {
+          const activeElement = document.activeElement;
+          const isRestartConfirmFocused =
+            activeElement instanceof HTMLButtonElement &&
+            activeElement.dataset.restartAction === "confirm";
+
+          if (isRestartConfirmFocused) {
+            onConfirmRestart();
+          } else {
+            onCancelRestart();
+          }
+        } else if (event.code === "Escape") {
+          onCancelRestart();
+        }
+
+        event.preventDefault();
+        return;
+      }
+
       switch (event.code) {
         case "ArrowUp":
           move(Direction.Top);
@@ -196,11 +216,7 @@ function Game() {
           undo();
           break;
         case "Escape":
-          if (isRestartDialogOpen) {
-            onCancelRestart();
-          } else {
-            onRequestRestart();
-          }
+          onRequestRestart();
           break;
         case "BracketLeft":
           previousLevel();
