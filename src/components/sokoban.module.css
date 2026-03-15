@@ -537,6 +537,25 @@
     z-index: 25;
     touch-action: none;
     transition: opacity 120ms ease;
+    overflow: hidden;
+}
+
+.mobileControls::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    background:
+        linear-gradient(45deg,
+            transparent calc(50% - 0.5px),
+            color-mix(in srgb, var(--border) 82%, transparent) 50%,
+            transparent calc(50% + 0.5px)),
+        linear-gradient(-45deg,
+            transparent calc(50% - 0.5px),
+            color-mix(in srgb, var(--border) 82%, transparent) 50%,
+            transparent calc(50% + 0.5px));
 }
 
 .mobileControlsDragging {
@@ -568,7 +587,26 @@
     -webkit-user-select: none;
 }
 
-.mobileControlButton:active,
+.mobileControlButton {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: var(--mobile-control-fill, color-mix(in srgb, var(--surface) 48%, transparent));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 78%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 0;
+    line-height: 1;
+    z-index: 0;
+    cursor: pointer;
+    transition: none;
+}
+
 .mobileControlHandle:active {
     transform: scale(0.97);
 }
@@ -580,23 +618,31 @@
 }
 
 .mobileControlUp {
-    grid-column: 2;
-    grid-row: 1;
+    clip-path: polygon(0% 0%, 100% 0%, 50% 34%);
+    --mobile-control-fill: linear-gradient(to top,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
 }
 
 .mobileControlLeft {
-    grid-column: 1;
-    grid-row: 2;
+    clip-path: polygon(0% 0%, 34% 50%, 0% 100%);
+    --mobile-control-fill: linear-gradient(to left,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
 }
 
 .mobileControlRight {
-    grid-column: 3;
-    grid-row: 2;
+    clip-path: polygon(100% 0%, 100% 100%, 66% 50%);
+    --mobile-control-fill: linear-gradient(to right,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
 }
 
 .mobileControlDown {
-    grid-column: 2;
-    grid-row: 3;
+    clip-path: polygon(0% 100%, 100% 100%, 50% 66%);
+    --mobile-control-fill: linear-gradient(to bottom,
+            color-mix(in srgb, var(--surface) 48%, transparent) 0%,
+            color-mix(in srgb, var(--surface) 68%, transparent) 100%);
 }
 
 .mobileControlHandle {
@@ -605,6 +651,7 @@
     font-size: clamp(1.2rem, 3.1vw, 1.5rem);
     line-height: 1;
     cursor: grab;
+    z-index: 2;
 }
 
 .mobileControlHandle:active {
