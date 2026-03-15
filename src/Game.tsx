@@ -9,6 +9,7 @@ import { Block } from "./hooks/levels";
 import style from "./components/sokoban.module.css";
 import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
+import { Modal } from "./components/modal";
 
 function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
   const timeoutRef = React.useRef<number | null>(null);
@@ -262,41 +263,23 @@ function Game() {
       <MobileControls onMove={move} onUndo={undo} onRestart={onRequestRestart} />
 
       {isRestartDialogOpen && (
-        <div
-          className={style.modalOverlay}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Restart level confirmation"
-          onClick={onCancelRestart}
+        <Modal
+          title="Restart level?"
+          ariaLabel="Restart level confirmation"
+          onClose={onCancelRestart}
         >
-          <div className={style.modalCard} onClick={(event) => event.stopPropagation()}>
-            <div className={style.modalHeader}>
-              <h2 className={style.modalTitle}>Restart level?</h2>
-              <button
-                type="button"
-                className={style.modalCloseButton}
-                onClick={onCancelRestart}
-                aria-label="Close"
-              >
-                x
-              </button>
-            </div>
-
-            <div className={style.modalBody}>
-              <p className={`${style.aboutText} ${style.restartWarningText}`}>
-                Restarting now will erase your progress on this level.
-              </p>
-              <div className={style.modalActions}>
-                <button type="button" className={style.levelNavButton} onClick={onCancelRestart}>
-                  Cancel
-                </button>
-                <button type="button" className={style.levelNavButton} onClick={onConfirmRestart}>
-                  Restart Level
-                </button>
-              </div>
-            </div>
+          <p className={`${style.aboutText} ${style.restartWarningText}`}>
+            Restarting now will erase your progress on this level.
+          </p>
+          <div className={style.modalActions}>
+            <button type="button" className={style.levelNavButton} onClick={onCancelRestart}>
+              Cancel
+            </button>
+            <button type="button" className={style.levelNavButton} onClick={onConfirmRestart}>
+              Restart Level
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {state === State.completed && (
