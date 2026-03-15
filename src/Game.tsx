@@ -197,20 +197,7 @@ function Game() {
           move(Direction.Right);
           break;
         case "Enter":
-          if (isRestartDialogOpen) {
-            const activeElement = document.activeElement;
-            const isRestartConfirmFocused =
-              activeElement instanceof HTMLButtonElement &&
-              activeElement.dataset.restartAction === "confirm";
-
-            if (isRestartConfirmFocused) {
-              onConfirmRestart();
-            } else {
-              onCancelRestart();
-            }
-          } else {
-            next();
-          }
+          next();
           break;
         case "Backspace":
           undo();
