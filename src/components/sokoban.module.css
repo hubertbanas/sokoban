@@ -328,6 +328,14 @@
     padding: 16px 18px 20px;
 }
 
+.modalActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .aboutSection {
     margin-bottom: 14px;
     padding: 12px;
@@ -349,6 +357,12 @@
 
 .aboutText:last-child {
     margin-bottom: 0;
+}
+
+.restartWarningText {
+    text-align: center;
+    margin-top: 8px;
+    margin-bottom: 20px;
 }
 
 .aboutLinks {

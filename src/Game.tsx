@@ -73,11 +73,32 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
 }
 
 function Game() {
-  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
+  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
   const previousButtonHandlers = useHoldToRepeat(previousLevel);
   const nextButtonHandlers = useHoldToRepeat(nextLevel);
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
+  const [isRestartDialogOpen, setIsRestartDialogOpen] = React.useState(false);
+
+  const onRequestRestart = React.useCallback(() => {
+    if (state !== State.playing) return;
+
+    if (!hasProgress) {
+      restart();
+      return;
+    }
+
+    setIsRestartDialogOpen(true);
+  }, [hasProgress, restart, state]);
+
+  const onConfirmRestart = React.useCallback(() => {
+    restart();
+    setIsRestartDialogOpen(false);
+  }, [restart]);
+
+  const onCancelRestart = React.useCallback(() => {
+    setIsRestartDialogOpen(false);
+  }, []);
 
   React.useEffect(() => {
     const viewport = boardViewportRef.current;
@@ -161,7 +182,11 @@ function Game() {
           undo();
           break;
         case "Escape":
-          restart();
+          if (isRestartDialogOpen) {
+            onCancelRestart();
+          } else {
+            onRequestRestart();
+          }
           break;
         case "BracketLeft":
           previousLevel();
@@ -234,7 +259,45 @@ function Game() {
         </div>
       </section>
 
-      <MobileControls onMove={move} onUndo={undo} onRestart={restart} />
+      <MobileControls onMove={move} onUndo={undo} onRestart={onRequestRestart} />
+
+      {isRestartDialogOpen && (
+        <div
+          className={style.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Restart level confirmation"
+          onClick={onCancelRestart}
+        >
+          <div className={style.modalCard} onClick={(event) => event.stopPropagation()}>
+            <div className={style.modalHeader}>
+              <h2 className={style.modalTitle}>Restart level?</h2>
+              <button
+                type="button"
+                className={style.modalCloseButton}
+                onClick={onCancelRestart}
+                aria-label="Close"
+              >
+                x
+              </button>
+            </div>
+
+            <div className={style.modalBody}>
+              <p className={`${style.aboutText} ${style.restartWarningText}`}>
+                Restarting now will erase your progress on this level.
+              </p>
+              <div className={style.modalActions}>
+                <button type="button" className={style.levelNavButton} onClick={onCancelRestart}>
+                  Cancel
+                </button>
+                <button type="button" className={style.levelNavButton} onClick={onConfirmRestart}>
+                  Restart Level
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {state === State.completed && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">

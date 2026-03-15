@@ -31,7 +31,7 @@ The mobile dpad appears automatically on coarse-pointer/hoverless devices.
 
 - `ArrowUp` / `ArrowDown` / `ArrowLeft` / `ArrowRight`: Move
 - `Backspace`: Undo
-- `Escape`: Restart current level
+- `Escape`: Restart current level (asks for confirmation after progress exists)
 - `[` and `]`: Previous / Next level
 - `Enter`: Continue after completion
 
@@ -39,6 +39,7 @@ UI controls:
 
 - `Previous` / `Next` buttons support press-and-hold repeat
 - Touch action buttons provide `Undo` and `Restart level` on mobile/coarse-pointer devices
+- `Restart level` prompts for confirmation after at least one move
 - `About` opens controls/project info and app version
 - Theme switch toggles between light and dark mode
 
