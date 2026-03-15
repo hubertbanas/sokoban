@@ -9,6 +9,7 @@ import { Block } from "./hooks/levels";
 import style from "./components/sokoban.module.css";
 import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
+import { Modal } from "./components/modal";
 
 function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
   const timeoutRef = React.useRef<number | null>(null);
@@ -73,11 +74,32 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
 }
 
 function Game() {
-  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart } = useSokoban();
+  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
   const previousButtonHandlers = useHoldToRepeat(previousLevel);
   const nextButtonHandlers = useHoldToRepeat(nextLevel);
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
+  const [isRestartDialogOpen, setIsRestartDialogOpen] = React.useState(false);
+
+  const onRequestRestart = React.useCallback(() => {
+    if (state !== State.playing) return;
+
+    if (!hasProgress) {
+      restart();
+      return;
+    }
+
+    setIsRestartDialogOpen(true);
+  }, [hasProgress, restart, state]);
+
+  const onConfirmRestart = React.useCallback(() => {
+    restart();
+    setIsRestartDialogOpen(false);
+  }, [restart]);
+
+  const onCancelRestart = React.useCallback(() => {
+    setIsRestartDialogOpen(false);
+  }, []);
 
   React.useEffect(() => {
     const viewport = boardViewportRef.current;
@@ -141,6 +163,26 @@ function Game() {
 
   useKeyBoard(
     (event) => {
+      if (isRestartDialogOpen) {
+        if (event.code === "Enter") {
+          const activeElement = document.activeElement;
+          const isRestartConfirmFocused =
+            activeElement instanceof HTMLButtonElement &&
+            activeElement.dataset.restartAction === "confirm";
+
+          if (isRestartConfirmFocused) {
+            onConfirmRestart();
+          } else {
+            onCancelRestart();
+          }
+        } else if (event.code === "Escape") {
+          onCancelRestart();
+        }
+
+        event.preventDefault();
+        return;
+      }
+
       switch (event.code) {
         case "ArrowUp":
           move(Direction.Top);
@@ -161,7 +203,7 @@ function Game() {
           undo();
           break;
         case "Escape":
-          restart();
+          onRequestRestart();
           break;
         case "BracketLeft":
           previousLevel();
@@ -234,7 +276,32 @@ function Game() {
         </div>
       </section>
 
-      <MobileControls onMove={move} />
+      <MobileControls onMove={move} onUndo={undo} onRestart={onRequestRestart} />
+
+      {isRestartDialogOpen && (
+        <Modal
+          title="Restart level?"
+          ariaLabel="Restart level confirmation"
+          onClose={onCancelRestart}
+        >
+          <p className={`${style.aboutText} ${style.restartWarningText}`}>
+            Restarting now will erase your progress on this level.
+          </p>
+          <div className={style.modalActions}>
+            <button type="button" className={style.levelNavButton} onClick={onCancelRestart} autoFocus>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={style.levelNavButton}
+              onClick={onConfirmRestart}
+              data-restart-action="confirm"
+            >
+              Restart Level
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {state === State.completed && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">

@@ -4,6 +4,8 @@ import style from "./sokoban.module.css";
 
 type MobileControlsProps = {
     onMove: (direction: Direction) => void;
+    onUndo: () => void;
+    onRestart: () => void;
 };
 
 type Position = {
@@ -13,7 +15,8 @@ type Position = {
 
 const STORAGE_KEY = "sokoban.mobile-controls.position";
 const EDGE_PADDING = 10;
-const FALLBACK_SIZE = 168;
+const FALLBACK_WIDTH = 168;
+const FALLBACK_HEIGHT = 220;
 
 function useHoldToRepeat(action: () => void, delay = 160, interval = 95) {
     const actionRef = React.useRef(action);
@@ -122,7 +125,7 @@ function parseStoredPosition(raw: string | null): Position | null {
     }
 }
 
-function MobileControls({ onMove }: MobileControlsProps) {
+function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
     const controlsRef = React.useRef<HTMLDivElement | null>(null);
     const dragRef = React.useRef<{
         pointerId: number;
@@ -132,8 +135,8 @@ function MobileControls({ onMove }: MobileControlsProps) {
     const [isDragging, setIsDragging] = React.useState(false);
 
     const clampPosition = React.useCallback((candidate: Position): Position => {
-        const controlWidth = controlsRef.current?.offsetWidth ?? FALLBACK_SIZE;
-        const controlHeight = controlsRef.current?.offsetHeight ?? FALLBACK_SIZE;
+        const controlWidth = controlsRef.current?.offsetWidth ?? FALLBACK_WIDTH;
+        const controlHeight = controlsRef.current?.offsetHeight ?? FALLBACK_HEIGHT;
         const maxX = Math.max(EDGE_PADDING, window.innerWidth - controlWidth - EDGE_PADDING);
         const maxY = Math.max(EDGE_PADDING, window.innerHeight - controlHeight - EDGE_PADDING);
 
@@ -145,8 +148,8 @@ function MobileControls({ onMove }: MobileControlsProps) {
 
     const getDefaultPosition = React.useCallback((): Position => {
         const initial = {
-            x: window.innerWidth - FALLBACK_SIZE - EDGE_PADDING - 6,
-            y: window.innerHeight - FALLBACK_SIZE - EDGE_PADDING - 6,
+            x: window.innerWidth - FALLBACK_WIDTH - EDGE_PADDING - 6,
+            y: window.innerHeight - FALLBACK_HEIGHT - EDGE_PADDING - 6,
         };
 
         return clampPosition(initial);
@@ -160,8 +163,8 @@ function MobileControls({ onMove }: MobileControlsProps) {
         const stored = parseStoredPosition(window.localStorage.getItem(STORAGE_KEY));
         if (!stored) {
             return {
-                x: Math.max(EDGE_PADDING, window.innerWidth - FALLBACK_SIZE - EDGE_PADDING - 6),
-                y: Math.max(EDGE_PADDING, window.innerHeight - FALLBACK_SIZE - EDGE_PADDING - 6),
+                x: Math.max(EDGE_PADDING, window.innerWidth - FALLBACK_WIDTH - EDGE_PADDING - 6),
+                y: Math.max(EDGE_PADDING, window.innerHeight - FALLBACK_HEIGHT - EDGE_PADDING - 6),
             };
         }
 
@@ -191,6 +194,7 @@ function MobileControls({ onMove }: MobileControlsProps) {
     const downHandlers = useHoldToRepeat(() => onMove(Direction.Bottom));
     const leftHandlers = useHoldToRepeat(() => onMove(Direction.Left));
     const rightHandlers = useHoldToRepeat(() => onMove(Direction.Right));
+    const undoHandlers = useHoldToRepeat(onUndo, 250, 110);
 
     const onDragPointerDown = React.useCallback(
         (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -256,60 +260,89 @@ function MobileControls({ onMove }: MobileControlsProps) {
         []
     );
 
+    const onRestartContextMenu = React.useCallback(
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            event.preventDefault();
+        },
+        []
+    );
+
     return (
         <div
             ref={controlsRef}
-            className={`${style.mobileControls} ${isDragging ? style.mobileControlsDragging : ""}`}
+            className={`${style.mobileControlsShell} ${isDragging ? style.mobileControlsShellDragging : ""}`}
             style={{ left: `${position.x}px`, top: `${position.y}px` }}
             aria-label="Touch controls"
             role="group"
         >
-            <button
-                type="button"
-                aria-label="Move up"
-                className={`${style.mobileControlButton} ${style.mobileControlUp}`}
-                {...upHandlers}
-            >
-                U
-            </button>
-            <button
-                type="button"
-                aria-label="Move left"
-                className={`${style.mobileControlButton} ${style.mobileControlLeft}`}
-                {...leftHandlers}
-            >
-                L
-            </button>
-            <button
-                type="button"
-                aria-label="Move right"
-                className={`${style.mobileControlButton} ${style.mobileControlRight}`}
-                {...rightHandlers}
-            >
-                R
-            </button>
-            <button
-                type="button"
-                aria-label="Move down"
-                className={`${style.mobileControlButton} ${style.mobileControlDown}`}
-                {...downHandlers}
-            >
-                D
-            </button>
-            <button
-                type="button"
-                aria-label="Drag controls"
-                title="Drag to reposition. Double tap to reset."
-                className={style.mobileControlHandle}
-                onPointerDown={onDragPointerDown}
-                onPointerMove={onDragPointerMove}
-                onPointerUp={onDragPointerEnd}
-                onPointerCancel={onDragPointerEnd}
-                onDoubleClick={onResetPosition}
-                onContextMenu={onHandleContextMenu}
-            >
-                <span aria-hidden="true">+</span>
-            </button>
+            <div className={style.mobileControls}>
+                <button
+                    type="button"
+                    aria-label="Move up"
+                    className={`${style.mobileControlButton} ${style.mobileControlUp}`}
+                    {...upHandlers}
+                >
+                    U
+                </button>
+                <button
+                    type="button"
+                    aria-label="Move left"
+                    className={`${style.mobileControlButton} ${style.mobileControlLeft}`}
+                    {...leftHandlers}
+                >
+                    L
+                </button>
+                <button
+                    type="button"
+                    aria-label="Move right"
+                    className={`${style.mobileControlButton} ${style.mobileControlRight}`}
+                    {...rightHandlers}
+                >
+                    R
+                </button>
+                <button
+                    type="button"
+                    aria-label="Move down"
+                    className={`${style.mobileControlButton} ${style.mobileControlDown}`}
+                    {...downHandlers}
+                >
+                    D
+                </button>
+                <button
+                    type="button"
+                    aria-label="Drag controls"
+                    title="Drag to reposition. Double tap to reset."
+                    className={style.mobileControlHandle}
+                    onPointerDown={onDragPointerDown}
+                    onPointerMove={onDragPointerMove}
+                    onPointerUp={onDragPointerEnd}
+                    onPointerCancel={onDragPointerEnd}
+                    onDoubleClick={onResetPosition}
+                    onContextMenu={onHandleContextMenu}
+                >
+                    <span aria-hidden="true">+</span>
+                </button>
+            </div>
+
+            <div className={style.mobileControlActions}>
+                <button
+                    type="button"
+                    aria-label="Undo move"
+                    className={style.mobileControlActionButton}
+                    {...undoHandlers}
+                >
+                    Undo
+                </button>
+                <button
+                    type="button"
+                    aria-label="Restart level"
+                    className={style.mobileControlActionButton}
+                    onClick={onRestart}
+                    onContextMenu={onRestartContextMenu}
+                >
+                    Restart
+                </button>
+            </div>
         </div>
     );
 }
