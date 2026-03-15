@@ -21,6 +21,7 @@ The mobile dpad appears automatically on coarse-pointer/hoverless devices.
 
 - Four directional touch regions (up/left/right/down)
 - Press-and-hold repeats movement
+- `Undo` supports press-and-hold repeat
 - Center `+` handle can be dragged to reposition the control
 - Double-tap the center `+` to reset dpad position
 - Dedicated `Undo` and `Restart` touch buttons (mapped to Backspace and Escape actions)
@@ -40,6 +41,8 @@ UI controls:
 - `Previous` / `Next` buttons support press-and-hold repeat
 - Touch action buttons provide `Undo` and `Restart level` on mobile/coarse-pointer devices
 - `Restart level` prompts for confirmation after at least one move
+- While restart confirmation is open, gameplay/navigation keyboard input is paused
+- In restart confirmation, `Escape` cancels; `Enter` activates the focused action (default focus is `Cancel`)
 - `About` opens controls/project info and app version
 - Theme switch toggles between light and dark mode
 
@@ -49,6 +52,7 @@ UI controls:
 - Level index is persisted in `localStorage` (`SokobanLevel`).
 - Theme mode is persisted in `localStorage` (`sokoban-theme-mode`).
 - When mode is `auto`, theme follows `prefers-color-scheme` unless `VITE_DEFAULT_THEME` is set to `dark` or `light`.
+- App dialogs use a shared modal component for consistent behavior and close controls.
 
 ## Tech Stack
 
@@ -135,6 +139,7 @@ docker compose -f compose.prod.yaml up -d
 - `src/hooks/sokoban.ts`: Core move logic and board history
 - `src/hooks/levels.ts`: Level loading and parsing
 - `src/components/mobile-controls.tsx`: Touch dpad behavior
+- `src/components/modal.tsx`: Shared modal dialog primitive
 - `src/components/sokoban.module.css`: Main game/control styling
 - `src/hooks/theme.tsx`: Theme resolution and persistence
 
@@ -152,3 +157,7 @@ Light theme preview: [docs/assets/screenshot-gameplay-light.png](docs/assets/scr
 ## License
 
 MIT. See `LICENSE`.
+
+## Changelog
+
+See `CHANGELOG.md` for project history and recent updates.
