@@ -1,11 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "schedule": [
-    "after 10pm Friday",
-    "before 5am Monday"
+    "after 10pm on Friday",
+    "before 5am on Monday"
   ],
   "timezone": "America/New_York",
   "dependencyDashboard": true,
