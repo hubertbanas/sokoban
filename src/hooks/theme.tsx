@@ -6,6 +6,7 @@ import React, {
     useEffect,
     useMemo,
     useState,
+    JSX
 } from "react";
 
 type ThemeMode = "auto" | "dark" | "light";

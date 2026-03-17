@@ -56,9 +56,9 @@ UI controls:
 
 ## Tech Stack
 
-- React 18
+- React 19
 - TypeScript
-- Vite 5
+- Vite 8
 - Lodash (deep cloning board state)
 - CSS Modules for component styling
 

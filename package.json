@@ -1,9 +1,9 @@
 {
   "name": "sokoban",
-  "version": "1.10.1",
+  "version": "1.11.0",
   "private": true,
   "type": "module",
-  "description": "A retro Sokoban puzzle game built with modern tooling: Vite, React Hooks, TypeScript, Docker, and GitHub Actions. Forked from ecyrbe/sokoban.",
+  "description": "A retro Sokoban puzzle game built with Vite, React Hooks, TypeScript, Docker, and GitHub Actions. Forked from ecyrbe/sokoban.",
   "author": "Hubert Banas",
   "contributors": [
     {
@@ -30,23 +30,22 @@
   ],
   "dependencies": {
     "lodash": "4.17.23",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "19",
+    "react-dom": "19"
   },
   "devDependencies": {
-    "@testing-library/dom": "^9.0.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "6.9.1",
-    "@testing-library/react": "14.3.1",
+    "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "14.6.1",
-    "@types/jest": "29.5.14",
     "@types/lodash": "4.17.24",
-    "@types/node": "20.19.37",
-    "@types/react": "18.3.28",
-    "@types/react-dom": "18.3.7",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@types/node": "24",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "@vitejs/plugin-react": "6",
     "jsdom": "^29.0.0",
     "typescript": "5.9.3",
-    "vite": "^5.2.0",
+    "vite": "8",
     "vitest": "^4.1.0"
   },
   "scripts": {
