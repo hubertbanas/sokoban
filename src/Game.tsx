@@ -296,10 +296,10 @@ function Game() {
           onRequestRestart();
           break;
         case "BracketLeft":
-          previousLevel();
+          onRequestPreviousLevel();
           break;
         case "BracketRight":
-          nextLevel();
+          onRequestNextLevel();
           break;
       }
       event.preventDefault();
