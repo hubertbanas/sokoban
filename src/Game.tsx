@@ -11,7 +11,12 @@ import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
 import { Modal } from "./components/modal";
 
-function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
+function useHoldToRepeat(
+  action: () => void,
+  delay = 320,
+  interval = 110,
+  shouldStartOnPointerDown: () => boolean = () => true
+) {
   const timeoutRef = React.useRef<number | null>(null);
   const intervalRef = React.useRef<number | null>(null);
   const suppressNextClickRef = React.useRef(false);
@@ -31,6 +36,7 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
   const start = React.useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
       if (event.button !== 0) return;
+      if (!shouldStartOnPointerDown()) return;
 
       suppressNextClickRef.current = true;
       action();
@@ -40,7 +46,7 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
         intervalRef.current = window.setInterval(action, interval);
       }, delay);
     },
-    [action, delay, interval, stop]
+    [action, delay, interval, shouldStartOnPointerDown, stop]
   );
 
   const onClick = React.useCallback(() => {
@@ -75,31 +81,115 @@ function useHoldToRepeat(action: () => void, delay = 320, interval = 110) {
 
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
-  const previousButtonHandlers = useHoldToRepeat(previousLevel);
-  const nextButtonHandlers = useHoldToRepeat(nextLevel);
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
-  const [isRestartDialogOpen, setIsRestartDialogOpen] = React.useState(false);
+
+  type PendingAction = "restart" | "previous" | "next" | null;
+  const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
+  const isConfirmationDialogOpen = pendingAction !== null;
+
+  const executePendingAction = React.useCallback(
+    (action: Exclude<PendingAction, null>) => {
+      switch (action) {
+        case "restart":
+          restart();
+          break;
+        case "previous":
+          previousLevel();
+          break;
+        case "next":
+          nextLevel();
+          break;
+      }
+    },
+    [nextLevel, previousLevel, restart]
+  );
 
   const onRequestRestart = React.useCallback(() => {
     if (state !== State.playing) return;
 
     if (!hasProgress) {
-      restart();
+      executePendingAction("restart");
       return;
     }
 
-    setIsRestartDialogOpen(true);
-  }, [hasProgress, restart, state]);
+    setPendingAction("restart");
+  }, [executePendingAction, hasProgress, state]);
 
-  const onConfirmRestart = React.useCallback(() => {
-    restart();
-    setIsRestartDialogOpen(false);
-  }, [restart]);
+  const onRequestPreviousLevel = React.useCallback(() => {
+    if (state !== State.playing || !hasProgress) {
+      executePendingAction("previous");
+      return;
+    }
 
-  const onCancelRestart = React.useCallback(() => {
-    setIsRestartDialogOpen(false);
+    setPendingAction("previous");
+  }, [executePendingAction, hasProgress, state]);
+
+  const onRequestNextLevel = React.useCallback(() => {
+    if (state !== State.playing || !hasProgress) {
+      executePendingAction("next");
+      return;
+    }
+
+    setPendingAction("next");
+  }, [executePendingAction, hasProgress, state]);
+
+  const shouldUseHoldRepeat = React.useCallback(
+    () => !(state === State.playing && hasProgress),
+    [hasProgress, state]
+  );
+
+  const previousButtonHandlers = useHoldToRepeat(
+    onRequestPreviousLevel,
+    320,
+    110,
+    shouldUseHoldRepeat
+  );
+  const nextButtonHandlers = useHoldToRepeat(
+    onRequestNextLevel,
+    320,
+    110,
+    shouldUseHoldRepeat
+  );
+
+  const onConfirmAction = React.useCallback(() => {
+    if (!pendingAction) return;
+
+    executePendingAction(pendingAction);
+    setPendingAction(null);
+  }, [executePendingAction, pendingAction]);
+
+  const onCancelAction = React.useCallback(() => {
+    setPendingAction(null);
   }, []);
+
+  const confirmationDialog = React.useMemo(() => {
+    switch (pendingAction) {
+      case "restart":
+        return {
+          title: "Restart level?",
+          ariaLabel: "Restart level confirmation",
+          warningText: "Restarting now will erase your progress on this level.",
+          confirmLabel: "Restart Level",
+        };
+      case "previous":
+        return {
+          title: "Switch level?",
+          ariaLabel: "Switch to previous level confirmation",
+          warningText: "Switching levels now will erase your progress on this level.",
+          confirmLabel: "Previous Level",
+        };
+      case "next":
+        return {
+          title: "Switch level?",
+          ariaLabel: "Switch to next level confirmation",
+          warningText: "Switching levels now will erase your progress on this level.",
+          confirmLabel: "Next Level",
+        };
+      default:
+        return null;
+    }
+  }, [pendingAction]);
 
   React.useEffect(() => {
     const viewport = boardViewportRef.current;
@@ -163,20 +253,20 @@ function Game() {
 
   useKeyBoard(
     (event) => {
-      if (isRestartDialogOpen) {
+      if (isConfirmationDialogOpen) {
         if (event.code === "Enter") {
           const activeElement = document.activeElement;
-          const isRestartConfirmFocused =
+          const isConfirmFocused =
             activeElement instanceof HTMLButtonElement &&
-            activeElement.dataset.restartAction === "confirm";
+            activeElement.dataset.confirmAction === "confirm";
 
-          if (isRestartConfirmFocused) {
-            onConfirmRestart();
+          if (isConfirmFocused) {
+            onConfirmAction();
           } else {
-            onCancelRestart();
+            onCancelAction();
           }
         } else if (event.code === "Escape") {
-          onCancelRestart();
+          onCancelAction();
         }
 
         event.preventDefault();
@@ -278,26 +368,26 @@ function Game() {
 
       <MobileControls onMove={move} onUndo={undo} onRestart={onRequestRestart} />
 
-      {isRestartDialogOpen && (
+      {isConfirmationDialogOpen && confirmationDialog && (
         <Modal
-          title="Restart level?"
-          ariaLabel="Restart level confirmation"
-          onClose={onCancelRestart}
+          title={confirmationDialog.title}
+          ariaLabel={confirmationDialog.ariaLabel}
+          onClose={onCancelAction}
         >
           <p className={`${style.aboutText} ${style.restartWarningText}`}>
-            Restarting now will erase your progress on this level.
+            {confirmationDialog.warningText}
           </p>
           <div className={style.modalActions}>
-            <button type="button" className={style.levelNavButton} onClick={onCancelRestart} autoFocus>
+            <button type="button" className={style.levelNavButton} onClick={onCancelAction} autoFocus>
               Cancel
             </button>
             <button
               type="button"
               className={style.levelNavButton}
-              onClick={onConfirmRestart}
-              data-restart-action="confirm"
+              onClick={onConfirmAction}
+              data-confirm-action="confirm"
             >
-              Restart Level
+              {confirmationDialog.confirmLabel}
             </button>
           </div>
         </Modal>

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.10.0] - 2026-03-16
+
+### Added
+- Progress warning modal for level navigation (`Previous` / `Next`) to confirm before switching levels.
+
+### Changed
+- Intercept `Next` / `Previous` actions when the player has made moves and require confirmation.
+- Reused the shared `Modal` component for the level-switch confirmation dialog to keep popup visuals identical.
+- Added guards to protect in-level progress from accidental taps during navigation.
+
 ## [1.9.0] - 2026-03-15
 
 ### Added
