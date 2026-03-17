@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.11.0] - 2026-03-17
+
+### Changed
+- Updated core runtime/build dependencies to React 19 and Vite 8 (`react`, `react-dom`, `vite`, `@vitejs/plugin-react`).
+- Updated TypeScript ecosystem support packages for the new stack (`@testing-library/*`, `@types/node`) and removed deprecated Jest type dependency.
+- Switched TypeScript JSX emit mode to `react-jsx` for React 19-compatible JSX typing defaults.
+
+### Verified
+- Confirmed passing test suite with Vitest in containerized Node 24 (`10/10` tests passing).
+- Confirmed production build success with TypeScript + Vite 8 in containerized Node 24.
+
 ## [1.10.1] - 2026-03-16
 
 ### Fixed
