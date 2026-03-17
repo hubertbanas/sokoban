@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.1] - 2026-03-16
+
+### Fixed
+- Intercepted the `[` (Previous) and `]` (Next) keyboard shortcuts to trigger the same progress warning modal as the UI buttons, preventing accidental level skips via hotkeys.
+- Migrated the test runner to Vitest and added specific test coverage for the level navigation guardrails.
+
 ## [1.10.0] - 2026-03-16
 
 ### Added
