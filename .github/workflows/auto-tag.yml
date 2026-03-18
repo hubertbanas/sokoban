@@ -58,20 +58,28 @@ jobs:
         id: create_tag
         if: steps.detect.outputs.skip_tag != 'true'
         env:
-          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v${{ steps.detect.outputs.current_version }}"
 
-          # Check GitHub repo directly to avoid remote-name assumptions
-          if git ls-remote --tags "$REPO_URL" "refs/tags/$TAG" | grep -q "refs/tags/$TAG"; then
+          # Check existing tag through the GitHub API.
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists. Skipping."
             echo "tag_created=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Creating new tag: $TAG"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Release $TAG"
-            git push "$REPO_URL" "$TAG"
+            echo "Creating new tag via GitHub API: $TAG"
+
+            TAG_OBJECT_SHA="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/tags" \
+              -f tag="$TAG" \
+              -f message="Release $TAG" \
+              -f object="${GITHUB_SHA}" \
+              -f type="commit" \
+              --jq '.sha')"
+
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+              -f ref="refs/tags/$TAG" \
+              -f sha="$TAG_OBJECT_SHA" >/dev/null
+
             echo "tag_created=true" >> "$GITHUB_OUTPUT"
           fi
 
