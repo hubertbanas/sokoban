@@ -1,0 +1,109 @@
+name: Recreate Historical Tags (One-Time)
+
+on:
+    workflow_dispatch:
+        inputs:
+            tags:
+                description: "Tags to recreate (comma or newline separated, e.g. v1.0.0,v1.0.1)"
+                required: true
+                type: string
+            dry_run:
+                description: "Preview only (no changes)"
+                required: true
+                default: true
+                type: boolean
+            confirm:
+                description: "Type RECREATE_TAGS to allow destructive changes when dry_run is false"
+                required: true
+                default: ""
+                type: string
+
+jobs:
+    recreate-tags:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - name: Validate Inputs
+              env:
+                  DRY_RUN: ${{ inputs.dry_run }}
+                  CONFIRM: ${{ inputs.confirm }}
+              run: |
+                  if [ "$DRY_RUN" = "false" ] && [ "$CONFIRM" != "RECREATE_TAGS" ]; then
+                    echo "Refusing to run destructive mode. Set confirm to RECREATE_TAGS."
+                    exit 1
+                  fi
+
+            - name: Recreate Tags Through GitHub API
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAGS_INPUT: ${{ inputs.tags }}
+                  DRY_RUN: ${{ inputs.dry_run }}
+              run: |
+                  set -euo pipefail
+
+                  mapfile -t TAGS < <(printf '%s\n' "$TAGS_INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed '/^$/d')
+
+                  if [ "${#TAGS[@]}" -eq 0 ]; then
+                    echo "No tags provided after parsing input."
+                    exit 1
+                  fi
+
+                  echo "Target tags (${#TAGS[@]}): ${TAGS[*]}"
+
+                  for TAG in "${TAGS[@]}"; do
+                    echo ""
+                    echo "=== Processing $TAG ==="
+
+                    REF_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}")"
+                    REF_OBJECT_TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
+                    REF_OBJECT_SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
+
+                    TARGET_COMMIT_SHA=""
+                    ORIGINAL_MESSAGE=""
+
+                    if [ "$REF_OBJECT_TYPE" = "tag" ]; then
+                      TAG_OBJECT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${REF_OBJECT_SHA}")"
+                      TARGET_COMMIT_SHA="$(printf '%s' "$TAG_OBJECT_JSON" | jq -r '.object.sha')"
+                      ORIGINAL_MESSAGE="$(printf '%s' "$TAG_OBJECT_JSON" | jq -r '.message')"
+                    elif [ "$REF_OBJECT_TYPE" = "commit" ]; then
+                      TARGET_COMMIT_SHA="$REF_OBJECT_SHA"
+                    else
+                      echo "Unsupported ref object type for $TAG: $REF_OBJECT_TYPE"
+                      exit 1
+                    fi
+
+                    if [ -z "$ORIGINAL_MESSAGE" ] || [ "$ORIGINAL_MESSAGE" = "null" ]; then
+                      ORIGINAL_MESSAGE="Recreated historical tag ${TAG}"
+                    fi
+
+                    echo "Resolved commit: $TARGET_COMMIT_SHA"
+                    echo "Dry run: $DRY_RUN"
+
+                    if [ "$DRY_RUN" = "true" ]; then
+                      echo "Would delete ref refs/tags/$TAG"
+                      echo "Would create annotated tag object and ref for $TAG"
+                      continue
+                    fi
+
+                    gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" >/dev/null
+
+                    NEW_TAG_OBJECT_SHA="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/tags" \
+                      -f tag="$TAG" \
+                      -f message="$ORIGINAL_MESSAGE" \
+                      -f object="$TARGET_COMMIT_SHA" \
+                      -f type="commit" \
+                      --jq '.sha')"
+
+                    gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+                      -f ref="refs/tags/$TAG" \
+                      -f sha="$NEW_TAG_OBJECT_SHA" >/dev/null
+
+                    echo "Recreated tag $TAG"
+                  done
+
+            - name: Summary
+              run: |
+                  echo "Workflow completed."
+                  echo "If dry_run was true, no tags were changed."
