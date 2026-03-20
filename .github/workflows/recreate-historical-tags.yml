@@ -1,109 +1,203 @@
 name: Recreate Historical Tags (One-Time)
 
 on:
-    workflow_dispatch:
-        inputs:
-            tags:
-                description: "Tags to recreate (comma or newline separated, e.g. v1.0.0,v1.0.1)"
-                required: true
-                type: string
-            dry_run:
-                description: "Preview only (no changes)"
-                required: true
-                default: true
-                type: boolean
-            confirm:
-                description: "Type RECREATE_TAGS to allow destructive changes when dry_run is false"
-                required: true
-                default: ""
-                type: string
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Tags to recreate (comma or newline separated, e.g. v1.0.0,v1.0.1)"
+        required: true
+        type: string
+      dry_run:
+        description: "Preview only (no changes)"
+        required: true
+        default: true
+        type: boolean
+      confirm:
+        description: "Type RECREATE_TAGS to allow destructive changes when dry_run is false"
+        required: true
+        default: "DRY_RUN"
+        type: string
 
 jobs:
-    recreate-tags:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
+  recreate-tags:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-        steps:
-            - name: Validate Inputs
-              env:
-                  DRY_RUN: ${{ inputs.dry_run }}
-                  CONFIRM: ${{ inputs.confirm }}
-              run: |
-                  if [ "$DRY_RUN" = "false" ] && [ "$CONFIRM" != "RECREATE_TAGS" ]; then
-                    echo "Refusing to run destructive mode. Set confirm to RECREATE_TAGS."
-                    exit 1
-                  fi
+    steps:
+      - name: Validate Inputs
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$DRY_RUN" = "false" ] && [ "$CONFIRM" != "RECREATE_TAGS" ]; then
+            echo "Refusing to run destructive mode. Set confirm to RECREATE_TAGS."
+            exit 1
+          fi
 
-            - name: Recreate Tags Through GitHub API
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  TAGS_INPUT: ${{ inputs.tags }}
-                  DRY_RUN: ${{ inputs.dry_run }}
-              run: |
-                  set -euo pipefail
+      - name: Preflight Checks
+        env:
+          TAGS_INPUT: ${{ inputs.tags }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          ACTIONS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_MAINTENANCE_TOKEN: ${{ secrets.TAG_MAINTENANCE_TOKEN }}
+        run: |
+          set -euo pipefail
 
-                  mapfile -t TAGS < <(printf '%s\n' "$TAGS_INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed '/^$/d')
+          if [ -n "${TAG_MAINTENANCE_TOKEN:-}" ]; then
+            export GH_TOKEN="$TAG_MAINTENANCE_TOKEN"
+            echo "Preflight token source: TAG_MAINTENANCE_TOKEN"
+            TOKEN_SOURCE="TAG_MAINTENANCE_TOKEN"
+          else
+            export GH_TOKEN="$ACTIONS_TOKEN"
+            echo "Preflight token source: GITHUB_TOKEN"
+            TOKEN_SOURCE="GITHUB_TOKEN"
+          fi
 
-                  if [ "${#TAGS[@]}" -eq 0 ]; then
-                    echo "No tags provided after parsing input."
-                    exit 1
-                  fi
+          # Auth and repository visibility check.
+          gh api "repos/${GITHUB_REPOSITORY}" --jq '.full_name' >/dev/null
 
-                  echo "Target tags (${#TAGS[@]}): ${TAGS[*]}"
+          mapfile -t TAGS < <(printf '%s\n' "$TAGS_INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed '/^$/d')
 
-                  for TAG in "${TAGS[@]}"; do
-                    echo ""
-                    echo "=== Processing $TAG ==="
+          if [ "${#TAGS[@]}" -eq 0 ]; then
+            echo "No tags provided after parsing input."
+            exit 1
+          fi
 
-                    REF_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}")"
-                    REF_OBJECT_TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
-                    REF_OBJECT_SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
+          echo "Preflight target tags (${#TAGS[@]}): ${TAGS[*]}"
 
-                    TARGET_COMMIT_SHA=""
-                    ORIGINAL_MESSAGE=""
+          {
+            echo "### Tag Maintenance Preflight"
+            echo "- Mode: $([ \"$DRY_RUN\" = \"true\" ] && echo \"Dry run\" || echo \"Live run\")"
+            echo "- Token source: ${TOKEN_SOURCE}"
+            echo "- Tags: ${TAGS[*]}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-                    if [ "$REF_OBJECT_TYPE" = "tag" ]; then
-                      TAG_OBJECT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${REF_OBJECT_SHA}")"
-                      TARGET_COMMIT_SHA="$(printf '%s' "$TAG_OBJECT_JSON" | jq -r '.object.sha')"
-                      ORIGINAL_MESSAGE="$(printf '%s' "$TAG_OBJECT_JSON" | jq -r '.message')"
-                    elif [ "$REF_OBJECT_TYPE" = "commit" ]; then
-                      TARGET_COMMIT_SHA="$REF_OBJECT_SHA"
-                    else
-                      echo "Unsupported ref object type for $TAG: $REF_OBJECT_TYPE"
-                      exit 1
-                    fi
+          for TAG in "${TAGS[@]}"; do
+            if ! gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}" >/dev/null 2>tag_missing_error.log; then
+              echo "Preflight failed: tag ${TAG} does not exist or is not accessible."
+              cat tag_missing_error.log
+              exit 1
+            fi
+          done
 
-                    if [ -z "$ORIGINAL_MESSAGE" ] || [ "$ORIGINAL_MESSAGE" = "null" ]; then
-                      ORIGINAL_MESSAGE="Recreated historical tag ${TAG}"
-                    fi
+          if [ "$DRY_RUN" = "false" ]; then
+            # Safe capability probe: attempt to delete a guaranteed-nonexistent tag ref.
+            if ! gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/__preflight_permission_probe__" >/dev/null 2>preflight_delete_error.log; then
+              if grep -q "HTTP 403" preflight_delete_error.log; then
+                echo "Preflight failed: token cannot delete tag refs (HTTP 403)."
+                echo "1) Ensure Actions workflow permissions are Read and write."
+                echo "2) Check tag protection/rulesets for refs/tags/* restrictions."
+                echo "3) Prefer TAG_MAINTENANCE_TOKEN with Contents: Read and write."
+                cat preflight_delete_error.log
+                exit 1
+              fi
+            fi
+          fi
 
-                    echo "Resolved commit: $TARGET_COMMIT_SHA"
-                    echo "Dry run: $DRY_RUN"
+          echo "- Preflight: passed" >> "$GITHUB_STEP_SUMMARY"
 
-                    if [ "$DRY_RUN" = "true" ]; then
-                      echo "Would delete ref refs/tags/$TAG"
-                      echo "Would create annotated tag object and ref for $TAG"
-                      continue
-                    fi
+      - name: Recreate Tags Through GitHub API
+        env:
+          TAGS_INPUT: ${{ inputs.tags }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          ACTIONS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_MAINTENANCE_TOKEN: ${{ secrets.TAG_MAINTENANCE_TOKEN }}
+        run: |
+          set -euo pipefail
 
-                    gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" >/dev/null
+          # Prefer a dedicated PAT for destructive maintenance operations.
+          if [ -n "${TAG_MAINTENANCE_TOKEN:-}" ]; then
+            export GH_TOKEN="$TAG_MAINTENANCE_TOKEN"
+            echo "Using TAG_MAINTENANCE_TOKEN for API calls."
+          else
+            export GH_TOKEN="$ACTIONS_TOKEN"
+            echo "Using default GITHUB_TOKEN for API calls."
+          fi
 
-                    NEW_TAG_OBJECT_SHA="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/tags" \
-                      -f tag="$TAG" \
-                      -f message="$ORIGINAL_MESSAGE" \
-                      -f object="$TARGET_COMMIT_SHA" \
-                      -f type="commit" \
-                      --jq '.sha')"
+          mapfile -t TAGS < <(printf '%s\n' "$TAGS_INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed '/^$/d')
 
-                    gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
-                      -f ref="refs/tags/$TAG" \
-                      -f sha="$NEW_TAG_OBJECT_SHA" >/dev/null
+          if [ "${#TAGS[@]}" -eq 0 ]; then
+            echo "No tags provided after parsing input."
+            exit 1
+          fi
 
-                    echo "Recreated tag $TAG"
-                  done
+          echo "Target tags (${#TAGS[@]}): ${TAGS[*]}"
 
-            - name: Summary
-              run: |
-                  echo "Workflow completed."
-                  echo "If dry_run was true, no tags were changed."
+          echo "### Tag Processing Results" >> "$GITHUB_STEP_SUMMARY"
+
+          for TAG in "${TAGS[@]}"; do
+            echo ""
+            echo "=== Processing $TAG ==="
+
+            REF_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG}")"
+            REF_OBJECT_TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
+            REF_OBJECT_SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
+
+            TARGET_COMMIT_SHA=""
+            ORIGINAL_MESSAGE=""
+
+            if [ "$REF_OBJECT_TYPE" = "tag" ]; then
+              TAG_OBJECT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${REF_OBJECT_SHA}")"
+              TARGET_COMMIT_SHA="$(printf '%s' "$TAG_OBJECT_JSON" | jq -r '.object.sha')"
+              ORIGINAL_MESSAGE="$(printf '%s' "$TAG_OBJECT_JSON" | jq -r '.message')"
+            elif [ "$REF_OBJECT_TYPE" = "commit" ]; then
+              TARGET_COMMIT_SHA="$REF_OBJECT_SHA"
+            else
+              echo "Unsupported ref object type for $TAG: $REF_OBJECT_TYPE"
+              exit 1
+            fi
+
+            if [ -z "$ORIGINAL_MESSAGE" ] || [ "$ORIGINAL_MESSAGE" = "null" ]; then
+              ORIGINAL_MESSAGE="Recreated historical tag ${TAG}"
+            fi
+
+            echo "Resolved commit: $TARGET_COMMIT_SHA"
+            echo "Dry run: $DRY_RUN"
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "Would delete ref refs/tags/$TAG"
+              echo "Would create annotated tag object and ref for $TAG"
+              echo "- ${TAG}: dry-run preview complete" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            if ! gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}" >/dev/null 2>delete_error.log; then
+              echo "Failed to delete refs/tags/$TAG"
+              cat delete_error.log
+              echo ""
+              echo "Likely causes and fixes:"
+              echo "1) Workflow token is read-only. In repo settings, set Actions > Workflow permissions to Read and write."
+              echo "2) Tag protection or ruleset blocks delete/recreate. Temporarily allow this workflow or disable the rule for the run."
+              echo "3) Use a dedicated PAT in secret TAG_MAINTENANCE_TOKEN with Contents: Read and write."
+              exit 1
+            fi
+
+            if ! NEW_TAG_OBJECT_SHA="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/tags" \
+              -f tag="$TAG" \
+              -f message="$ORIGINAL_MESSAGE" \
+              -f object="$TARGET_COMMIT_SHA" \
+              -f type="commit" \
+              --jq '.sha' 2>tag_object_error.log)"; then
+              echo "Failed to create tag object for $TAG"
+              cat tag_object_error.log
+              exit 1
+            fi
+
+            if ! gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+              -f ref="refs/tags/$TAG" \
+              -f sha="$NEW_TAG_OBJECT_SHA" >/dev/null 2>ref_create_error.log; then
+              echo "Failed to create refs/tags/$TAG"
+              cat ref_create_error.log
+              exit 1
+            fi
+
+            echo "Recreated tag $TAG"
+            echo "- ${TAG}: recreated" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Summary
+        run: |
+          echo "Workflow completed."
+          echo "If dry_run was true, no tags were changed."
+          echo "- Workflow: completed" >> "$GITHUB_STEP_SUMMARY"
