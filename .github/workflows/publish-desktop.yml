@@ -1,0 +1,67 @@
+name: Build and Publish Desktop Apps
+
+on:
+    workflow_call:
+        inputs:
+            tag:
+                description: "Version without leading v (example: 1.2.3)"
+                required: true
+                type: string
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: "Version without leading v (example: 1.2.3)"
+                required: true
+                type: string
+
+jobs:
+    build-and-publish:
+        runs-on: ${{ matrix.os }}
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: ubuntu-latest
+                      release_pattern: dist-desktop/**/*.AppImage
+                      artifact_name: desktop-build-linux
+                    - os: windows-latest
+                      release_pattern: dist-desktop/**/*.exe
+                      artifact_name: desktop-build-windows
+
+        steps:
+            - name: Checkout repository at release tag
+              uses: actions/checkout@v6
+              with:
+                  ref: refs/tags/v${{ inputs.tag }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: yarn
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Build and package desktop app
+              run: yarn build:desktop
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload desktop artifact bundle
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.artifact_name }}
+                  path: ${{ matrix.release_pattern }}
+                  if-no-files-found: error
+
+            - name: Upload binaries to GitHub Release
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: ${{ matrix.release_pattern }}
+                  file_glob: true
+                  tag: v${{ inputs.tag }}
+                  overwrite: true

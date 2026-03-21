@@ -170,3 +170,13 @@ jobs:
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
     secrets: inherit
+
+  publish-desktop:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-desktop.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.current_version }}
+    secrets: inherit
