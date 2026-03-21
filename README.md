@@ -12,8 +12,9 @@ Live app: https://hubertbanas.github.io/sokoban/
 - Hold-to-repeat behavior for level and direction controls
 - Light/dark theme support with persisted user preference
 - About modal with runtime app version from `package.json`
+- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`) via Electron
 - Docker and Docker Compose support for dev/prod usage
-- GitHub Actions for Pages deploy, auto-tagging, and container publishing
+- GitHub Actions for Pages deploy, auto-tagging, container publishing, and desktop release assets
 
 ## Mobile Touch Controls
 
@@ -127,11 +128,29 @@ docker compose -f compose.prod.yaml up -d
 - Service/container: `sokoban-prod`
 - Host port: `8080` -> container `80`
 
+## Desktop Builds (Electron)
+
+Build desktop binaries locally:
+
+```bash
+yarn build:desktop
+```
+
+Output directory:
+
+- `dist-desktop/`
+
+Configured targets:
+
+- Windows portable executable (`.exe`)
+- Linux AppImage (`.AppImage`)
+
 ## CI/CD Workflows
 
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds Windows/Linux desktop binaries and uploads them to the matching GitHub Release.
 - `codeql-analysis.yml`: Static security analysis.
 
 Docs-only changes (for example `README.md`) do not create release tags, so they also do not trigger Docker publish or Pages deployment.
