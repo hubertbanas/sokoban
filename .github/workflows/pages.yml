@@ -1,6 +1,13 @@
 name: Deploy to GitHub Pages
 
 on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Version without leading v (example: 1.2.3)"
+        required: false
+        default: ""
+        type: string
   push:
     tags:
       - "v*"
@@ -23,7 +30,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Checkout repository at release tag
+        if: inputs.tag != ''
+        uses: actions/checkout@v6
+        with:
+          ref: refs/tags/v${{ inputs.tag }}
+
       - name: Checkout repository
+        if: inputs.tag == ''
         uses: actions/checkout@v6
 
       - name: Setup Node.js
