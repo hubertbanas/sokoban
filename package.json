@@ -3,6 +3,7 @@
   "version": "1.12.1",
   "private": true,
   "type": "module",
+  "main": "electron-main.cjs",
   "description": "A retro Sokoban puzzle game built with Vite, React Hooks, TypeScript, Docker, and GitHub Actions. Forked from ecyrbe/sokoban.",
   "author": "Hubert Banas",
   "contributors": [
@@ -43,6 +44,8 @@
     "@types/react": "19",
     "@types/react-dom": "19",
     "@vitejs/plugin-react": "6",
+    "electron": "^41.0.3",
+    "electron-builder": "^26.8.1",
     "jsdom": "^29.0.0",
     "typescript": "5.9.3",
     "vite": "8",
@@ -51,7 +54,28 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:desktop": "yarn build && electron-builder --publish never",
     "preview": "vite preview",
     "test": "vitest run --environment jsdom"
+  },
+  "build": {
+    "appId": "com.hubertbanas.sokoban",
+    "productName": "Sokoban React",
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-main.cjs",
+      "package.json",
+      "public/favicon.ico"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Game"
+    }
   }
 }
