@@ -728,13 +728,17 @@
 .mobileControlHandle {
     grid-column: 2;
     grid-row: 2;
-    justify-self: stretch;
-    align-self: stretch;
+    justify-self: center;
+    align-self: center;
+    width: 85%;
+    height: 85%;
     font-size: clamp(1.2rem, 3.1vw, 1.5rem);
     line-height: 1;
     cursor: grab;
     z-index: 2;
-    border: 2px solid color-mix(in srgb, var(--foreground) 26%, var(--border) 74%);
+    border: 2px solid color-mix(in srgb, var(--foreground) 68%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--foreground) 68%, transparent);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--surface) 55%, transparent);
 }
 
