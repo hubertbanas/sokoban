@@ -146,3 +146,21 @@
 ### Changed
 - Documentation updates for architecture, deployment, and local workflows (`#1`, `#2`, `#3`).
 - Version bumped to `1.4.0` (`#4`).
+
+## [1.3.0] - 2026-03-08
+
+### Added
+- Modernized frontend stack by replacing Create React App with Vite.
+- Multi-stage Docker build and production Nginx runtime for static assets.
+- Initial CI/CD workflows for container publishing, GitHub Pages deployment, and CodeQL analysis.
+
+### Changed
+- Preserved core gameplay scope (nearly 500 puzzles and unlimited undo) during the frontend/tooling migration.
+- Updated documentation to reflect the modernized stack and local deployment flow.
+
+## [Historical] - Pre-Fork
+
+- This project was forked from the original upstream repository.
+- Original project: https://github.com/ecyrbe/sokoban
+- Original author: `ecyrbe`
+- The original project did not maintain a changelog. For all changes prior to `v1.3.0`, please refer to the raw Git commit history.
