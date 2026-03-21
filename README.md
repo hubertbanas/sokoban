@@ -129,9 +129,18 @@ docker compose -f compose.prod.yaml up -d
 ## CI/CD Workflows
 
 - `pages.yml`: Builds and deploys `dist/` to GitHub Pages on push to `main`/`master`.
-- `auto-tag.yml`: Creates `v<version>` tag when `package.json` version changes on `main`/`master`.
+- `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, and pulls notes from the matching `CHANGELOG.md` section.
 - `reusable-docker-publish.yml`: Builds and pushes GHCR image tags from release tags.
 - `codeql-analysis.yml`: Static security analysis.
+
+For signed tags in CI, configure repository secrets:
+
+- `RELEASE_GPG_PRIVATE_KEY`: ASCII-armored private key used to sign release tags.
+- `RELEASE_GPG_PASSPHRASE`: Passphrase for the private key (if set).
+
+Release note extraction expects changelog headings in this format:
+
+- `## [1.11.2] - 2026-03-21`
 
 ## Project Layout
 

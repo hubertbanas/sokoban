@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.11.2] - 2026-03-21
+
+### Changed
+- Implemented robust CI/CD pipeline with strict SemVer validation and automated Changelog extraction.
+- Upgraded automated GitHub releases to include cryptographic GPG signatures for the Verified badge.
+
 ## [1.11.1] - 2026-03-20
 
 ### Fixed

@@ -8,11 +8,15 @@ on:
     paths:
       - "package.json" # This action ONLY runs when package.json changes
 
+concurrency:
+  group: auto-tag-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   create-tag:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Grants the action permission to push tags
+      contents: write # Grants the action permission to push tags and create releases
     outputs:
       current_version: ${{ steps.detect.outputs.current_version }}
       skip_tag: ${{ steps.detect.outputs.skip_tag }}
@@ -27,6 +31,8 @@ jobs:
       - name: Detect Version Change
         id: detect
         run: |
+          set -euo pipefail
+
           CURRENT_VERSION="$(jq -r .version package.json)"
           BEFORE_SHA="${{ github.event.before }}"
 
@@ -46,6 +52,11 @@ jobs:
             exit 1
           fi
 
+          if ! [[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Version '$CURRENT_VERSION' is not a valid SemVer string."
+            exit 1
+          fi
+
           if [ "$CURRENT_VERSION" = "$PREVIOUS_VERSION" ]; then
             echo "Version unchanged ($CURRENT_VERSION). Skipping tag creation."
             echo "skip_tag=true" >> "$GITHUB_OUTPUT"
@@ -54,31 +65,80 @@ jobs:
             echo "skip_tag=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Import Release GPG Key
+        id: import_gpg
+        if: steps.detect.outputs.skip_tag != 'true'
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+          git_user_signingkey: true
+
+      - name: Configure Git Identity From GPG Key
+        if: steps.detect.outputs.skip_tag != 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "${{ steps.import_gpg.outputs.name }}"
+          git config user.email "${{ steps.import_gpg.outputs.email }}"
+
       - name: Create and Push Tag
         id: create_tag
         if: steps.detect.outputs.skip_tag != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="v${{ steps.detect.outputs.current_version }}"
+          set -euo pipefail
+
+          CURRENT_VERSION="${{ steps.detect.outputs.current_version }}"
+          TAG="v$CURRENT_VERSION"
 
           # Check existing tag through the GitHub API.
           if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists. Skipping."
             echo "tag_created=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Creating new tag via GitHub API: $TAG"
+            echo "Creating signed tag and release: $TAG"
 
-            TAG_OBJECT_SHA="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/tags" \
-              -f tag="$TAG" \
-              -f message="Release $TAG" \
-              -f object="${GITHUB_SHA}" \
-              -f type="commit" \
-              --jq '.sha')"
+            # Extract the specific version's release notes from CHANGELOG.md
+            if [ ! -f CHANGELOG.md ]; then
+              echo "CHANGELOG.md is required to build release notes."
+              exit 1
+            fi
 
-            gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
-              -f ref="refs/tags/$TAG" \
-              -f sha="$TAG_OBJECT_SHA" >/dev/null
+            if ! awk -v ver="$CURRENT_VERSION" '
+              BEGIN { found=0; capture=0 }
+              $0 ~ "^## \\[" ver "\\]" {
+                found=1
+                capture=1
+              }
+              /^## \[/ && capture && $0 !~ "^## \\[" ver "\\]" {
+                exit
+              }
+              capture { print }
+              END {
+                if (!found) {
+                  exit 2
+                }
+              }
+            ' CHANGELOG.md > release_notes.md; then
+              echo "No changelog section found for version $CURRENT_VERSION in CHANGELOG.md"
+              exit 1
+            fi
+
+            if [ ! -s release_notes.md ]; then
+              echo "Extracted release notes for $CURRENT_VERSION are empty."
+              exit 1
+            fi
+
+            # Create and push a signed, annotated tag.
+            git tag -s "$TAG" -m "Release $TAG" "${GITHUB_SHA}"
+            git push origin "$TAG"
+
+            # Create the release from the signed tag.
+            gh release create "$TAG" \
+              --verify-tag \
+              --title "Release $TAG" \
+              --notes-file release_notes.md
 
             echo "tag_created=true" >> "$GITHUB_OUTPUT"
           fi
