@@ -24,10 +24,10 @@ jobs:
             matrix:
                 include:
                     - os: ubuntu-latest
-                      release_pattern: dist-desktop/**/*.AppImage
+                      release_pattern: dist-desktop/*.AppImage
                       artifact_name: desktop-build-linux
                     - os: windows-latest
-                      release_pattern: dist-desktop/**/*.exe
+                      release_pattern: dist-desktop/*.exe
                       artifact_name: desktop-build-windows
 
         steps:
