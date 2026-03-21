@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.0] - 2026-03-21
+
+### Changed
+- Refined mobile dpad visuals: center handle is now a solid circular control without a `+` marker.
+- Reworked dpad divider rendering to preserve diagonal separators while keeping the center circle free of crossing lines.
+- Moved mobile `Undo` and `Restart` action buttons above the dpad for improved thumb reach and visibility.
+- Improved drag-handle accessibility labeling for touch controls.
+
 ## [1.11.2] - 2026-03-21
 
 ### Changed

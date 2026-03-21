@@ -275,6 +275,26 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
             aria-label="Touch controls"
             role="group"
         >
+            <div className={style.mobileControlActions}>
+                <button
+                    type="button"
+                    aria-label="Undo move"
+                    className={style.mobileControlActionButton}
+                    {...undoHandlers}
+                >
+                    Undo
+                </button>
+                <button
+                    type="button"
+                    aria-label="Restart level"
+                    className={style.mobileControlActionButton}
+                    onClick={onRestart}
+                    onContextMenu={onRestartContextMenu}
+                >
+                    Restart
+                </button>
+            </div>
+
             <div className={style.mobileControls}>
                 <button
                     type="button"
@@ -310,7 +330,7 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
                 </button>
                 <button
                     type="button"
-                    aria-label="Drag controls"
+                    aria-label="Drag to move controls"
                     title="Drag to reposition. Double tap to reset."
                     className={style.mobileControlHandle}
                     onPointerDown={onDragPointerDown}
@@ -320,27 +340,7 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
                     onDoubleClick={onResetPosition}
                     onContextMenu={onHandleContextMenu}
                 >
-                    <span aria-hidden="true">+</span>
-                </button>
-            </div>
-
-            <div className={style.mobileControlActions}>
-                <button
-                    type="button"
-                    aria-label="Undo move"
-                    className={style.mobileControlActionButton}
-                    {...undoHandlers}
-                >
-                    Undo
-                </button>
-                <button
-                    type="button"
-                    aria-label="Restart level"
-                    className={style.mobileControlActionButton}
-                    onClick={onRestart}
-                    onContextMenu={onRestartContextMenu}
-                >
-                    Restart
+                    <span className={style.screenReaderOnly}>Reposition controls</span>
                 </button>
             </div>
         </div>
