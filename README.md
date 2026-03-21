@@ -129,9 +129,9 @@ docker compose -f compose.prod.yaml up -d
 
 ## CI/CD Workflows
 
-- `pages.yml`: Builds and deploys `dist/` to GitHub Pages on release tag pushes (`v*`) and manual dispatch.
-- `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, and pulls notes from the matching `CHANGELOG.md` section.
-- `reusable-docker-publish.yml`: Builds and pushes GHCR image tags from release tags.
+- `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
+- `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
+- `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
 - `codeql-analysis.yml`: Static security analysis.
 
 Docs-only changes (for example `README.md`) do not create release tags, so they also do not trigger Docker publish or Pages deployment.
