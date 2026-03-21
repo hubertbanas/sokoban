@@ -588,11 +588,19 @@
         linear-gradient(45deg,
             transparent calc(50% - 1px),
             color-mix(in srgb, var(--foreground) 26%, var(--border) 74%) 50%,
-            transparent calc(50% + 1px)),
+            transparent calc(50% + 1px)) left top / calc(50% - 24px) calc(50% - 24px) no-repeat,
         linear-gradient(-45deg,
             transparent calc(50% - 1px),
             color-mix(in srgb, var(--foreground) 26%, var(--border) 74%) 50%,
-            transparent calc(50% + 1px));
+            transparent calc(50% + 1px)) right top / calc(50% - 24px) calc(50% - 24px) no-repeat,
+        linear-gradient(-45deg,
+            transparent calc(50% - 1px),
+            color-mix(in srgb, var(--foreground) 26%, var(--border) 74%) 50%,
+            transparent calc(50% + 1px)) left bottom / calc(50% - 24px) calc(50% - 24px) no-repeat,
+        linear-gradient(45deg,
+            transparent calc(50% - 1px),
+            color-mix(in srgb, var(--foreground) 26%, var(--border) 74%) 50%,
+            transparent calc(50% + 1px)) right bottom / calc(50% - 24px) calc(50% - 24px) no-repeat;
 }
 
 @media (hover: none),
