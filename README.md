@@ -128,7 +128,7 @@ docker compose -f compose.prod.yaml up -d
 
 ## CI/CD Workflows
 
-- `pages.yml`: Builds and deploys `dist/` to GitHub Pages on push to `main`/`master`.
+- `pages.yml`: Builds and deploys `dist/` to GitHub Pages on release tag pushes (`v*`) and manual dispatch.
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, and pulls notes from the matching `CHANGELOG.md` section.
 - `reusable-docker-publish.yml`: Builds and pushes GHCR image tags from release tags.
 - `codeql-analysis.yml`: Static security analysis.
