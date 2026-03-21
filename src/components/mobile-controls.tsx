@@ -275,6 +275,26 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
             aria-label="Touch controls"
             role="group"
         >
+            <div className={style.mobileControlActions}>
+                <button
+                    type="button"
+                    aria-label="Undo move"
+                    className={style.mobileControlActionButton}
+                    {...undoHandlers}
+                >
+                    Undo
+                </button>
+                <button
+                    type="button"
+                    aria-label="Restart level"
+                    className={style.mobileControlActionButton}
+                    onClick={onRestart}
+                    onContextMenu={onRestartContextMenu}
+                >
+                    Restart
+                </button>
+            </div>
+
             <div className={style.mobileControls}>
                 <button
                     type="button"
@@ -319,29 +339,7 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
                     onPointerCancel={onDragPointerEnd}
                     onDoubleClick={onResetPosition}
                     onContextMenu={onHandleContextMenu}
-                >
-                    <span aria-hidden="true">+</span>
-                </button>
-            </div>
-
-            <div className={style.mobileControlActions}>
-                <button
-                    type="button"
-                    aria-label="Undo move"
-                    className={style.mobileControlActionButton}
-                    {...undoHandlers}
-                >
-                    Undo
-                </button>
-                <button
-                    type="button"
-                    aria-label="Restart level"
-                    className={style.mobileControlActionButton}
-                    onClick={onRestart}
-                    onContextMenu={onRestartContextMenu}
-                >
-                    Restart
-                </button>
+                />
             </div>
         </div>
     );

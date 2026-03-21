@@ -22,8 +22,8 @@ The mobile dpad appears automatically on coarse-pointer/hoverless devices.
 - Four directional touch regions (up/left/right/down)
 - Press-and-hold repeats movement
 - `Undo` supports press-and-hold repeat
-- Center `+` handle can be dragged to reposition the control
-- Double-tap the center `+` to reset dpad position
+- Center handle can be dragged to reposition the control
+- Double-tap the center handle to reset dpad position
 - Dedicated `Undo` and `Restart` touch buttons (mapped to Backspace and Escape actions)
 - Dpad position is persisted in `localStorage`
 - Long-press context menu is suppressed for stable hold behavior (including Firefox emulation scenarios)
