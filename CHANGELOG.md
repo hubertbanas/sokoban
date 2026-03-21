@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.11.1] - 2026-03-20
+
+### Fixed
+- Preloaded all game assets from `src/assets` before app mount to avoid first-move sprite blinking (notably robot direction PNGs).
+- Added a startup loading overlay so slow asset preloads no longer present a blank initial paint.
+
+### Changed
+- Startup loading indicator now uses global app styles, is centered in the viewport, and follows OS light/dark preference before in-app theme initialization.
+
 ## [1.11.0] - 2026-03-17
 
 ### Changed
