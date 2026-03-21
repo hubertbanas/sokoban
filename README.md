@@ -134,6 +134,8 @@ docker compose -f compose.prod.yaml up -d
 - `reusable-docker-publish.yml`: Builds and pushes GHCR image tags from release tags.
 - `codeql-analysis.yml`: Static security analysis.
 
+Docs-only changes (for example `README.md`) do not create release tags, so they also do not trigger Docker publish or Pages deployment.
+
 For signed tags in CI, configure repository secrets:
 
 - `RELEASE_GPG_PRIVATE_KEY`: ASCII-armored private key used to sign release tags.
