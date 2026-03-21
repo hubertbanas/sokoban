@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.13.0] - 2026-03-21
+
+### Added
+- Electron desktop packaging entrypoint (`electron-main.cjs`) for running the built app as a native window.
+- Desktop packaging targets for Windows (`portable` `.exe`) and Linux (`AppImage`) via `electron-builder`.
+- Reusable desktop publish workflow (`.github/workflows/publish-desktop.yml`) with matrix builds for Windows and Linux.
+
+### Changed
+- Release orchestration now invokes desktop publishing from `auto-tag.yml` after a signed tag/release is created.
+- Release pipeline now uploads desktop binaries directly to GitHub Releases in addition to retaining CI artifacts.
+
 ## [1.12.1] - 2026-03-21
 
 ### Changed
