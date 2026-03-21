@@ -1,6 +1,6 @@
 {
   "name": "sokoban",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "private": true,
   "type": "module",
   "description": "A retro Sokoban puzzle game built with Vite, React Hooks, TypeScript, Docker, and GitHub Actions. Forked from ecyrbe/sokoban.",
