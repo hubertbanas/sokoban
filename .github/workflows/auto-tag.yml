@@ -143,26 +143,30 @@ jobs:
             echo "tag_created=true" >> "$GITHUB_OUTPUT"
           fi
 
-  docker-build-and-push:
+  # Publish targets for a newly created release tag.
+  # Add more publish jobs here (for example Docker Hub, ECR, or ACR).
+  publish-ghcr:
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true'
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/reusable-docker-publish.yml
+    uses: ./.github/workflows/publish-ghcr.yml
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
       publish_latest: true
     secrets: inherit
 
-  deploy-pages:
+  # Deployment targets for a newly created release tag.
+  # Add more deploy jobs here (for example Netlify, Cloudflare Pages, or S3/CDN).
+  deploy-github-pages:
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true'
     permissions:
       contents: read
       pages: write
       id-token: write
-    uses: ./.github/workflows/pages.yml
+    uses: ./.github/workflows/deploy-github-pages.yml
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
     secrets: inherit
