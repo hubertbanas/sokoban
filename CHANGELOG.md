@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.12.1] - 2026-03-21
+
+### Changed
+- Adjusted release workflow chaining so Pages deploy and Docker publish run deterministically after an auto-created release tag.
+
 ## [1.12.0] - 2026-03-21
 
 ### Changed
