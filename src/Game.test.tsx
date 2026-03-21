@@ -289,3 +289,165 @@ test("enter cancels when confirm button is not focused", () => {
   expect(screen.queryByRole("dialog", { name: /switch to next level confirmation/i })).not.toBeInTheDocument();
   expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
 });
+
+test("displays completion popup when level is completed", () => {
+  mockSokoban({ state: State.completed });
+
+  render(<Game />);
+
+  expect(screen.getByRole("dialog", { name: /level completed/i })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /congratulations!/i })).toBeInTheDocument();
+  expect(screen.getByText(/you completed this level\./i)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+  expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
+});
+
+test("clicking continue on completion popup advances to the next level", () => {
+  const next = vi.fn();
+  mockSokoban({ state: State.completed, next });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+  expect(next).toHaveBeenCalledTimes(1);
+});
+
+test("pressing Enter on completion popup advances to next level", () => {
+  const next = vi.fn();
+  mockSokoban({ state: State.completed, next });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Enter");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(next).toHaveBeenCalledTimes(1);
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+});
+
+test("completion popup appears dynamically when state changes to completed", () => {
+  mockSokoban({ state: State.playing });
+  const { rerender } = render(<Game />);
+
+  expect(screen.queryByRole("dialog", { name: /level completed/i })).not.toBeInTheDocument();
+
+  mockSokoban({ state: State.completed });
+  rerender(<Game />);
+
+  expect(screen.getByRole("dialog", { name: /level completed/i })).toBeInTheDocument();
+});
+
+test("renders correct level number and title", () => {
+  mockSokoban({
+    index: 4,
+    level: {
+      ...buildLevel(),
+      name: "The Box Puzzle",
+    },
+  });
+
+  render(<Game />);
+
+  expect(screen.getByText("Level 5")).toBeInTheDocument();
+  expect(screen.getByText("The Box Puzzle")).toBeInTheDocument();
+});
+
+test("renders auxiliary components", () => {
+  mockSokoban();
+
+  render(<Game />);
+
+  expect(screen.getByTestId("help")).toBeInTheDocument();
+  expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
+  expect(screen.getByTestId("theme-switcher")).toBeInTheDocument();
+});
+
+test("keyboard Backspace triggers undo", () => {
+  const undo = vi.fn();
+  mockSokoban({ state: State.playing, undo });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Backspace");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(undo).toHaveBeenCalledTimes(1);
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+});
+
+test("arrow keys trigger player movement", () => {
+  const move = vi.fn();
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowUp").event);
+  });
+  expect(move).toHaveBeenCalledWith(Direction.Top);
+
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowDown").event);
+  });
+  expect(move).toHaveBeenCalledWith(Direction.Bottom);
+
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowLeft").event);
+  });
+  expect(move).toHaveBeenCalledWith(Direction.Left);
+
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
+  });
+  expect(move).toHaveBeenCalledWith(Direction.Right);
+});
+
+test("restart confirmation opens with Escape when progress exists", () => {
+  const restart = vi.fn();
+  mockSokoban({ hasProgress: true, state: State.playing, restart });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Escape");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(screen.getByRole("dialog", { name: /restart level confirmation/i })).toBeInTheDocument();
+  expect(restart).not.toHaveBeenCalled();
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+
+  fireEvent.click(screen.getByRole("button", { name: "Restart Level" }));
+  expect(restart).toHaveBeenCalledTimes(1);
+});
+
+test("restart triggers immediately with Escape when no progress exists", () => {
+  const restart = vi.fn();
+  mockSokoban({ hasProgress: false, state: State.playing, restart });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Escape");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(restart).toHaveBeenCalledTimes(1);
+  expect(screen.queryByRole("dialog", { name: /restart level confirmation/i })).not.toBeInTheDocument();
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+});

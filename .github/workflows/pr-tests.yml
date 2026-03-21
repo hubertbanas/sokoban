@@ -1,0 +1,38 @@
+name: PR Tests
+
+on:
+    pull_request:
+        types:
+            - opened
+            - reopened
+            - synchronize
+            - ready_for_review
+
+concurrency:
+    group: pr-tests-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    tests:
+        name: Tests / Vitest
+        if: github.event.pull_request.draft == false
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: yarn
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Run tests
+              run: yarn test --reporter=verbose
