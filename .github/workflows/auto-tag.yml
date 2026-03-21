@@ -146,8 +146,23 @@ jobs:
   docker-build-and-push:
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true'
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/reusable-docker-publish.yml
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
       publish_latest: true
+    secrets: inherit
+
+  deploy-pages:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.current_version }}
     secrets: inherit
