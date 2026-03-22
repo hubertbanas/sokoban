@@ -180,3 +180,13 @@ jobs:
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
     secrets: inherit
+
+  publish-android:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-android.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.current_version }}
+    secrets: inherit

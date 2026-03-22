@@ -1,0 +1,73 @@
+name: Build and Publish Android APK
+
+on:
+    workflow_call:
+        inputs:
+            tag:
+                description: "Version without leading v (example: 1.2.3)"
+                required: true
+                type: string
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: "Version without leading v (example: 1.2.3)"
+                required: true
+                type: string
+
+jobs:
+    build-and-publish:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - name: Checkout repository at release tag
+              uses: actions/checkout@v6
+              with:
+                  ref: refs/tags/v${{ inputs.tag }}
+
+            # Capacitor requires Java 17 to compile the Android project
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "zulu"
+                  java-version: "17"
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: yarn
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Build web app
+              run: yarn build
+
+            # Syncs the dist folder into the native Android platform
+            - name: Sync Capacitor
+              run: npx cap sync android
+
+            # Builds the APK using the Gradle wrapper
+            - name: Build Android APK
+              run: |
+                  cd android
+                  chmod +x gradlew
+                  ./gradlew assembleDebug
+
+            - name: Upload APK to artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: android-build
+                  path: android/app/build/outputs/apk/debug/app-debug.apk
+                  if-no-files-found: error
+
+            - name: Upload APK to GitHub Release
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: android/app/build/outputs/apk/debug/app-debug.apk
+                  asset_name: Sokoban.React.${{ inputs.tag }}.apk # Renames for the release page
+                  tag: v${{ inputs.tag }}
+                  overwrite: true
