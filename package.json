@@ -64,6 +64,7 @@
   "build": {
     "appId": "com.hubertbanas.sokoban",
     "productName": "Sokoban React",
+    "artifactName": "Sokoban.React-${version}.${ext}",
     "directories": {
       "output": "dist-desktop"
     },
