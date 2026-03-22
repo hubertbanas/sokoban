@@ -75,7 +75,7 @@ jobs:
       - name: Import Release GPG Key
         id: import_gpg
         if: steps.detect.outputs.skip_tag != 'true'
-        uses: crazy-max/ghaction-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
