@@ -26,7 +26,7 @@ jobs:
         with:
           ref: refs/tags/v${{ inputs.tag }}
 
-      # Capacitor requires Java 17 to compile the Android project
+      # Capacitor requires Java 21 to compile the Android project
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
