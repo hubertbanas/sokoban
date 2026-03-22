@@ -49,8 +49,8 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # Builds the APK using the Gradle wrapper
-      - name: Build Android APK
+      # Intentionally builds a debug APK for initial testing.
+      - name: Build Android Debug APK
         run: |
           cd android
           chmod +x gradlew
@@ -59,7 +59,7 @@ jobs:
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
+          name: android-build-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
@@ -68,6 +68,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: android/app/build/outputs/apk/debug/app-debug.apk
-          asset_name: Sokoban.React.${{ inputs.tag }}.apk # Renames for the release page
+          asset_name: Sokoban.React.${{ inputs.tag }}.debug.apk
           tag: v${{ inputs.tag }}
           overwrite: true
