@@ -141,9 +141,16 @@ jobs:
             git tag -s "$TAG" -m "Release $TAG" "${GITHUB_SHA}"
             git push origin "$TAG"
 
+            # Mark release as prerelease when version has a SemVer prerelease suffix.
+            PRERELEASE_FLAG=""
+            if [ "${{ steps.detect.outputs.is_prerelease }}" = "true" ]; then
+              PRERELEASE_FLAG="--prerelease"
+            fi
+
             # Create the release from the signed tag.
             gh release create "$TAG" \
               --verify-tag \
+              $PRERELEASE_FLAG \
               --title "Release $TAG" \
               --notes-file release_notes.md
 
@@ -168,7 +175,7 @@ jobs:
   # Add more deploy jobs here (for example Netlify, Cloudflare Pages, or S3/CDN).
   deploy-github-pages:
     needs: create-tag
-    if: needs.create-tag.outputs.tag_created == 'true'
+    if: needs.create-tag.outputs.tag_created == 'true' && needs.create-tag.outputs.is_prerelease == 'false'
     permissions:
       contents: read
       pages: write

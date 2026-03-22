@@ -24,6 +24,8 @@ concurrency:
 
 jobs:
   deploy:
+    # Skip prerelease tags (for example v1.15.0-rc.1) across all trigger paths.
+    if: (inputs.tag == '' && !contains(github.ref_name, '-')) || (inputs.tag != '' && !contains(inputs.tag, '-'))
     runs-on: ubuntu-latest
     environment:
       name: github-pages
