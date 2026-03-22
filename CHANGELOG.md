@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.1] - 2026-03-22
+
+### Added
+- RC Pipeline Test: Verifying that pre-release flags, Docker tag protections, and GitHub Pages deployment blocks are fully functional.
+
 ## [1.14.0] - 2026-03-22
 
 ### Added
