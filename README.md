@@ -151,6 +151,7 @@ Configured targets:
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
 - `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds Windows/Linux desktop binaries and uploads them to the matching GitHub Release.
+- `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it currently builds and uploads a debug APK (`.debug.apk`) for initial device testing.
 - `codeql-analysis.yml`: Static security analysis.
 
 Docs-only changes (for example `README.md`) do not create release tags, so they also do not trigger Docker publish or Pages deployment.
