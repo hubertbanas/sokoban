@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.14.0] - 2026-03-22
+
+### Added
+- Reusable Android publish workflow (`.github/workflows/publish-android.yml`) invoked by release orchestration to build and attach APK artifacts to GitHub Releases.
+
+### Changed
+- Release orchestration now invokes Android publishing from `auto-tag.yml` after signed tag/release creation.
+- GHCR publish logic now avoids assigning the `latest` tag for prerelease SemVer versions.
+- Android release artifact naming now explicitly marks the current CI output as a debug APK for initial testing.
+
 ## [1.13.0] - 2026-03-21
 
 ### Added
