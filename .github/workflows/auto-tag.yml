@@ -20,6 +20,7 @@ jobs:
     outputs:
       current_version: ${{ steps.detect.outputs.current_version }}
       skip_tag: ${{ steps.detect.outputs.skip_tag }}
+      is_prerelease: ${{ steps.detect.outputs.is_prerelease }}
       tag_created: ${{ steps.create_tag.outputs.tag_created }}
 
     steps:
@@ -46,6 +47,12 @@ jobs:
 
           echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
           echo "previous_version=$PREVIOUS_VERSION" >> "$GITHUB_OUTPUT"
+
+          if [[ "$CURRENT_VERSION" == *-* ]]; then
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
 
           if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "null" ]; then
             echo "No valid version found in package.json"
@@ -154,7 +161,7 @@ jobs:
     uses: ./.github/workflows/publish-ghcr.yml
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
-      publish_latest: true
+      publish_latest: ${{ needs.create-tag.outputs.is_prerelease != 'true' }}
     secrets: inherit
 
   # Deployment targets for a newly created release tag.
@@ -177,6 +184,16 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/publish-desktop.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.current_version }}
+    secrets: inherit
+
+  publish-android:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-android.yml
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
     secrets: inherit
