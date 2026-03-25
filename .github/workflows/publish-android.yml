@@ -67,7 +67,7 @@ jobs:
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: android-build-release
+          name: android-build-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
@@ -87,7 +87,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: android/app/build/outputs/apk/release/app-release.apk
-          asset_name: Sokoban.React.${{ inputs.tag }}.apk
+          asset_name: Sokoban.React-${{ inputs.tag }}.apk
           tag: v${{ inputs.tag }}
           overwrite: true
 
@@ -96,6 +96,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: android/app/build/outputs/bundle/release/app-release.aab
-          asset_name: Sokoban.React.${{ inputs.tag }}.aab
+          asset_name: Sokoban.React-${{ inputs.tag }}.aab
           tag: v${{ inputs.tag }}
           overwrite: true
