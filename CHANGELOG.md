@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.2] - 2026-03-24
+
+### Added
+- Android Release Pipeline Test: Verifying the automated generation and upload of the signed release APK and AAB formats.
+
 ## [1.15.0-rc.1] - 2026-03-22
 
 ### Added
