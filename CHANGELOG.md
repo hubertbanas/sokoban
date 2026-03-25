@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.4] - 2026-03-25
+
+### Added
+- CI/CD Fix: Configured Flatpak for unprivileged user-level runtime installation on the Ubuntu runner.
+
 ## [1.15.0-rc.3] - 2026-03-25
 
 ### Added
