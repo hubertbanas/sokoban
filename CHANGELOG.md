@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.3] - 2026-03-25
+
+### Added
+- CI/CD Finalization Test: Verifying parallel execution of the build matrix. 
+- Desktop Pipeline: Testing Flatpak compilation on the Ubuntu runner and verifying artifact uploads.
+- Android Pipeline: Confirming strict secret inheritance and aligned APK/AAB naming conventions.
+
 ## [1.15.0-rc.2] - 2026-03-24
 
 ### Added
