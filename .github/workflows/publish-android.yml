@@ -49,25 +49,53 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # Intentionally builds a debug APK for initial testing.
-      - name: Build Android Debug APK
+      # Decode the Base64-encoded keystore secret into a binary keystore file
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+
+      - name: Build Android Release Artifacts
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease bundleRelease
 
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: android-build-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: android-build-release
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
+
+      - name: Upload AAB to artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-build-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Remove decoded keystore
+        if: always()
+        run: rm -f android/app/keystore.jks
 
       - name: Upload APK to GitHub Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: android/app/build/outputs/apk/debug/app-debug.apk
-          asset_name: Sokoban.React.${{ inputs.tag }}.debug.apk
+          file: android/app/build/outputs/apk/release/app-release.apk
+          asset_name: Sokoban.React.${{ inputs.tag }}.apk
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload AAB to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/bundle/release/app-release.aab
+          asset_name: Sokoban.React.${{ inputs.tag }}.aab
           tag: v${{ inputs.tag }}
           overwrite: true

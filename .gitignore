@@ -28,3 +28,9 @@ yarn-error.log*
 # Editor folders
 .vscode/
 .idea/
+
+# android keystore files
+android/app/keystore.jks
+*.jks
+keystore-base64.txt
+.env.android-release
