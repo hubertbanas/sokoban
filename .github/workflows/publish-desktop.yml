@@ -48,11 +48,19 @@ jobs:
               run: |
                   sudo apt-get update
                   sudo apt-get install -y flatpak flatpak-builder
-                  sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+                  flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+            - name: Flatpak diagnostics
+              if: runner.os == 'Linux'
+              run: |
+                  flatpak --version
+                  flatpak-builder --version
+                  flatpak remotes --user
 
             - name: Build and package desktop app
               run: yarn build:desktop
               env:
+                  DEBUG: flatpak-bundler
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload desktop artifact bundle
