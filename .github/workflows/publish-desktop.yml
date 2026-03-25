@@ -24,8 +24,6 @@ jobs:
             matrix:
                 include:
                     - os: ubuntu-latest
-                      release_pattern: dist-desktop/*.AppImage
-                      artifact_name: desktop-build-linux
                     - os: windows-latest
                       release_pattern: dist-desktop/*.exe
                       artifact_name: desktop-build-windows
@@ -45,23 +43,68 @@ jobs:
             - name: Install dependencies
               run: yarn install --frozen-lockfile
 
+            - name: Install Flatpak dependencies
+              if: runner.os == 'Linux'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y flatpak flatpak-builder
+                  sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
             - name: Build and package desktop app
               run: yarn build:desktop
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload desktop artifact bundle
+              if: runner.os == 'Windows'
               uses: actions/upload-artifact@v7
               with:
                   name: ${{ matrix.artifact_name }}
                   path: ${{ matrix.release_pattern }}
                   if-no-files-found: error
 
+            - name: Upload Linux AppImage artifact bundle
+              if: runner.os == 'Linux'
+              uses: actions/upload-artifact@v7
+              with:
+                  name: desktop-build-linux-appimage
+                  path: dist-desktop/*.AppImage
+                  if-no-files-found: error
+
+            - name: Upload Linux Flatpak artifact bundle
+              if: runner.os == 'Linux'
+              uses: actions/upload-artifact@v7
+              with:
+                  name: desktop-build-linux-flatpak
+                  path: dist-desktop/*.flatpak
+                  if-no-files-found: error
+
             - name: Upload binaries to GitHub Release
+              if: runner.os == 'Windows'
               uses: svenstaro/upload-release-action@v2
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
                   file: ${{ matrix.release_pattern }}
+                  file_glob: true
+                  tag: v${{ inputs.tag }}
+                  overwrite: true
+
+            - name: Upload AppImage to GitHub Release
+              if: runner.os == 'Linux'
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: dist-desktop/*.AppImage
+                  file_glob: true
+                  tag: v${{ inputs.tag }}
+                  overwrite: true
+
+            - name: Upload Flatpak to GitHub Release
+              if: runner.os == 'Linux'
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: dist-desktop/*.flatpak
                   file_glob: true
                   tag: v${{ inputs.tag }}
                   overwrite: true

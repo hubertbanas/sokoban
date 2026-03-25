@@ -12,9 +12,9 @@ Live app: https://hubertbanas.github.io/sokoban/
 - Hold-to-repeat behavior for level and direction controls
 - Light/dark theme support with persisted user preference
 - About modal with runtime app version from `package.json`
-- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`) via Electron
+- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`) via Electron
 - Docker and Docker Compose support for dev/prod usage
-- GitHub Actions for Pages deploy, auto-tagging, container publishing, and desktop release assets
+- GitHub Actions for Pages deploy, auto-tagging, container publishing, and desktop/Android release assets
 
 ## Mobile Touch Controls
 
@@ -144,14 +144,15 @@ Configured targets:
 
 - Windows portable executable (`.exe`)
 - Linux AppImage (`.AppImage`)
+- Linux Flatpak (`.flatpak`)
 
 ## CI/CD Workflows
 
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
-- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds Windows/Linux desktop binaries and uploads them to the matching GitHub Release.
-- `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it currently builds and uploads a debug APK (`.debug.apk`) for initial device testing.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`) release assets.
+- `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and uploads them to CI artifacts and the GitHub Release.
 - `codeql-analysis.yml`: Static security analysis.
 
 Docs-only changes (for example `README.md`) do not create release tags, so they also do not trigger Docker publish or Pages deployment.
@@ -160,6 +161,13 @@ For signed tags in CI, configure repository secrets:
 
 - `RELEASE_GPG_PRIVATE_KEY`: ASCII-armored private key used to sign release tags.
 - `RELEASE_GPG_PASSPHRASE`: Passphrase for the private key (if set).
+
+For signed Android release builds in CI, configure repository secrets:
+
+- `ANDROID_KEYSTORE_BASE64`: Base64-encoded release keystore content.
+- `ANDROID_KEY_ALIAS`: Keystore key alias.
+- `ANDROID_KEYSTORE_PASSWORD`: Keystore password.
+- `ANDROID_KEY_PASSWORD`: Key password.
 
 Release note extraction expects changelog headings in this format:
 
