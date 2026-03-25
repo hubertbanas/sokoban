@@ -78,7 +78,10 @@
       "target": "portable"
     },
     "linux": {
-      "target": "AppImage",
+      "target": [
+        "AppImage",
+        "flatpak"
+      ],
       "category": "Game"
     }
   }
