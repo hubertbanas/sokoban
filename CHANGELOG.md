@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0-rc.7] - 2026-03-26
+
+### Added
+- macOS Build Targets: Configured native `.dmg` compilation for both Intel (x64) and Apple Silicon (arm64) architectures via GitHub Actions `macos-latest` runners.
+- macOS Cryptography: Implemented native `shasum` scripting to generate SHA-256 checksums and PGP signatures for Apple artifacts prior to release upload.
+
 ## [1.15.0-rc.6] - 2026-03-25
 
 ### Added
