@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.5] - 2026-03-25
+
+### Added
+- CI/CD Finalization Test: Verifying the complete 6-artifact build matrix, ensuring native ARM64 compilation succeeds for both Windows and Linux targets.
+
 ## [1.15.0-rc.4] - 2026-03-25
 
 ### Added
