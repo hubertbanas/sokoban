@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.6] - 2026-03-25
+
+### Added
+- CI/CD Security Verification: Testing the cryptographic signing pipeline to ensure all release assets are accompanied by valid SHA-256 checksums and PGP signatures.
+
 ## [1.15.0-rc.5] - 2026-03-25
 
 ### Added
