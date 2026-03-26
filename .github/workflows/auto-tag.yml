@@ -141,6 +141,21 @@ jobs:
             git tag -s "$TAG" -m "Release $TAG" "${GITHUB_SHA}"
             git push origin "$TAG"
 
+            # GitHub API can lag briefly after tag push; wait until the tag ref is visible.
+            TAG_REF_VISIBLE="false"
+            for attempt in {1..10}; do
+              if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/$TAG" >/dev/null 2>&1; then
+                TAG_REF_VISIBLE="true"
+                break
+              fi
+              sleep 2
+            done
+
+            if [ "$TAG_REF_VISIBLE" != "true" ]; then
+              echo "Tag $TAG was pushed but is still not visible via GitHub API after waiting."
+              exit 1
+            fi
+
             # Mark release as prerelease when version has a SemVer prerelease suffix.
             PRERELEASE_FLAG=""
             if [ "${{ steps.detect.outputs.is_prerelease }}" = "true" ]; then
