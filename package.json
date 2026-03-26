@@ -100,9 +100,20 @@
             "x64",
             "arm64"
           ]
+        },
+        {
+          "target": "snap",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "category": "Game"
+    },
+    "snap": {
+      "confinement": "strict",
+      "grade": "stable",
+      "summary": "A retro Sokoban puzzle game."
     },
     "mac": {
       "target": [

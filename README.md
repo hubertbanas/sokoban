@@ -146,13 +146,14 @@ Configured targets:
 - macOS disk image (`.dmg`, x64 and arm64)
 - Linux AppImage (`.AppImage`, x64 and arm64)
 - Linux Flatpak (`.flatpak`, x64 and arm64)
+- Linux Snap (`.snap`, x64)
 
 ## CI/CD Workflows
 
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
-- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64), macOS (`.dmg`, x64 and arm64), and Linux (`.AppImage`, `.flatpak`, x64 and arm64) release assets, plus `.sha256` checksums and `.asc` detached signatures.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64), macOS (`.dmg`, x64 and arm64), and Linux (`.AppImage`, `.flatpak`, x64 and arm64; `.snap`, x64) release assets, plus `.sha256` checksums and `.asc` detached signatures.
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
 
