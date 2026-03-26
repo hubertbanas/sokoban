@@ -68,6 +68,7 @@ jobs:
           flatpak --version
           flatpak-builder --version
           flatpak remotes --user
+          snapcraft --version || true
 
       - name: Build and package desktop app
         run: yarn build:desktop
@@ -96,7 +97,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak; do
+          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap; do
             if [ -f "$file" ]; then
               sha256sum "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
@@ -166,6 +167,14 @@ jobs:
           path: dist-desktop/*.flatpak
           if-no-files-found: error
 
+      - name: Upload Linux Snap artifact bundle
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-snap
+          path: dist-desktop/*.snap
+          if-no-files-found: error
+
       - name: Upload Linux checksum/signature artifacts
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
@@ -176,6 +185,8 @@ jobs:
             dist-desktop/*.AppImage.asc
             dist-desktop/*.flatpak.sha256
             dist-desktop/*.flatpak.asc
+            dist-desktop/*.snap.sha256
+            dist-desktop/*.snap.asc
           if-no-files-found: error
 
       - name: Upload binaries to GitHub Release
@@ -264,6 +275,36 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist-desktop/*.flatpak.asc
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Snap to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.snap
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Snap checksums to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.snap.sha256
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Snap signatures to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.snap.asc
           file_glob: true
           tag: v${{ inputs.tag }}
           overwrite: true
