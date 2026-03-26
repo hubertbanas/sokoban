@@ -63,8 +63,8 @@
   },
   "build": {
     "appId": "com.hubertbanas.sokoban",
-    "productName": "Sokoban React",
-    "artifactName": "Sokoban.React-${version}.${ext}",
+    "productName": "Sokoban",
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
     "directories": {
       "output": "dist-desktop"
     },
@@ -75,12 +75,32 @@
       "public/favicon.ico"
     ],
     "win": {
-      "target": "portable"
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
     },
     "linux": {
       "target": [
-        "AppImage",
-        "flatpak"
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "flatpak",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "category": "Game"
     }

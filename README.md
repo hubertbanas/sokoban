@@ -142,16 +142,16 @@ Output directory:
 
 Configured targets:
 
-- Windows portable executable (`.exe`)
-- Linux AppImage (`.AppImage`)
-- Linux Flatpak (`.flatpak`)
+- Windows portable executable (`.exe`, x64 and arm64)
+- Linux AppImage (`.AppImage`, x64 and arm64)
+- Linux Flatpak (`.flatpak`, x64 and arm64)
 
 ## CI/CD Workflows
 
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
-- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`) release assets.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64) and Linux (`.AppImage`, `.flatpak`, x64 and arm64) release assets.
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and uploads them to CI artifacts and the GitHub Release.
 - `codeql-analysis.yml`: Static security analysis.
 
