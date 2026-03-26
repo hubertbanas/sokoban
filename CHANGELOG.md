@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.9] - 2026-03-26
+
+### Changed
+- CI/CD Release Reliability: Added robust tag visibility polling before `gh release create --verify-tag` to avoid transient GitHub API propagation race failures after tag push.
+
 ## [1.15.0-rc.8] - 2026-03-26
 
 ### Changed
