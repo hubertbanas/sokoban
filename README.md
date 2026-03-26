@@ -151,8 +151,8 @@ Configured targets:
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
-- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64) and Linux (`.AppImage`, `.flatpak`, x64 and arm64) release assets.
-- `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and uploads them to CI artifacts and the GitHub Release.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64) and Linux (`.AppImage`, `.flatpak`, x64 and arm64) release assets, plus `.sha256` checksums and `.asc` detached signatures.
+- `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
 
 Docs-only changes (for example `README.md`) do not create release tags, so they also do not trigger Docker publish or Pages deployment.
@@ -161,6 +161,8 @@ For signed tags in CI, configure repository secrets:
 
 - `RELEASE_GPG_PRIVATE_KEY`: ASCII-armored private key used to sign release tags.
 - `RELEASE_GPG_PASSPHRASE`: Passphrase for the private key (if set).
+
+The same GPG key secrets are also used to produce release artifact signatures (`.asc`) for desktop and Android assets.
 
 For signed Android release builds in CI, configure repository secrets:
 
@@ -172,6 +174,31 @@ For signed Android release builds in CI, configure repository secrets:
 Release note extraction expects changelog headings in this format:
 
 - `## [1.11.2] - 2026-03-21`
+
+## Verify Downloads
+
+After downloading an asset and its sidecar files (`.sha256` and `.asc`), verify integrity and signature.
+
+Linux/macOS:
+
+```bash
+# Example file names; replace with the asset you downloaded.
+sha256sum -c Sokoban-1.15.0-x64.AppImage.sha256
+gpg --verify Sokoban-1.15.0-x64.AppImage.asc Sokoban-1.15.0-x64.AppImage
+```
+
+Windows PowerShell:
+
+```powershell
+# Integrity check (compares local SHA256 to the .sha256 file content)
+$file = "Sokoban-1.15.0-x64.exe"
+$expected = (Get-Content "$file.sha256").Split(' ')[0].ToLower()
+$actual = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+if ($expected -eq $actual) { "SHA256 OK" } else { "SHA256 MISMATCH" }
+
+# Signature check (requires GPG installed and your public key imported)
+gpg --verify "$file.asc" "$file"
+```
 
 ## Project Layout
 
