@@ -16,6 +16,10 @@ on:
         required: true
       ANDROID_KEY_PASSWORD:
         required: true
+      RELEASE_GPG_PRIVATE_KEY:
+        required: true
+      RELEASE_GPG_PASSPHRASE:
+        required: false
   workflow_dispatch:
     inputs:
       tag:
@@ -73,6 +77,22 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease bundleRelease
 
+      - name: Import Release GPG Key
+        uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
+
+      - name: Generate Android checksums and signatures
+        run: |
+          set -euo pipefail
+          for file in \
+            android/app/build/outputs/apk/release/app-release.apk \
+            android/app/build/outputs/bundle/release/app-release.aab; do
+            sha256sum "$file" > "${file}.sha256"
+            gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
+          done
+
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -85,6 +105,17 @@ jobs:
         with:
           name: android-build-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Upload Android checksum/signature artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-build-release-signatures
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk.sha256
+            android/app/build/outputs/apk/release/app-release.apk.asc
+            android/app/build/outputs/bundle/release/app-release.aab.sha256
+            android/app/build/outputs/bundle/release/app-release.aab.asc
           if-no-files-found: error
 
       - name: Remove decoded keystore
@@ -100,11 +131,47 @@ jobs:
           tag: v${{ inputs.tag }}
           overwrite: true
 
+      - name: Upload APK checksum to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/apk/release/app-release.apk.sha256
+          asset_name: Sokoban-${{ inputs.tag }}.apk.sha256
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload APK signature to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/apk/release/app-release.apk.asc
+          asset_name: Sokoban-${{ inputs.tag }}.apk.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
       - name: Upload AAB to GitHub Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: android/app/build/outputs/bundle/release/app-release.aab
           asset_name: Sokoban-${{ inputs.tag }}.aab
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload AAB checksum to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/bundle/release/app-release.aab.sha256
+          asset_name: Sokoban-${{ inputs.tag }}.aab.sha256
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload AAB signature to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/bundle/release/app-release.aab.asc
+          asset_name: Sokoban-${{ inputs.tag }}.aab.asc
           tag: v${{ inputs.tag }}
           overwrite: true
