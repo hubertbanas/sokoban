@@ -143,6 +143,7 @@ Output directory:
 Configured targets:
 
 - Windows portable executable (`.exe`, x64 and arm64)
+- macOS disk image (`.dmg`, x64 and arm64)
 - Linux AppImage (`.AppImage`, x64 and arm64)
 - Linux Flatpak (`.flatpak`, x64 and arm64)
 
@@ -151,7 +152,7 @@ Configured targets:
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
-- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64) and Linux (`.AppImage`, `.flatpak`, x64 and arm64) release assets, plus `.sha256` checksums and `.asc` detached signatures.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64), macOS (`.dmg`, x64 and arm64), and Linux (`.AppImage`, `.flatpak`, x64 and arm64) release assets, plus `.sha256` checksums and `.asc` detached signatures.
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
 
@@ -179,12 +180,21 @@ Release note extraction expects changelog headings in this format:
 
 After downloading an asset and its sidecar files (`.sha256` and `.asc`), verify integrity and signature.
 
-Linux/macOS:
+Linux:
 
 ```bash
 # Example file names; replace with the asset you downloaded.
 sha256sum -c Sokoban-1.15.0-x64.AppImage.sha256
 gpg --verify Sokoban-1.15.0-x64.AppImage.asc Sokoban-1.15.0-x64.AppImage
+```
+
+macOS:
+
+```bash
+# Example file names; replace with the asset you downloaded.
+shasum -a 256 Sokoban-1.15.0-x64.dmg
+cat Sokoban-1.15.0-x64.dmg.sha256
+gpg --verify Sokoban-1.15.0-x64.dmg.asc Sokoban-1.15.0-x64.dmg
 ```
 
 Windows PowerShell:
