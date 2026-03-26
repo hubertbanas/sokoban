@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.8] - 2026-03-26
+
+### Changed
+- CI/CD Matrix Verification: Triggering a comprehensive release build to validate the newly merged Ubuntu Snap package integration alongside the existing Windows, macOS, Linux, and Android targets.
+
 ## [1.15.0-rc.7] - 2026-03-26
 
 ### Added
