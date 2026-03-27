@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.11] - 2026-03-26
+
+### Fixed
+- Added author email to satisfy Linux package requirements. (#82)
+
 ## [1.15.0-rc.10] - 2026-03-26
 
 ### Changed
