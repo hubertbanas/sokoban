@@ -55,11 +55,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Install Flatpak dependencies
+      - name: Install Linux build dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder elfutils
+          sudo apt-get install -y flatpak flatpak-builder elfutils rpm
           flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
       - name: Flatpak diagnostics
@@ -68,6 +68,7 @@ jobs:
           flatpak --version
           flatpak-builder --version
           flatpak remotes --user
+          rpm --version || true
           snapcraft --version || true
 
       - name: Build and package desktop app
@@ -97,7 +98,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap; do
+          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm; do
             if [ -f "$file" ]; then
               sha256sum "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
@@ -175,6 +176,22 @@ jobs:
           path: dist-desktop/*.snap
           if-no-files-found: error
 
+      - name: Upload Linux Debian artifact bundle
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-deb
+          path: dist-desktop/*.deb
+          if-no-files-found: error
+
+      - name: Upload Linux RPM artifact bundle
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-rpm
+          path: dist-desktop/*.rpm
+          if-no-files-found: error
+
       - name: Upload Linux checksum/signature artifacts
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
@@ -187,6 +204,10 @@ jobs:
             dist-desktop/*.flatpak.asc
             dist-desktop/*.snap.sha256
             dist-desktop/*.snap.asc
+            dist-desktop/*.deb.sha256
+            dist-desktop/*.deb.asc
+            dist-desktop/*.rpm.sha256
+            dist-desktop/*.rpm.asc
           if-no-files-found: error
 
       - name: Upload binaries to GitHub Release
@@ -305,6 +326,66 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist-desktop/*.snap.asc
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Debian package to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.deb
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Debian checksums to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.deb.sha256
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Debian signatures to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.deb.asc
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload RPM package to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.rpm
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload RPM checksums to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.rpm.sha256
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload RPM signatures to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.rpm.asc
           file_glob: true
           tag: v${{ inputs.tag }}
           overwrite: true
