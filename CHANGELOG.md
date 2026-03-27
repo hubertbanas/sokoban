@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0-rc.12] - 2026-03-27
+
+### Added
+- Desktop packaging: Added Windows NSIS installer target (`.exe`) for x64 and arm64 with a distinct `-setup-` artifact name to avoid collisions with portable executables.
+- Desktop packaging: Added Linux Arch package target (`.pacman`) for x64 and arm64, including release checksums/signatures and GitHub Release asset uploads.
+
 ## [1.15.0-rc.11] - 2026-03-26
 
 ### Fixed
