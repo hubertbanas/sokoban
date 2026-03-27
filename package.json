@@ -5,7 +5,10 @@
   "type": "module",
   "main": "electron-main.cjs",
   "description": "A retro Sokoban puzzle game built with Vite, React Hooks, TypeScript, Docker, and GitHub Actions. Forked from ecyrbe/sokoban.",
-  "author": "Hubert Banas",
+  "author": {
+    "name": "Hubert Banas",
+    "email": "hubertbanas@users.noreply.github.com"
+  },
   "contributors": [
     {
       "name": "ecyrbe",
