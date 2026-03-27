@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0-rc.10] - 2026-03-26
+
+### Changed
+- CI: Finalized Linux deployment matrix with Debian and Red Hat targets. (#79)
+- CI: Added source archive generation. (#80)
+
 ## [1.15.0-rc.9] - 2026-03-26
 
 ### Changed
