@@ -83,6 +83,16 @@ jobs:
           gpg_private_key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
 
+      - name: Generate source code tarball
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          git archive \
+            --format=tar.gz \
+            --prefix=Sokoban-source-${{ inputs.tag }}/ \
+            --output=dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz \
+            HEAD
+
       - name: Generate Windows checksums and signatures
         if: runner.os == 'Windows'
         shell: pwsh
@@ -98,10 +108,13 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm; do
+          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz; do
             if [ -f "$file" ]; then
               sha256sum "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
+              if [[ "$file" == *.tar.gz ]]; then
+                gpg --batch --yes --armor --detach-sign --output "${file}.sha256.asc" "${file}.sha256"
+              fi
             fi
           done
 
@@ -192,6 +205,14 @@ jobs:
           path: dist-desktop/*.rpm
           if-no-files-found: error
 
+      - name: Upload Linux source archive artifact bundle
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-source
+          path: dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz
+          if-no-files-found: error
+
       - name: Upload Linux checksum/signature artifacts
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
@@ -208,6 +229,9 @@ jobs:
             dist-desktop/*.deb.asc
             dist-desktop/*.rpm.sha256
             dist-desktop/*.rpm.asc
+            dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256
+            dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.asc
+            dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256.asc
           if-no-files-found: error
 
       - name: Upload binaries to GitHub Release
@@ -387,6 +411,42 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist-desktop/*.rpm.asc
           file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload source archive to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload source archive checksum to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload source archive signature to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload source checksum signature to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256.asc
           tag: v${{ inputs.tag }}
           overwrite: true
 
