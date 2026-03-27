@@ -143,6 +143,7 @@ Output directory:
 Configured targets:
 
 - Windows portable executable (`.exe`, x64 and arm64)
+- Windows NSIS installer (`.exe`, x64 and arm64)
 - macOS disk image (`.dmg`, x64 and arm64)
 - Linux AppImage (`.AppImage`, x64 and arm64)
 - Linux Flatpak (`.flatpak`, x64 and arm64)
@@ -157,7 +158,7 @@ Configured targets:
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
 - `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes desktop release assets with `.sha256` checksums and `.asc` detached signatures.
-	- Windows: `.exe` (x64 and arm64)
+	- Windows: NSIS installer `.exe` and portable `.exe` (x64 and arm64)
 	- macOS: `.dmg` (x64 and arm64)
 	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb`, `.rpm`, and `.pacman` (x64 and arm64)
 	- Source archive: immutable `Sokoban-source-<version>.tar.gz` with checksum and signature sidecars
@@ -217,6 +218,10 @@ gpg --verify Sokoban-1.15.0-x64.dmg.asc Sokoban-1.15.0-x64.dmg
 Windows PowerShell:
 
 ```powershell
+# Windows naming convention:
+# - *-setup-*.exe => NSIS installer (wizard-based install)
+# - *.exe (without -setup-) => portable executable
+
 # Integrity check (compares local SHA256 to the .sha256 file content)
 $file = "Sokoban-1.15.0-x64.exe"
 $expected = (Get-Content "$file.sha256").Split(' ')[0].ToLower()
