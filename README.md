@@ -155,7 +155,11 @@ Configured targets:
 - `deploy-github-pages.yml`: Reusable Pages deployment workflow (`workflow_call`) that is invoked by `auto-tag.yml`; it also supports manual dispatch and direct release-tag pushes (`v*`).
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
-- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes Windows (`.exe`, x64 and arm64), macOS (`.dmg`, x64 and arm64), and Linux (`.AppImage`, `.flatpak`, x64 and arm64; `.snap`, x64; `.deb` and `.rpm`, x64 and arm64) release assets, plus `.sha256` checksums and `.asc` detached signatures.
+- `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes desktop release assets with `.sha256` checksums and `.asc` detached signatures.
+	- Windows: `.exe` (x64 and arm64)
+	- macOS: `.dmg` (x64 and arm64)
+	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb` and `.rpm` (x64 and arm64)
+	- Source archive: immutable `Sokoban-source-<version>.tar.gz` with checksum and signature sidecars
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
 
@@ -189,6 +193,15 @@ Linux:
 # Example file names; replace with the asset you downloaded.
 sha256sum -c Sokoban-1.15.0-x64.AppImage.sha256
 gpg --verify Sokoban-1.15.0-x64.AppImage.asc Sokoban-1.15.0-x64.AppImage
+```
+
+Signed source archive:
+
+```bash
+# Example file names; replace with your release version.
+sha256sum -c Sokoban-source-1.15.0-rc.9.tar.gz.sha256
+gpg --verify Sokoban-source-1.15.0-rc.9.tar.gz.asc Sokoban-source-1.15.0-rc.9.tar.gz
+gpg --verify Sokoban-source-1.15.0-rc.9.tar.gz.sha256.asc Sokoban-source-1.15.0-rc.9.tar.gz.sha256
 ```
 
 macOS:
