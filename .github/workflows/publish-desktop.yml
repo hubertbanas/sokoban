@@ -59,15 +59,17 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder elfutils rpm
+          sudo apt-get install -y flatpak flatpak-builder elfutils rpm libarchive-tools zstd
           flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-      - name: Flatpak diagnostics
+      - name: Linux build tooling diagnostics
         if: runner.os == 'Linux'
         run: |
           flatpak --version
           flatpak-builder --version
           flatpak remotes --user
+          bsdtar --version || true
+          zstd --version || true
           rpm --version || true
           snapcraft --version || true
 
@@ -108,7 +110,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz; do
+          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm dist-desktop/*.pacman dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz; do
             if [ -f "$file" ]; then
               sha256sum "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
@@ -205,6 +207,14 @@ jobs:
           path: dist-desktop/*.rpm
           if-no-files-found: error
 
+      - name: Upload Linux pacman artifact bundle
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-pacman
+          path: dist-desktop/*.pacman
+          if-no-files-found: error
+
       - name: Upload Linux source archive artifact bundle
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
@@ -229,6 +239,8 @@ jobs:
             dist-desktop/*.deb.asc
             dist-desktop/*.rpm.sha256
             dist-desktop/*.rpm.asc
+            dist-desktop/*.pacman.sha256
+            dist-desktop/*.pacman.asc
             dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256
             dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.asc
             dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256.asc
@@ -410,6 +422,36 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist-desktop/*.rpm.asc
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload pacman package to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.pacman
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload pacman checksums to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.pacman.sha256
+          file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload pacman signatures to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/*.pacman.asc
           file_glob: true
           tag: v${{ inputs.tag }}
           overwrite: true

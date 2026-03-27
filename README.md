@@ -12,7 +12,7 @@ Live app: https://hubertbanas.github.io/sokoban/
 - Hold-to-repeat behavior for level and direction controls
 - Light/dark theme support with persisted user preference
 - About modal with runtime app version from `package.json`
-- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`) via Electron
+- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`, `.snap`, `.deb`, `.rpm`, `.pacman`) via Electron
 - Docker and Docker Compose support for dev/prod usage
 - GitHub Actions for Pages deploy, auto-tagging, container publishing, and desktop/Android release assets
 
@@ -149,6 +149,7 @@ Configured targets:
 - Linux Snap (`.snap`, x64)
 - Linux Debian package (`.deb`, x64 and arm64)
 - Linux RPM package (`.rpm`, x64 and arm64)
+- Linux Arch package (`.pacman`, x64 and arm64)
 
 ## CI/CD Workflows
 
@@ -158,7 +159,7 @@ Configured targets:
 - `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes desktop release assets with `.sha256` checksums and `.asc` detached signatures.
 	- Windows: `.exe` (x64 and arm64)
 	- macOS: `.dmg` (x64 and arm64)
-	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb` and `.rpm` (x64 and arm64)
+	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb`, `.rpm`, and `.pacman` (x64 and arm64)
 	- Source archive: immutable `Sokoban-source-<version>.tar.gz` with checksum and signature sidecars
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
