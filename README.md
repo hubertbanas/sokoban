@@ -12,7 +12,7 @@ Live app: https://hubertbanas.github.io/sokoban/
 - Hold-to-repeat behavior for level and direction controls
 - Light/dark theme support with persisted user preference
 - About modal with runtime app version from `package.json`
-- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`) via Electron
+- Desktop packaging for Windows (`.exe`) and Linux (`.AppImage`, `.flatpak`, `.snap`, `.deb`, `.rpm`, `.pacman`) via Electron
 - Docker and Docker Compose support for dev/prod usage
 - GitHub Actions for Pages deploy, auto-tagging, container publishing, and desktop/Android release assets
 
@@ -143,12 +143,14 @@ Output directory:
 Configured targets:
 
 - Windows portable executable (`.exe`, x64 and arm64)
+- Windows NSIS installer (`.exe`, x64 and arm64)
 - macOS disk image (`.dmg`, x64 and arm64)
 - Linux AppImage (`.AppImage`, x64 and arm64)
 - Linux Flatpak (`.flatpak`, x64 and arm64)
 - Linux Snap (`.snap`, x64)
 - Linux Debian package (`.deb`, x64 and arm64)
 - Linux RPM package (`.rpm`, x64 and arm64)
+- Linux Arch package (`.pacman`, x64 and arm64)
 
 ## CI/CD Workflows
 
@@ -156,9 +158,9 @@ Configured targets:
 - `auto-tag.yml`: Creates a signed `v<version>` tag when `package.json` version changes on `main`/`master`, creates a GitHub release, then invokes publish/deploy target workflows.
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; it also supports manual dispatch.
 - `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds and publishes desktop release assets with `.sha256` checksums and `.asc` detached signatures.
-	- Windows: `.exe` (x64 and arm64)
+	- Windows: NSIS installer `.exe` and portable `.exe` (x64 and arm64)
 	- macOS: `.dmg` (x64 and arm64)
-	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb` and `.rpm` (x64 and arm64)
+	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb`, `.rpm`, and `.pacman` (x64 and arm64)
 	- Source archive: immutable `Sokoban-source-<version>.tar.gz` with checksum and signature sidecars
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
@@ -216,6 +218,10 @@ gpg --verify Sokoban-1.15.0-x64.dmg.asc Sokoban-1.15.0-x64.dmg
 Windows PowerShell:
 
 ```powershell
+# Windows naming convention:
+# - *-setup-*.exe => NSIS installer (wizard-based install)
+# - *.exe (without -setup-) => portable executable
+
 # Integrity check (compares local SHA256 to the .sha256 file content)
 $file = "Sokoban-1.15.0-x64.exe"
 $expected = (Get-Content "$file.sha256").Split(' ')[0].ToLower()
