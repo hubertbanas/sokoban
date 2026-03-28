@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0-rc.14] - 2026-03-28
+
+### Changed
+- CI/CD: Patched desktop and Android deployment workflows to strip internal runner paths from generated `.sha256` checksum files, ensuring portable verification.
+- Security: Published the repository's public GPG release key (`.github/keys/sokoban-release-key.asc`) and updated verification documentation.
+
 ## [1.15.0-rc.13] - 2026-03-28
 
 ### Added
