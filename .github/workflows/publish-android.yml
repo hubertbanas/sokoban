@@ -105,7 +105,9 @@ jobs:
           )
 
           gpg --batch --yes --armor --detach-sign --output "${apk_path}.asc" "$apk_path"
+          gpg --batch --yes --armor --detach-sign --output "${apk_path}.sha256.asc" "${apk_path}.sha256"
           gpg --batch --yes --armor --detach-sign --output "${aab_path}.asc" "$aab_path"
+          gpg --batch --yes --armor --detach-sign --output "${aab_path}.sha256.asc" "${aab_path}.sha256"
 
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v7
@@ -128,8 +130,10 @@ jobs:
           path: |
             android/app/build/outputs/apk/release/app-release.apk.sha256
             android/app/build/outputs/apk/release/app-release.apk.asc
+            android/app/build/outputs/apk/release/app-release.apk.sha256.asc
             android/app/build/outputs/bundle/release/app-release.aab.sha256
             android/app/build/outputs/bundle/release/app-release.aab.asc
+            android/app/build/outputs/bundle/release/app-release.aab.sha256.asc
           if-no-files-found: error
 
       - name: Remove decoded keystore
@@ -163,6 +167,15 @@ jobs:
           tag: v${{ inputs.tag }}
           overwrite: true
 
+      - name: Upload APK checksum signature to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/apk/release/app-release.apk.sha256.asc
+          asset_name: Sokoban-${{ inputs.tag }}.apk.sha256.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
       - name: Upload AAB to GitHub Release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -187,5 +200,14 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: android/app/build/outputs/bundle/release/app-release.aab.asc
           asset_name: Sokoban-${{ inputs.tag }}.aab.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload AAB checksum signature to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/bundle/release/app-release.aab.sha256.asc
+          asset_name: Sokoban-${{ inputs.tag }}.aab.sha256.asc
           tag: v${{ inputs.tag }}
           overwrite: true

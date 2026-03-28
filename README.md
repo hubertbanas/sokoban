@@ -190,13 +190,23 @@ Release note extraction expects changelog headings in this format:
 
 Release signatures (`.asc`) are generated using the public key stored in this repository:
 
-- `.github/sokoban-release-key.asc`
+- `.github/keys/sokoban-release-key.asc`
 
 Import the release verification key:
 
 ```bash
-gpg --import .github/sokoban-release-key.asc
+gpg --import .github/keys/sokoban-release-key.asc
 ```
+
+Verify the imported key fingerprint matches the release key:
+
+```bash
+gpg --fingerprint 50AF06A3276DD98E51BA50DFEB5EEC17123943ED
+```
+
+Expected fingerprint:
+
+`50AF 06A3 276D D98E 51BA 50DF EB5E EC17 1239 43ED`
 
 After downloading an asset and its sidecar files (`.sha256` and `.asc`), verify integrity and signature.
 
@@ -215,9 +225,11 @@ APK="Sokoban-<version>.apk"
 AAB="Sokoban-<version>.aab"
 
 sha256sum -c "$APK.sha256"
+gpg --verify "$APK.sha256.asc" "$APK.sha256"
 gpg --verify "$APK.asc" "$APK"
 
 sha256sum -c "$AAB.sha256"
+gpg --verify "$AAB.sha256.asc" "$AAB.sha256"
 gpg --verify "$AAB.asc" "$AAB"
 ```
 
