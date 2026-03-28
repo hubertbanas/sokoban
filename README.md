@@ -210,6 +210,31 @@ Expected fingerprint:
 
 After downloading an asset and its sidecar files (`.sha256` and `.asc`), verify integrity and signature.
 
+Automated verification script:
+
+```bash
+./scripts/verify-release.sh <version>
+```
+
+Example:
+
+```bash
+./scripts/verify-release.sh 1.15.0-rc.14
+```
+
+Useful options:
+
+- `--keep-dir`: Keep downloaded assets in the temporary workspace for inspection.
+- `--work-dir <path>`: Use a custom workspace directory instead of an auto-generated temp path.
+- `--repo <owner/repo>`: Verify releases from a different repository.
+
+What the script does:
+
+- Downloads release assets from GitHub for `v<version>`.
+- Downloads and verifies the release public key fingerprint before import.
+- Verifies all `.sha256` checksums with `sha256sum -c`.
+- Verifies all `.asc` detached signatures with GPG (including checksum sidecar signatures such as `.sha256.asc`).
+
 Linux:
 
 ```bash
