@@ -94,18 +94,21 @@ require_cmd gpg
 require_cmd sha256sum
 
 API_URL="https://api.github.com/repos/$REPO/releases/tags/v$VERSION"
+# Track if we generated a temporary directory
+IS_TEMP_DIR=0
 if [[ -z "$WORK_DIR" ]]; then
     WORK_DIR="$(mktemp -d "/tmp/sokoban-release-${VERSION}-XXXXXX")"
+    IS_TEMP_DIR=1
 else
     mkdir -p "$WORK_DIR"
 fi
-
-if [[ "$KEEP_DIR" -eq 0 ]]; then
+# Only auto-delete if it's a temp directory AND the user didn't request to keep it
+if [[ "$IS_TEMP_DIR" -eq 1 && "$KEEP_DIR" -eq 0 ]]; then
     trap 'rm -rf "$WORK_DIR"' EXIT
 fi
 
 echo "=> Using workspace: $WORK_DIR"
-cd "$WORK_DIR"
+cd "$WORK_DIR" || { echo "Error: Failed to change to workspace directory." >&2; exit 1; }
 
 echo "=> Fetching release public key..."
 curl -fsSL "$KEY_URL" -o release-key.asc
