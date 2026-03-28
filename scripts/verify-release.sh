@@ -1,123 +1,219 @@
 #!/usr/bin/env bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
+set -euo pipefail
 
-# ==========================================
-# Help Menu & Input Validation
-# ==========================================
-if [[ "$#" -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
-    echo "========================================================"
-    echo " Sokoban Release Validator"
-    echo "========================================================"
-    echo "Downloads all artifacts for a specific release, validates"
-    echo "their SHA-256 checksums, and verifies GPG signatures."
-    echo ""
-    echo "Usage:"
-    echo "  $0 <version>"
-    echo ""
-    echo "Example:"
-    echo "  $0 1.15.0-rc.14"
-    echo "========================================================"
-    exit 0
-fi
+readonly DEFAULT_REPO="hubertbanas/sokoban"
+readonly DEFAULT_KEY_URL="https://raw.githubusercontent.com/hubertbanas/sokoban/main/.github/keys/sokoban-release-key.asc"
+readonly EXPECTED_FPR="50AF06A3276DD98E51BA50DFEB5EEC17123943ED"
 
-VERSION="$1"
-REPO="hubertbanas/sokoban"
-WORK_DIR="/tmp/sokoban-release-$VERSION"
-API_URL="https://api.github.com/repos/$REPO/releases/tags/v$VERSION"
-KEY_URL="https://raw.githubusercontent.com/$REPO/main/.github/keys/sokoban-release-key.asc"
+usage() {
+    cat <<'EOF'
+Sokoban Release Validator
 
-# ==========================================
-# Setup Environment
-# ==========================================
-echo "=> Creating workspace at $WORK_DIR..."
-mkdir -p "$WORK_DIR"
-cd "$WORK_DIR"
+Downloads release assets, verifies SHA-256 checksums, and validates GPG signatures.
 
-# ==========================================
-# Import Public Key
-# ==========================================
-echo "=> Fetching and importing public GPG key from main branch..."
-curl -sL "$KEY_URL" | gpg --import 2>/dev/null || echo "Key already imported or up to date."
+Usage:
+    ./scripts/verify-release.sh <version> [options]
 
-# ==========================================
-# Fetch Release Assets
-# ==========================================
-echo "=> Fetching release metadata for v$VERSION..."
-DOWNLOAD_URLS=$(curl -s "$API_URL" | grep "browser_download_url" | cut -d '"' -f 4)
+Options:
+    --repo <owner/repo>     GitHub repository (default: hubertbanas/sokoban)
+    --key-url <url>         Public key URL (default: official Sokoban key URL)
+    --work-dir <path>       Use a specific workspace directory
+    --keep-dir              Keep downloaded files after completion
+    -h, --help              Show this help
 
-if [[ -z "$DOWNLOAD_URLS" ]]; then
-    echo "❌ Error: Could not find release v$VERSION or no assets found."
-    echo "Make sure the version exists and does not include the 'v' prefix."
+Example:
+    ./scripts/verify-release.sh 1.15.0-rc.14
+EOF
+}
+
+require_cmd() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "Error: required command not found: $1" >&2
+        exit 1
+    fi
+}
+
+normalize_fpr() {
+    tr -d '[:space:]' | tr '[:lower:]' '[:upper:]'
+}
+
+REPO="$DEFAULT_REPO"
+KEY_URL="$DEFAULT_KEY_URL"
+WORK_DIR=""
+KEEP_DIR=0
+VERSION=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --repo)
+            REPO="$2"
+            shift 2
+            ;;
+        --key-url)
+            KEY_URL="$2"
+            shift 2
+            ;;
+        --work-dir)
+            WORK_DIR="$2"
+            shift 2
+            ;;
+        --keep-dir)
+            KEEP_DIR=1
+            shift
+            ;;
+        -* )
+            echo "Error: unknown option: $1" >&2
+            usage
+            exit 1
+            ;;
+        *)
+            if [[ -z "$VERSION" ]]; then
+                VERSION="$1"
+                shift
+            else
+                echo "Error: unexpected positional argument: $1" >&2
+                usage
+                exit 1
+            fi
+            ;;
+    esac
+done
+
+if [[ -z "$VERSION" ]]; then
+    usage
     exit 1
 fi
 
-echo "=> Downloading artifacts..."
-for url in $DOWNLOAD_URLS; do
+require_cmd curl
+require_cmd gpg
+require_cmd sha256sum
+
+API_URL="https://api.github.com/repos/$REPO/releases/tags/v$VERSION"
+if [[ -z "$WORK_DIR" ]]; then
+    WORK_DIR="$(mktemp -d "/tmp/sokoban-release-${VERSION}-XXXXXX")"
+else
+    mkdir -p "$WORK_DIR"
+fi
+
+if [[ "$KEEP_DIR" -eq 0 ]]; then
+    trap 'rm -rf "$WORK_DIR"' EXIT
+fi
+
+echo "=> Using workspace: $WORK_DIR"
+cd "$WORK_DIR"
+
+echo "=> Fetching release public key..."
+curl -fsSL "$KEY_URL" -o release-key.asc
+
+ACTUAL_FPR="$(gpg --show-keys --with-colons release-key.asc | awk -F: '/^fpr:/ {print $10; exit}' | normalize_fpr)"
+if [[ "$ACTUAL_FPR" != "$EXPECTED_FPR" ]]; then
+    echo "Error: release key fingerprint mismatch." >&2
+    echo "Expected: $EXPECTED_FPR" >&2
+    echo "Actual:   ${ACTUAL_FPR:-<none>}" >&2
+    exit 1
+fi
+
+echo "=> Importing release key (fingerprint verified)."
+gpg --import release-key.asc >/dev/null 2>&1 || true
+
+echo "=> Fetching release metadata for v$VERSION..."
+RELEASE_JSON="$(curl -fsSL -H 'Accept: application/vnd.github+json' "$API_URL")"
+
+DOWNLOAD_URLS=()
+if command -v jq >/dev/null 2>&1; then
+    while IFS= read -r url; do
+        [[ -n "$url" ]] && DOWNLOAD_URLS+=("$url")
+    done < <(printf '%s' "$RELEASE_JSON" | jq -r '.assets[].browser_download_url // empty')
+else
+    while IFS= read -r url; do
+        [[ -n "$url" ]] && DOWNLOAD_URLS+=("$url")
+    done < <(printf '%s\n' "$RELEASE_JSON" | grep '"browser_download_url"' | sed -E 's/.*"browser_download_url": "([^"]+)".*/\1/')
+fi
+
+if [[ ${#DOWNLOAD_URLS[@]} -eq 0 ]]; then
+    echo "Error: Could not find release v$VERSION or no assets found." >&2
+    echo "Make sure the version exists and does not include the 'v' prefix." >&2
+    exit 1
+fi
+
+echo "=> Downloading ${#DOWNLOAD_URLS[@]} artifacts..."
+for url in "${DOWNLOAD_URLS[@]}"; do
     echo "   Downloading $(basename "$url")..."
-    curl -sL -O "$url"
+    curl -fL --retry 3 --retry-delay 2 -O "$url"
 done
 
-# ==========================================
-# Phase 1: SHA-256 Verification
-# ==========================================
-echo ""
+FAILURES=0
+shopt -s nullglob
+
+echo
 echo "========================================================"
 echo " PHASE 1: SHA-256 Checksum Verification"
 echo "========================================================"
-FAILURES=0
 
-for sha_file in *.sha256; do
-    # Verify the checksum, suppress standard output, only show errors if they happen
-    if sha256sum -c "$sha_file" > /dev/null 2>&1; then
-        echo "✅ [OK] ${sha_file%.sha256}"
+sha_files=( *.sha256 )
+if [[ ${#sha_files[@]} -eq 0 ]]; then
+    echo "Error: no .sha256 files found in release assets." >&2
+    exit 1
+fi
+
+for sha_file in "${sha_files[@]}"; do
+    if sha256sum -c "$sha_file" >/dev/null 2>&1; then
+        echo "[OK] ${sha_file%.sha256}"
     else
-        echo "❌ [FAILED] ${sha_file%.sha256}"
+        echo "[FAILED] ${sha_file%.sha256}"
         FAILURES=$((FAILURES + 1))
     fi
 done
 
 if [[ "$FAILURES" -gt 0 ]]; then
-    echo "❌ $FAILURES SHA-256 checksum(s) failed validation. Aborting GPG checks."
+    echo "Verification failed: $FAILURES checksum file(s) failed. Skipping signature phase." >&2
     exit 1
 fi
 
-# ==========================================
-# Phase 2: GPG Signature Verification
-# ==========================================
-echo ""
+echo
 echo "========================================================"
 echo " PHASE 2: GPG Signature Verification"
 echo "========================================================"
 
-for asc_file in *.asc; do
-    # The base file is the asc_file without the .asc extension
+asc_files=( *.asc )
+if [[ ${#asc_files[@]} -eq 0 ]]; then
+    echo "Error: no .asc signature files found in release assets." >&2
+    exit 1
+fi
+
+for asc_file in "${asc_files[@]}"; do
+    # Skip signature check for the imported key file itself
+    if [[ "$asc_file" == "release-key.asc" ]]; then
+        continue
+    fi
     base_file="${asc_file%.asc}"
-    
-    if [[ -f "$base_file" ]]; then
-        # Run gpg verify and capture output. We grep for "Good signature" to determine success.
-        if gpg --verify "$asc_file" "$base_file" 2>&1 | grep -q "Good signature"; then
-            echo "✅ [SECURE] $base_file"
-        else
-            echo "❌ [INVALID] $base_file"
-            FAILURES=$((FAILURES + 1))
-        fi
+
+    if [[ ! -f "$base_file" ]]; then
+        echo "[MISSING] $base_file (required by $asc_file)"
+        FAILURES=$((FAILURES + 1))
+        continue
+    fi
+
+    if gpg --verify "$asc_file" "$base_file" >/dev/null 2>&1; then
+        echo "[SECURE] $base_file"
     else
-        echo "⚠️  [MISSING] Target file $base_file not found for $asc_file"
+        echo "[INVALID] $base_file"
+        FAILURES=$((FAILURES + 1))
     fi
 done
 
-# ==========================================
-# Final Report
-# ==========================================
-echo ""
+echo
 echo "========================================================"
 if [[ "$FAILURES" -eq 0 ]]; then
-    echo "🎉 SUCCESS: All $VERSION artifacts passed SHA-256 and GPG verification!"
-    echo "📂 Files are located in: $WORK_DIR"
+    echo "SUCCESS: All v$VERSION artifacts passed checksum and signature verification."
+    echo "Workspace: $WORK_DIR"
 else
-    echo "❌ FAILURE: $FAILURES GPG signature(s) failed validation."
+    echo "FAILURE: $FAILURES verification check(s) failed." >&2
     exit 1
 fi
 echo "========================================================"
