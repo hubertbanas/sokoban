@@ -87,16 +87,24 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Process APK
           apk_path="android/app/build/outputs/apk/release/app-release.apk"
-          apk_hash=$(sha256sum "$apk_path" | awk '{print $1}')
-          echo "$apk_hash  Sokoban-${{ inputs.tag }}.apk" > "${apk_path}.sha256"
-          gpg --batch --yes --armor --detach-sign --output "${apk_path}.asc" "$apk_path"
-
-          # Process AAB
           aab_path="android/app/build/outputs/bundle/release/app-release.aab"
-          aab_hash=$(sha256sum "$aab_path" | awk '{print $1}')
-          echo "$aab_hash  Sokoban-${{ inputs.tag }}.aab" > "${aab_path}.sha256"
+          apk_release_name="Sokoban-${{ inputs.tag }}.apk"
+          aab_release_name="Sokoban-${{ inputs.tag }}.aab"
+
+          temp_dir="$(mktemp -d)"
+          trap 'rm -rf "$temp_dir"' EXIT
+
+          cp "$apk_path" "$temp_dir/$apk_release_name"
+          cp "$aab_path" "$temp_dir/$aab_release_name"
+
+          (
+            cd "$temp_dir"
+            sha256sum "$apk_release_name" > "$GITHUB_WORKSPACE/${apk_path}.sha256"
+            sha256sum "$aab_release_name" > "$GITHUB_WORKSPACE/${aab_path}.sha256"
+          )
+
+          gpg --batch --yes --armor --detach-sign --output "${apk_path}.asc" "$apk_path"
           gpg --batch --yes --armor --detach-sign --output "${aab_path}.asc" "$aab_path"
 
       - name: Upload APK to artifacts
