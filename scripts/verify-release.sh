@@ -122,7 +122,10 @@ echo "=> Importing release key (fingerprint verified)."
 gpg --import release-key.asc >/dev/null 2>&1 || true
 
 echo "=> Fetching release metadata for v$VERSION..."
-RELEASE_JSON="$(curl -fsSL -H 'Accept: application/vnd.github+json' "$API_URL")"
+if ! RELEASE_JSON="$(curl -fsSL -H 'Accept: application/vnd.github+json' "$API_URL")"; then
+    echo "Error: Could not fetch release metadata for v$VERSION (does the tag exist?)." >&2
+    exit 1
+fi
 
 DOWNLOAD_URLS=()
 if command -v jq >/dev/null 2>&1; then
