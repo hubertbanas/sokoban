@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0-rc.13] - 2026-03-28
+
+### Added
+- Security: Integrated automated Software Bill of Materials (SBOM) generation (SPDX JSON format) into the deployment matrix.
+- Security: Configured the CI/CD pipeline to cryptographically hash (SHA-256) and sign (.asc) the generated SBOM prior to release distribution.
+
 ## [1.15.0-rc.12] - 2026-03-27
 
 ### Added
