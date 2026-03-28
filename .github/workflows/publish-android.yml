@@ -86,12 +86,18 @@ jobs:
       - name: Generate Android checksums and signatures
         run: |
           set -euo pipefail
-          for file in \
-            android/app/build/outputs/apk/release/app-release.apk \
-            android/app/build/outputs/bundle/release/app-release.aab; do
-            sha256sum "$file" > "${file}.sha256"
-            gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
-          done
+
+          # Process APK
+          apk_path="android/app/build/outputs/apk/release/app-release.apk"
+          apk_hash=$(sha256sum "$apk_path" | awk '{print $1}')
+          echo "$apk_hash  Sokoban-${{ inputs.tag }}.apk" > "${apk_path}.sha256"
+          gpg --batch --yes --armor --detach-sign --output "${apk_path}.asc" "$apk_path"
+
+          # Process AAB
+          aab_path="android/app/build/outputs/bundle/release/app-release.aab"
+          aab_hash=$(sha256sum "$aab_path" | awk '{print $1}')
+          echo "$aab_hash  Sokoban-${{ inputs.tag }}.aab" > "${aab_path}.sha256"
+          gpg --batch --yes --armor --detach-sign --output "${aab_path}.asc" "$aab_path"
 
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v7

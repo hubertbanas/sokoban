@@ -118,9 +118,10 @@ jobs:
 
       - name: Generate Linux checksums and signatures
         if: runner.os == 'Linux'
+        working-directory: dist-desktop
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm dist-desktop/*.pacman dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz; do
+          for file in *.AppImage *.flatpak *.snap *.deb *.rpm *.pacman Sokoban-SBOM-${{ inputs.tag }}.spdx.json Sokoban-source-${{ inputs.tag }}.tar.gz; do
             if [ -f "$file" ]; then
               sha256sum "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
@@ -132,9 +133,10 @@ jobs:
 
       - name: Generate MacOS checksums and signatures
         if: runner.os == 'macOS'
+        working-directory: dist-desktop
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.dmg; do
+          for file in *.dmg; do
             if [ -f "$file" ]; then
               shasum -a 256 "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
