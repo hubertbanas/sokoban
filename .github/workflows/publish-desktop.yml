@@ -85,6 +85,16 @@ jobs:
           gpg_private_key: ${{ secrets.RELEASE_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.RELEASE_GPG_PASSPHRASE }}
 
+      - name: Generate Software Bill of Materials (SBOM)
+        if: runner.os == 'Linux'
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
       - name: Generate source code tarball
         if: runner.os == 'Linux'
         run: |
@@ -110,7 +120,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm dist-desktop/*.pacman dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz; do
+          for file in dist-desktop/*.AppImage dist-desktop/*.flatpak dist-desktop/*.snap dist-desktop/*.deb dist-desktop/*.rpm dist-desktop/*.pacman dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz; do
             if [ -f "$file" ]; then
               sha256sum "$file" > "${file}.sha256"
               gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
@@ -241,6 +251,8 @@ jobs:
             dist-desktop/*.rpm.asc
             dist-desktop/*.pacman.sha256
             dist-desktop/*.pacman.asc
+            dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json.sha256
+            dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json.asc
             dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256
             dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.asc
             dist-desktop/Sokoban-source-${{ inputs.tag }}.tar.gz.sha256.asc
@@ -453,6 +465,41 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist-desktop/*.pacman.asc
           file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload SBOM to artifacts
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-sbom
+          path: dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json
+          if-no-files-found: error
+
+      - name: Upload SBOM to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload SBOM checksum to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json.sha256
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload SBOM signature to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist-desktop/Sokoban-SBOM-${{ inputs.tag }}.spdx.json.asc
           tag: v${{ inputs.tag }}
           overwrite: true
 

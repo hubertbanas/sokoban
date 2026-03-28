@@ -161,6 +161,7 @@ Configured targets:
 	- Windows: NSIS installer `.exe` and portable `.exe` (x64 and arm64)
 	- macOS: `.dmg` (x64 and arm64)
 	- Linux: `.AppImage` and `.flatpak` (x64 and arm64), `.snap` (x64), `.deb`, `.rpm`, and `.pacman` (x64 and arm64)
+	- Software Bill of Materials (SBOM): `Sokoban-SBOM-<version>.spdx.json` with checksum and signature sidecars
 	- Source archive: immutable `Sokoban-source-<version>.tar.gz` with checksum and signature sidecars
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; it builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
@@ -204,6 +205,14 @@ Signed source archive:
 sha256sum -c Sokoban-source-1.15.0-rc.9.tar.gz.sha256
 gpg --verify Sokoban-source-1.15.0-rc.9.tar.gz.asc Sokoban-source-1.15.0-rc.9.tar.gz
 gpg --verify Sokoban-source-1.15.0-rc.9.tar.gz.sha256.asc Sokoban-source-1.15.0-rc.9.tar.gz.sha256
+```
+
+Signed SBOM:
+
+```bash
+# Example file names; replace with your release version.
+sha256sum -c Sokoban-SBOM-1.15.0-rc.9.spdx.json.sha256
+gpg --verify Sokoban-SBOM-1.15.0-rc.9.spdx.json.asc Sokoban-SBOM-1.15.0-rc.9.spdx.json
 ```
 
 macOS:
