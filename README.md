@@ -188,40 +188,72 @@ Release note extraction expects changelog headings in this format:
 
 ## Verify Downloads
 
+Release signatures (`.asc`) are generated using the public key stored in this repository:
+
+- `.github/keys/sokoban-release-key.asc`
+
+Import the release verification key:
+
+```bash
+gpg --import .github/keys/sokoban-release-key.asc
+```
+
+Verify the imported key fingerprint matches the release key:
+
+```bash
+gpg --fingerprint 50AF06A3276DD98E51BA50DFEB5EEC17123943ED
+```
+
+Expected fingerprint:
+
+`50AF 06A3 276D D98E 51BA 50DF EB5E EC17 1239 43ED`
+
 After downloading an asset and its sidecar files (`.sha256` and `.asc`), verify integrity and signature.
 
 Linux:
 
 ```bash
-# Example file names; replace with the asset you downloaded.
-sha256sum -c Sokoban-1.15.0-x64.AppImage.sha256
-gpg --verify Sokoban-1.15.0-x64.AppImage.asc Sokoban-1.15.0-x64.AppImage
+ASSET="Sokoban-<version>-x64.AppImage"
+sha256sum -c "$ASSET.sha256"
+gpg --verify "$ASSET.asc" "$ASSET"
+```
+
+Android:
+
+```bash
+APK="Sokoban-<version>.apk"
+AAB="Sokoban-<version>.aab"
+
+sha256sum -c "$APK.sha256"
+gpg --verify "$APK.sha256.asc" "$APK.sha256"
+gpg --verify "$APK.asc" "$APK"
+
+sha256sum -c "$AAB.sha256"
+gpg --verify "$AAB.sha256.asc" "$AAB.sha256"
+gpg --verify "$AAB.asc" "$AAB"
 ```
 
 Signed source archive:
 
 ```bash
-# Example file names; replace with your release version.
-sha256sum -c Sokoban-source-1.15.0-rc.9.tar.gz.sha256
-gpg --verify Sokoban-source-1.15.0-rc.9.tar.gz.asc Sokoban-source-1.15.0-rc.9.tar.gz
-gpg --verify Sokoban-source-1.15.0-rc.9.tar.gz.sha256.asc Sokoban-source-1.15.0-rc.9.tar.gz.sha256
+sha256sum -c Sokoban-source-<version>.tar.gz.sha256
+gpg --verify Sokoban-source-<version>.tar.gz.asc Sokoban-source-<version>.tar.gz
+gpg --verify Sokoban-source-<version>.tar.gz.sha256.asc Sokoban-source-<version>.tar.gz.sha256
 ```
 
 Signed SBOM:
 
 ```bash
-# Example file names; replace with your release version.
-sha256sum -c Sokoban-SBOM-1.15.0-rc.9.spdx.json.sha256
-gpg --verify Sokoban-SBOM-1.15.0-rc.9.spdx.json.asc Sokoban-SBOM-1.15.0-rc.9.spdx.json
+sha256sum -c Sokoban-SBOM-<version>.spdx.json.sha256
+gpg --verify Sokoban-SBOM-<version>.spdx.json.asc Sokoban-SBOM-<version>.spdx.json
 ```
 
 macOS:
 
 ```bash
-# Example file names; replace with the asset you downloaded.
-shasum -a 256 Sokoban-1.15.0-x64.dmg
-cat Sokoban-1.15.0-x64.dmg.sha256
-gpg --verify Sokoban-1.15.0-x64.dmg.asc Sokoban-1.15.0-x64.dmg
+ASSET="Sokoban-<version>-arm64.dmg"
+shasum -a 256 -c "$ASSET.sha256"
+gpg --verify "$ASSET.asc" "$ASSET"
 ```
 
 Windows PowerShell:
@@ -232,12 +264,12 @@ Windows PowerShell:
 # - *.exe (without -setup-) => portable executable
 
 # Integrity check (compares local SHA256 to the .sha256 file content)
-$file = "Sokoban-1.15.0-x64.exe"
+$file = "Sokoban-<version>-x64.exe"
 $expected = (Get-Content "$file.sha256").Split(' ')[0].ToLower()
 $actual = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
 if ($expected -eq $actual) { "SHA256 OK" } else { "SHA256 MISMATCH" }
 
-# Signature check (requires GPG installed and your public key imported)
+# Signature check (requires GPG installed and imported release key)
 gpg --verify "$file.asc" "$file"
 ```
 

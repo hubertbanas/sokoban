@@ -86,12 +86,28 @@ jobs:
       - name: Generate Android checksums and signatures
         run: |
           set -euo pipefail
-          for file in \
-            android/app/build/outputs/apk/release/app-release.apk \
-            android/app/build/outputs/bundle/release/app-release.aab; do
-            sha256sum "$file" > "${file}.sha256"
-            gpg --batch --yes --armor --detach-sign --output "${file}.asc" "$file"
-          done
+
+          apk_path="android/app/build/outputs/apk/release/app-release.apk"
+          aab_path="android/app/build/outputs/bundle/release/app-release.aab"
+          apk_release_name="Sokoban-${{ inputs.tag }}.apk"
+          aab_release_name="Sokoban-${{ inputs.tag }}.aab"
+
+          temp_dir="$(mktemp -d)"
+          trap 'rm -rf "$temp_dir"' EXIT
+
+          cp "$apk_path" "$temp_dir/$apk_release_name"
+          cp "$aab_path" "$temp_dir/$aab_release_name"
+
+          (
+            cd "$temp_dir"
+            sha256sum "$apk_release_name" > "$GITHUB_WORKSPACE/${apk_path}.sha256"
+            sha256sum "$aab_release_name" > "$GITHUB_WORKSPACE/${aab_path}.sha256"
+          )
+
+          gpg --batch --yes --armor --detach-sign --output "${apk_path}.asc" "$apk_path"
+          gpg --batch --yes --armor --detach-sign --output "${apk_path}.sha256.asc" "${apk_path}.sha256"
+          gpg --batch --yes --armor --detach-sign --output "${aab_path}.asc" "$aab_path"
+          gpg --batch --yes --armor --detach-sign --output "${aab_path}.sha256.asc" "${aab_path}.sha256"
 
       - name: Upload APK to artifacts
         uses: actions/upload-artifact@v7
@@ -114,8 +130,10 @@ jobs:
           path: |
             android/app/build/outputs/apk/release/app-release.apk.sha256
             android/app/build/outputs/apk/release/app-release.apk.asc
+            android/app/build/outputs/apk/release/app-release.apk.sha256.asc
             android/app/build/outputs/bundle/release/app-release.aab.sha256
             android/app/build/outputs/bundle/release/app-release.aab.asc
+            android/app/build/outputs/bundle/release/app-release.aab.sha256.asc
           if-no-files-found: error
 
       - name: Remove decoded keystore
@@ -149,6 +167,15 @@ jobs:
           tag: v${{ inputs.tag }}
           overwrite: true
 
+      - name: Upload APK checksum signature to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/apk/release/app-release.apk.sha256.asc
+          asset_name: Sokoban-${{ inputs.tag }}.apk.sha256.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
       - name: Upload AAB to GitHub Release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -173,5 +200,14 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: android/app/build/outputs/bundle/release/app-release.aab.asc
           asset_name: Sokoban-${{ inputs.tag }}.aab.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload AAB checksum signature to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/bundle/release/app-release.aab.sha256.asc
+          asset_name: Sokoban-${{ inputs.tag }}.aab.sha256.asc
           tag: v${{ inputs.tag }}
           overwrite: true
