@@ -1,11 +1,14 @@
 import "@testing-library/jest-dom/vitest";
 import React from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fireEvent, render, screen, cleanup, act } from "@testing-library/react";
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
 import Game from "./Game";
 import { Block } from "./hooks/levels";
 import { Direction, State, useSokoban } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
+import style from "./components/sokoban.module.css";
 
 vi.mock("./hooks/keyboard", () => ({
   useKeyBoard: vi.fn(),
@@ -44,6 +47,13 @@ vi.mock("./hooks/sokoban", () => {
 
 const mockedUseSokoban = vi.mocked(useSokoban);
 const mockedUseKeyBoard = vi.mocked(useKeyBoard);
+const cssText = readFileSync(resolve(process.cwd(), "src/components/sokoban.module.css"), "utf-8");
+
+function hasUserSelectNone(className: string) {
+  const ruleRegex = new RegExp(`\\.${className}[\\s\\S]*?{[\\s\\S]*?}`, "g");
+  const matches = cssText.match(ruleRegex) ?? [];
+  return matches.some((rule) => /user-select\s*:\s*none/.test(rule));
+}
 
 function getLatestKeyboardHandler() {
   const latestCall = mockedUseKeyBoard.mock.calls.at(-1);
@@ -179,6 +189,46 @@ test("previous level triggers immediately on pointerdown when no progress exists
 
   expect(previousLevel).toHaveBeenCalledTimes(1);
   expect(screen.queryByRole("dialog", { name: /switch to previous level confirmation/i })).not.toBeInTheDocument();
+});
+
+test("long press does not enable text selection on nav, modal, or completion buttons", () => {
+  mockSokoban({ hasProgress: true, state: State.playing });
+
+  const { unmount } = render(<Game />);
+  const nextButton = screen.getByRole("button", { name: "Next" });
+  const previousButton = screen.getByRole("button", { name: "Previous" });
+
+  fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1 });
+  expect(nextButton).toHaveClass(style.levelNavButton);
+  expect(hasUserSelectNone("levelNavButton")).toBe(true);
+
+  fireEvent.pointerDown(previousButton, { button: 0, pointerId: 2 });
+  expect(previousButton).toHaveClass(style.levelNavButton);
+
+  fireEvent.click(nextButton);
+  const closeButton = screen.getByRole("button", { name: "Close" });
+  const confirmButton = screen.getByRole("button", { name: "Next Level" });
+  const cancelButton = screen.getByRole("button", { name: "Cancel" });
+
+  fireEvent.pointerDown(closeButton, { button: 0, pointerId: 3 });
+  expect(closeButton).toHaveClass(style.modalCloseButton);
+  expect(hasUserSelectNone("modalCloseButton")).toBe(true);
+
+  fireEvent.pointerDown(confirmButton, { button: 0, pointerId: 4 });
+  expect(confirmButton).toHaveClass(style.levelNavButton);
+
+  fireEvent.pointerDown(cancelButton, { button: 0, pointerId: 5 });
+  expect(cancelButton).toHaveClass(style.levelNavButton);
+
+  unmount();
+  mockSokoban({ hasProgress: false, state: State.completed, next: vi.fn() });
+
+  render(<Game />);
+  const completionButton = screen.getByRole("button", { name: "Continue" });
+
+  fireEvent.pointerDown(completionButton, { button: 0, pointerId: 6 });
+  expect(completionButton).toHaveClass(style.completionButton);
+  expect(hasUserSelectNone("completionButton")).toBe(true);
 });
 
 test("keyboard bracket-right opens confirmation when progress exists", () => {
