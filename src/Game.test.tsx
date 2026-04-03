@@ -158,6 +158,38 @@ test("next level confirmation opens on touch pointerdown when progress exists", 
   expect(nextLevel).not.toHaveBeenCalled();
 });
 
+test("touch pointerdown does not immediately close confirmation on overlay click", () => {
+  mockSokoban({ hasProgress: true, state: State.playing });
+
+  render(<Game />);
+  const nextButton = screen.getByRole("button", { name: "Next" });
+
+  fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1, pointerType: "touch" });
+  const dialog = screen.getByRole("dialog", { name: /switch to next level confirmation/i });
+
+  fireEvent.click(dialog);
+  expect(dialog).toBeInTheDocument();
+
+  fireEvent.click(dialog);
+  expect(dialog).not.toBeInTheDocument();
+});
+
+test("touch pointerdown does not immediately close previous confirmation on overlay click", () => {
+  mockSokoban({ hasProgress: true, state: State.playing });
+
+  render(<Game />);
+  const previousButton = screen.getByRole("button", { name: "Previous" });
+
+  fireEvent.pointerDown(previousButton, { button: 0, pointerId: 1, pointerType: "touch" });
+  const dialog = screen.getByRole("dialog", { name: /switch to previous level confirmation/i });
+
+  fireEvent.click(dialog);
+  expect(dialog).toBeInTheDocument();
+
+  fireEvent.click(dialog);
+  expect(dialog).not.toBeInTheDocument();
+});
+
 test("next level triggers immediately on pointerdown when no progress exists", () => {
   const nextLevel = vi.fn();
   mockSokoban({ hasProgress: false, state: State.playing, nextLevel });
@@ -222,13 +254,14 @@ test("long press does not enable text selection on nav, modal, or completion but
   const nextButton = screen.getByRole("button", { name: "Next" });
   const previousButton = screen.getByRole("button", { name: "Previous" });
 
-  fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1 });
+  fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1, pointerType: "mouse" });
   expect(nextButton).toHaveClass(style.levelNavButton);
   expect(hasUserSelectNone("levelNavButton")).toBe(true);
 
-  fireEvent.pointerDown(previousButton, { button: 0, pointerId: 2 });
+  fireEvent.pointerDown(previousButton, { button: 0, pointerId: 2, pointerType: "mouse" });
   expect(previousButton).toHaveClass(style.levelNavButton);
 
+  fireEvent.click(nextButton);
   fireEvent.click(nextButton);
   const closeButton = screen.getByRole("button", { name: "Close" });
   const confirmButton = screen.getByRole("button", { name: "Next Level" });
