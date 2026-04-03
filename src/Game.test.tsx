@@ -146,6 +146,18 @@ test("next level confirmation opens on click, not pointerdown, when progress exi
   expect(nextLevel).toHaveBeenCalledTimes(1);
 });
 
+test("next level confirmation opens on touch pointerdown when progress exists", () => {
+  const nextLevel = vi.fn();
+  mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
+
+  render(<Game />);
+  const nextButton = screen.getByRole("button", { name: "Next" });
+
+  fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1, pointerType: "touch" });
+  expect(screen.getByRole("dialog", { name: /switch to next level confirmation/i })).toBeInTheDocument();
+  expect(nextLevel).not.toHaveBeenCalled();
+});
+
 test("next level triggers immediately on pointerdown when no progress exists", () => {
   const nextLevel = vi.fn();
   mockSokoban({ hasProgress: false, state: State.playing, nextLevel });
@@ -176,6 +188,18 @@ test("previous level confirmation opens on click, not pointerdown, when progress
 
   fireEvent.click(screen.getByRole("button", { name: "Previous Level" }));
   expect(previousLevel).toHaveBeenCalledTimes(1);
+});
+
+test("previous level confirmation opens on touch pointerdown when progress exists", () => {
+  const previousLevel = vi.fn();
+  mockSokoban({ hasProgress: true, state: State.playing, previousLevel });
+
+  render(<Game />);
+  const previousButton = screen.getByRole("button", { name: "Previous" });
+
+  fireEvent.pointerDown(previousButton, { button: 0, pointerId: 1, pointerType: "touch" });
+  expect(screen.getByRole("dialog", { name: /switch to previous level confirmation/i })).toBeInTheDocument();
+  expect(previousLevel).not.toHaveBeenCalled();
 });
 
 test("previous level triggers immediately on pointerdown when no progress exists", () => {
