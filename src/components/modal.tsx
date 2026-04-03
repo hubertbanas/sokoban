@@ -6,9 +6,10 @@ type ModalProps = {
     ariaLabel: string;
     onClose: () => void;
     children: React.ReactNode;
+    autoFocusCloseButton?: boolean;
 };
 
-function Modal({ title, ariaLabel, onClose, children }: ModalProps) {
+function Modal({ title, ariaLabel, onClose, children, autoFocusCloseButton = false }: ModalProps) {
     return (
         <div
             className={style.modalOverlay}
@@ -25,6 +26,7 @@ function Modal({ title, ariaLabel, onClose, children }: ModalProps) {
                         className={style.modalCloseButton}
                         onClick={onClose}
                         aria-label="Close"
+                        autoFocus={autoFocusCloseButton}
                     >
                         ×
                     </button>

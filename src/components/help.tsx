@@ -4,6 +4,39 @@ import { Modal } from "./modal";
 
 function HelpImpl() {
   const [open, setOpen] = useState(false);
+  const suppressNextClickRef = React.useRef(false);
+
+  const openAbout = React.useCallback(() => setOpen(true), []);
+
+  const handleClick = React.useCallback(() => {
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
+
+    openAbout();
+  }, [openAbout]);
+
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.button !== 0) return;
+      if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+
+      suppressNextClickRef.current = true;
+      openAbout();
+      event.preventDefault();
+
+      const suppressClick = (clickEvent: MouseEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        window.removeEventListener("click", suppressClick, true);
+      };
+
+      window.addEventListener("click", suppressClick, true);
+      window.setTimeout(() => window.removeEventListener("click", suppressClick, true), 400);
+    },
+    [openAbout]
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -21,13 +54,19 @@ function HelpImpl() {
       <button
         type="button"
         className={style.aboutButton}
-        onClick={() => setOpen(true)}
+        onClick={handleClick}
+        onPointerDown={handlePointerDown}
       >
         About
       </button>
 
       {open && (
-        <Modal title="About" ariaLabel="About Sokoban" onClose={() => setOpen(false)}>
+        <Modal
+          title="About"
+          ariaLabel="About Sokoban"
+          onClose={() => setOpen(false)}
+          autoFocusCloseButton
+        >
           {/* Version Number Injection */}
           <div style={{ textAlign: "center", marginBottom: "16px", color: "gray", fontSize: "0.9em" }}>
             Version {__APP_VERSION__}
