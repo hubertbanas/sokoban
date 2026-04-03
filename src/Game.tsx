@@ -36,7 +36,21 @@ function useHoldToRepeat(
   const start = React.useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
       if (event.button !== 0) return;
-      if (!shouldStartOnPointerDown()) return;
+      if (!shouldStartOnPointerDown()) {
+        if (event.pointerType === "touch" || event.pointerType === "pen") {
+          suppressNextClickRef.current = true;
+          action();
+          event.preventDefault();
+          const handleClick = (clickEvent: MouseEvent) => {
+            clickEvent.preventDefault();
+            clickEvent.stopPropagation();
+            window.removeEventListener("click", handleClick, true);
+          };
+          window.addEventListener("click", handleClick, true);
+          window.setTimeout(() => window.removeEventListener("click", handleClick, true), 400);
+        }
+        return;
+      }
 
       suppressNextClickRef.current = true;
       action();
