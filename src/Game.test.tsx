@@ -397,6 +397,38 @@ test("enter cancels when confirm button is not focused", () => {
   expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
 });
 
+test("arrow keys move focus between confirmation buttons", () => {
+  mockSokoban({ hasProgress: true, state: State.playing });
+
+  render(<Game />);
+  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+  const cancelButton = screen.getByRole("button", { name: "Cancel" });
+  const confirmButton = screen.getByRole("button", { name: "Next Level" });
+
+  cancelButton.focus();
+  expect(cancelButton).toHaveFocus();
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event: rightEvent, preventDefaultSpy: rightPreventDefault } = createKeyboardEvent("ArrowRight");
+
+  act(() => {
+    onKeyboardEvent(rightEvent);
+  });
+
+  expect(confirmButton).toHaveFocus();
+  expect(rightPreventDefault).toHaveBeenCalledTimes(1);
+
+  const { event: leftEvent, preventDefaultSpy: leftPreventDefault } = createKeyboardEvent("ArrowLeft");
+
+  act(() => {
+    onKeyboardEvent(leftEvent);
+  });
+
+  expect(cancelButton).toHaveFocus();
+  expect(leftPreventDefault).toHaveBeenCalledTimes(1);
+});
+
 test("displays completion popup when level is completed", () => {
   mockSokoban({ state: State.completed });
 

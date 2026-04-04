@@ -96,6 +96,8 @@ function useHoldToRepeat(
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
+  const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
 
   type PendingAction = "restart" | "previous" | "next" | null;
@@ -268,6 +270,14 @@ function Game() {
   useKeyBoard(
     (event) => {
       if (isConfirmationDialogOpen) {
+        if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
+          const targetButton = event.code === "ArrowRight" ? confirmButtonRef.current : cancelButtonRef.current;
+          if (targetButton) {
+            targetButton.focus();
+          }
+          event.preventDefault();
+          return;
+        }
         if (event.code === "Enter") {
           const activeElement = document.activeElement;
           const isConfirmFocused =
@@ -392,7 +402,13 @@ function Game() {
             {confirmationDialog.warningText}
           </p>
           <div className={style.modalActions}>
-            <button type="button" className={style.levelNavButton} onClick={onCancelAction} autoFocus>
+            <button
+              type="button"
+              className={style.levelNavButton}
+              onClick={onCancelAction}
+              autoFocus
+              ref={cancelButtonRef}
+            >
               Cancel
             </button>
             <button
@@ -400,6 +416,7 @@ function Game() {
               className={style.levelNavButton}
               onClick={onConfirmAction}
               data-confirm-action="confirm"
+              ref={confirmButtonRef}
             >
               {confirmationDialog.confirmLabel}
             </button>
