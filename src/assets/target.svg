@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 67.733332 67.733332"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   sodipodi:docname="key.svg"
+   inkscape:export-filename="key.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="3.9340068"
+     inkscape:cx="117.43752"
+     inkscape:cy="125.06333"
+     inkscape:window-width="2560"
+     inkscape:window-height="1307"
+     inkscape:window-x="2560"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-163.24792,-61.383332)">
+    <g
+       transform="matrix(1.1288891,0,0,1.1288892,-168.64549,-270.5101)"
+       id="g974">
+      <g
+         id="use974">
+        <path
+           fill="#9cbbbd"
+           stroke="none"
+           d="m 298,334 h -4 v 14.05 q 0,5.95 5.95,5.95 H 314 v -4 H 299.95 Q 298,350 298,348.05 V 334 m 16,-40 H 299.95 Q 294,294 294,299.95 V 314 h 4 V 299.95 Q 298,298 299.95,298 H 314 v -4 m 40,40 h -4 v 14.05 q 0,1.95 -1.95,1.95 H 334 v 4 h 14.05 q 5.95,0 5.95,-5.95 V 334 m -5.95,-40 H 334 v 4 h 14.05 q 1.95,0 1.95,1.95 V 314 h 4 V 299.95 Q 354,294 348.05,294 Z"
+           id="path2"
+           style="display:none"
+           inkscape:export-filename="key.png"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96" />
+        <path
+           fill="#2f95d0"
+           stroke="none"
+           d="m 340,312 q 0,-4 -3.95,-4 H 312 q -4,0 -4,4 v 24.05 q 0,3.95 4,3.95 h 24.05 q 3.95,0 3.95,-3.95 V 312 m -5,1 v 22 h -22 v -22 h 22 m -17.5,17.5 h -2 v 2 h 2 v -2 m 0,-15 h -2 v 2 h 2 v -2 m 13,17 h 2 v -2 h -2 v 2 m 2,-15 v -2 h -2 v 2 z"
+           id="path3" />
+        <path
+           fill="#2678a8"
+           stroke="none"
+           d="m 335,335 v -22 h -22 v 22 h 22 m -2.5,-19.5 v 2 h -2 v -2 h 2 m 0,17 h -2 v -2 h 2 v 2 m -17,-17 h 2 v 2 h -2 v -2 m 0,15 h 2 v 2 h -2 z"
+           id="path4" />
+      </g>
+    </g>
+  </g>
+</svg>
