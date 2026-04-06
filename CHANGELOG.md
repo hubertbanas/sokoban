@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.15.0-rc.15] - 2026-04-05
+
+### Features
+- Complete graphics overhaul and cross-platform branding (#101)
+
+### Bug Fixes
+- Update favicon and manifest links in `index.html` (#100)
+- Implement keyboard navigation for confirmation buttons in modal (#99)
+- Mobile UX enhancements for modal interactions and global text selection (#98)
+- Update versioning to dynamically retrieve version name and code from `package.json` (#97)
+- Resolve text selection and modal dismissal on touch (#96)
+
+### Build & Chores
+- Add `verify-release.sh` utility for automated artifact validation (#90)
+- Update all non-major dependencies (#91, #102)
+- Update `docker/setup-qemu-action` action to v4 (#94)
+- Update `actions/deploy-pages` action to v5 (#93)
+- Update `actions/configure-pages` action to v6 (#92)
+
 ## [1.15.0-rc.14] - 2026-03-28
 
 ### Changed
