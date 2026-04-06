@@ -447,38 +447,32 @@
 }
 
 .element.objective {
-    background-image: url("../assets/key.svg");
-    background-size: 40%;
-    background-repeat: no-repeat;
-    background-position: center;
+    background-image: url("../assets/target.png");
 }
 
 .element.box {
-    background-image: url("../assets/box-closed.png");
+    background-image: url("../assets/crate.png");
 }
 
 .element.boxjective {
-    background-image: url("../assets/box-opened.png");
+    background-image: url("../assets/crate-docked.png");
 }
 
-.element.player .element.playerJective {
-    background-color: white;
-}
-
+/* Player directional sprites */
 .playerup {
-    background-image: url("../assets/up.png");
+    background-image: url("../assets/player-up.png");
 }
 
 .playerdown {
-    background-image: url("../assets/down.png");
+    background-image: url("../assets/player-down.png");
 }
 
 .playerleft {
-    background-image: url("../assets/left.png");
+    background-image: url("../assets/player-left.png");
 }
 
 .playerright {
-    background-image: url("../assets/right.png");
+    background-image: url("../assets/player-right.png");
 }
 
 .themeSwitcher {

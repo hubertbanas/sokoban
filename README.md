@@ -316,6 +316,7 @@ Light theme preview: [docs/assets/screenshot-gameplay-light.png](docs/assets/scr
 
 ## Attribution
 
+- Game graphics: [Kenney.nl Sokoban Asset Pack](https://kenney.nl/assets/sokoban) — All in-game sprites, icons, and branding assets are © Kenney, used under the [CC0 1.0 Universal (Public Domain)](https://creativecommons.org/publicdomain/zero/1.0/) license.
 - Original project: https://github.com/ecyrbe/sokoban
 - Current repository: https://github.com/hubertbanas/sokoban
 
