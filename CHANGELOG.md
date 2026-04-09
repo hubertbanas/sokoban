@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0-rc.16] - 2026-04-08
+
+### Features
+* Update application accent color across native assets, SVGs, and CSS variables
+
 ## [1.15.0-rc.15] - 2026-04-05
 
 ### Features
