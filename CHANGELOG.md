@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.15.0] - 2026-04-10
+
+### Features & Branding
+- Complete Graphics Overhaul: Replaced placeholder art with the Kenney.nl Sokoban pack for a cohesive, professional visual identity (#101).
+- Native Branding: Generated modern Android adaptive icons, legacy mipmap icons, and multi-orientation Light/Dark mode splash screens.
+- Theme Sync: Unified the application accent color across native mobile assets, root SVG master files, and web CSS variables.
+
+### Distribution Matrix Expansion
+- Windows: Added native NSIS installers (`.exe`) and portable executables for both x64 and arm64.
+- macOS: Added native `.dmg` compilation for Apple Silicon (arm64) and Intel (x64).
+- Linux: Finalized native packaging targets for Debian (`.deb`), Red Hat (`.rpm`), Arch Linux (`.pacman`), Snap, and Flatpak.
+- Android: Automated the generation of signed release APK and App Bundle (AAB) formats.
+
+### Enterprise Security
+- Cryptographic Signing: Implemented an automated pipeline to generate SHA-256 checksums and PGP signatures (`.asc`) for all release artifacts across all OS targets.
+- SBOM: Integrated automated Software Bill of Materials (SPDX JSON format) generation, which is explicitly hashed and signed prior to release.
+- Public GPG Key: Published the repository's public GPG release key (`.github/keys/sokoban-release-key.asc`) and updated verification docs.
+
+### Mobile UX & Bug Fixes
+- Implemented keyboard navigation for confirmation buttons in modals (#99).
+- Resolved aggressive text selection and fixed modal dismissal on touch interfaces (#96, #98).
+- Updated favicon and manifest links in `index.html` to reflect the new branding (#100).
+- Updated the app to dynamically retrieve the version name and code from `package.json` (#97).
+
+### Build & Tooling
+- Securely archived uncompressed Kenney source assets in a dedicated root folder for future maintainability.
+- Added `verify-release.sh` utility for automated, localized artifact validation (#90).
+- Patched CI workflows to strip internal runner paths from generated `.sha256` files for portable verification.
+- Implemented robust tag visibility polling to eliminate GitHub API race conditions during automated release creation.
+- Updated core GitHub Actions and all non-major dependencies via Renovate.
+
 ## [1.15.0-rc.16] - 2026-04-08
 
 ### Features
