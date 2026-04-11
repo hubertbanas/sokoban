@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.16.0-rc.1] - 2026-04-11
+
+### Added
+* Cross-Platform Desktop Branding: Implemented high-resolution custom Kenney icon assets for Windows, macOS, and Linux desktop targets.
+
+### Fixed
+* Linux GNOME/Wayland Icon Matching: Resolved an issue where desktop environments displayed a generic fallback icon while the game was running. The application main process now explicitly maps its `WM_CLASS` to the generated Flatpak `.desktop` shortcut file.
+
+### Build System & CI/CD
+* JIT (Just-In-Time) Asset Generation: Introduced `scripts/prepare-icons.sh` triggered via a `prebuild:desktop` yarn hook. This dynamically generates the strict `hicolor` icon matrix required for Flatpak AppStream validation using ImageMagick, keeping the repository clean of duplicate binary artifacts.
+
 ## [1.15.0] - 2026-04-10
 
 ### Features & Branding
