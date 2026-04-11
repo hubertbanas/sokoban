@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.16.0-rc.3] - 2026-04-11
+
+### Fixed
+* macOS ARM64 Build Panic: Bypassed a fatal `kingpin` panic in `electron-builder` by pre-generating the Apple `.icns` asset using native macOS `sips` and `iconutil` CLI tools prior to packaging.
+
 ## [1.16.0-rc.2] - 2026-04-11
 
 ### Fixed
