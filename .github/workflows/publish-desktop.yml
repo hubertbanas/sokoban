@@ -84,11 +84,14 @@ jobs:
           DEBUG: flatpak-bundler
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Summarize prepared Linux icon files
-        if: runner.os == 'Linux'
+      - name: Summarize prepared desktop icon files
+        if: always() && runner.os != 'Windows'
         run: |
           echo "Top-level desktop icons:"
           ls -1 build/icon.png build/icon.ico 2>/dev/null || echo "(missing build/icon.png and/or build/icon.ico)"
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            ls -1 build/icon.icns 2>/dev/null || echo "(missing build/icon.icns)"
+          fi
           echo ""
           echo "Generated icon matrix files:"
           ls -1 build/icons/*.png 2>/dev/null || echo "(no files found in build/icons)"
