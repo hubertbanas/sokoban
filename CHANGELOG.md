@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.16.0] - 2026-04-11
+
+### Added
+* Cross-Platform Desktop Branding: Implemented high-resolution custom Kenney icon assets for all desktop targets, completely replacing the default Electron graphics for Windows, macOS, and Linux.
+
+### Fixed
+* Linux GNOME/Wayland Icon Matching: Resolved an issue where desktop environments displayed a generic fallback icon while the game was running. The application main process now explicitly maps its `WM_CLASS` to the generated Flatpak `.desktop` shortcut file.
+* macOS ARM64 Build Panic: Bypassed a fatal `kingpin` panic in `electron-builder` on Apple Silicon runners by pre-generating the Apple `.icns` asset using native macOS `sips` and `iconutil` CLI tools prior to packaging.
+
+### Build System & CI/CD
+* JIT (Just-In-Time) Asset Generation: Introduced `scripts/prepare-icons.sh` triggered via a `prebuild:desktop` yarn hook. This dynamically generates the strict `hicolor` icon matrix required for Flatpak AppStream validation using ImageMagick (or a native `sips` fallback on macOS), keeping the repository clean of duplicate binary artifacts.
+
 ## [1.16.0-rc.3] - 2026-04-11
 
 ### Fixed
