@@ -21,6 +21,8 @@
 # - Runs step-aware preflight checks for repository location, host binaries,
 #   Docker availability/permissions, and Android signing env configuration.
 # - Preflight may pull missing Docker images on first run.
+# - Tracks execution time per phase with millisecond precision.
+# - Prints timing summary on both success and failure.
 # - Preserves host file ownership after containerized build steps.
 # ==============================================================================
 
@@ -51,6 +53,17 @@ ANDROID_ENV_READY=0
 
 HOST_UID="$(id -u)"
 HOST_GID="$(id -g)"
+
+SCRIPT_START_MILLIS=0
+TIMING_ACTIVE=0
+SUMMARY_PRINTED=0
+
+declare -A PHASE_MILLIS=()
+declare -A PHASE_STATUS=()
+declare -A PHASE_START_MILLIS=()
+declare -a PHASE_ORDER=(preflight clean web test appimage flatpak android)
+
+trap 'handle_exit "$?"' EXIT
 
 usage() {
   cat <<EOF
@@ -111,6 +124,159 @@ die() {
 
 to_lower() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+now_millis() {
+  local ts
+
+  ts="$(date +%s%3N 2>/dev/null || true)"
+  if [ -n "$ts" ] && [[ "$ts" =~ ^[0-9]+$ ]]; then
+    printf '%s' "$ts"
+    return
+  fi
+
+  printf '%s000' "$(date +%s)"
+}
+
+format_duration() {
+  local total_millis="$1"
+  local hours
+  local minutes
+  local seconds
+  local millis
+  local remainder
+
+  hours=$((total_millis / 3600000))
+  remainder=$((total_millis % 3600000))
+  minutes=$((remainder / 60000))
+  remainder=$((remainder % 60000))
+  seconds=$((remainder / 1000))
+  millis=$((remainder % 1000))
+
+  printf '%02dh:%02dm:%02ds.%03d' "$hours" "$minutes" "$seconds" "$millis"
+}
+
+init_phase_tracking() {
+  local phase
+
+  for phase in "${PHASE_ORDER[@]}"; do
+    PHASE_MILLIS["$phase"]=0
+    PHASE_START_MILLIS["$phase"]=0
+    PHASE_STATUS["$phase"]="not-selected"
+  done
+
+  PHASE_STATUS["preflight"]="pending"
+  [ "$RUN_CLEAN" -eq 1 ] && PHASE_STATUS["clean"]="pending"
+  [ "$RUN_WEB" -eq 1 ] && PHASE_STATUS["web"]="pending"
+  [ "$RUN_TESTS" -eq 1 ] && PHASE_STATUS["test"]="pending"
+  [ "$RUN_APPIMAGE" -eq 1 ] && PHASE_STATUS["appimage"]="pending"
+  [ "$RUN_FLATPAK" -eq 1 ] && PHASE_STATUS["flatpak"]="pending"
+  [ "$RUN_ANDROID" -eq 1 ] && PHASE_STATUS["android"]="pending"
+
+  return 0
+}
+
+run_phase() {
+  local phase="$1"
+  shift
+
+  local start_millis
+  local end_millis
+  local elapsed
+
+  PHASE_STATUS["$phase"]="running"
+  start_millis="$(now_millis)"
+  PHASE_START_MILLIS["$phase"]="$start_millis"
+
+  "$@"
+
+  end_millis="$(now_millis)"
+  elapsed=$((end_millis - start_millis))
+
+  if [ "${PHASE_STATUS[$phase]}" = "skipped" ]; then
+    PHASE_MILLIS["$phase"]=0
+    PHASE_START_MILLIS["$phase"]=0
+    log "Phase ${phase}: skipped."
+    return
+  fi
+
+  PHASE_MILLIS["$phase"]="$elapsed"
+  PHASE_START_MILLIS["$phase"]=0
+  PHASE_STATUS["$phase"]="done"
+  log "Phase ${phase}: completed in $(format_duration "$elapsed")"
+}
+
+finalize_running_phases_on_failure() {
+  local phase
+  local phase_status
+  local phase_start
+  local end_millis
+  local elapsed
+
+  end_millis="$(now_millis)"
+
+  for phase in "${PHASE_ORDER[@]}"; do
+    phase_status="${PHASE_STATUS[$phase]:-unknown}"
+    if [ "$phase_status" = "running" ]; then
+      phase_start="${PHASE_START_MILLIS[$phase]:-0}"
+      elapsed=$((end_millis - phase_start))
+      if [ "$elapsed" -lt 0 ]; then
+        elapsed=0
+      fi
+      PHASE_MILLIS["$phase"]="$elapsed"
+      PHASE_START_MILLIS["$phase"]=0
+      PHASE_STATUS["$phase"]="failed"
+    fi
+  done
+}
+
+print_timing_summary() {
+  local exit_code="$1"
+  local phase
+  local phase_status
+  local phase_millis
+  local total_elapsed
+
+  if [ "$TIMING_ACTIVE" -eq 0 ] || [ "$SUMMARY_PRINTED" -eq 1 ]; then
+    return
+  fi
+
+  SUMMARY_PRINTED=1
+  total_elapsed=$(( $(now_millis) - SCRIPT_START_MILLIS ))
+
+  log "Timing summary:"
+  printf '[build-releases] %-10s | %-12s | %s\n' "Phase" "Status" "Duration"
+  printf '[build-releases] %-10s-+-%-12s-+-%s\n' "----------" "------------" "------------"
+
+  for phase in "${PHASE_ORDER[@]}"; do
+    phase_status="${PHASE_STATUS[$phase]:-unknown}"
+    phase_millis="${PHASE_MILLIS[$phase]:-0}"
+    printf '[build-releases] %-10s | %-12s | %s\n' \
+      "$phase" "$phase_status" "$(format_duration "$phase_millis")"
+  done
+
+  if [ "$exit_code" -eq 0 ]; then
+    log "Total runtime: $(format_duration "$total_elapsed")"
+  else
+    log "Total runtime: $(format_duration "$total_elapsed") (failed, exit code ${exit_code})"
+  fi
+}
+
+handle_exit() {
+  local exit_code="$1"
+
+  set +e
+  set +u
+
+  if [ "$TIMING_ACTIVE" -eq 0 ]; then
+    return
+  fi
+
+  if [ "$exit_code" -ne 0 ]; then
+    finalize_running_phases_on_failure
+  fi
+
+  print_timing_summary "$exit_code"
 }
 
 validate_choice() {
@@ -551,6 +717,7 @@ run_tests() {
 
 run_appimage() {
   if [ "$LINUX_TARGET" = "flatpak" ]; then
+    PHASE_STATUS["appimage"]="skipped"
     log "Step appimage: skipped by --linux-target=${LINUX_TARGET}."
     return
   fi
@@ -574,6 +741,7 @@ run_appimage() {
 
 run_flatpak() {
   if [ "$LINUX_TARGET" = "appimage" ]; then
+    PHASE_STATUS["flatpak"]="skipped"
     log "Step flatpak: skipped by --linux-target=${LINUX_TARGET}."
     return
   fi
@@ -601,6 +769,7 @@ run_flatpak() {
 
 run_android() {
   if [ "$ANDROID_ENV_READY" -eq 0 ]; then
+    PHASE_STATUS["android"]="skipped"
     log "Step android: skipped because ${ANDROID_ENV_FILE} is unavailable or incomplete."
     return
   fi
@@ -650,27 +819,30 @@ print_artifact_summary() {
 }
 
 main() {
+  SCRIPT_START_MILLIS="$(now_millis)"
   parse_args "$@"
+  init_phase_tracking
+  TIMING_ACTIVE=1
   print_selection
-  run_preflight_checks
+  run_phase preflight run_preflight_checks
 
   if [ "$RUN_CLEAN" -eq 1 ]; then
-    run_cleanup
+    run_phase clean run_cleanup
   fi
   if [ "$RUN_WEB" -eq 1 ]; then
-    run_web_build
+    run_phase web run_web_build
   fi
   if [ "$RUN_TESTS" -eq 1 ]; then
-    run_tests
+    run_phase test run_tests
   fi
   if [ "$RUN_APPIMAGE" -eq 1 ]; then
-    run_appimage
+    run_phase appimage run_appimage
   fi
   if [ "$RUN_FLATPAK" -eq 1 ]; then
-    run_flatpak
+    run_phase flatpak run_flatpak
   fi
   if [ "$RUN_ANDROID" -eq 1 ]; then
-    run_android
+    run_phase android run_android
   fi
 
   log "Build flow complete."
