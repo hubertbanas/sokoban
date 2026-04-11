@@ -1,6 +1,11 @@
 # Changelog
 
-## [v1.16.0-rc.1] - 2026-04-11
+## [1.16.0-rc.2] - 2026-04-11
+
+### Fixed
+* Corrected version header formatting in the changelog to align with project standards.
+
+## [1.16.0-rc.1] - 2026-04-11
 
 ### Added
 * Cross-Platform Desktop Branding: Implemented high-resolution custom Kenney icon assets for Windows, macOS, and Linux desktop targets.
