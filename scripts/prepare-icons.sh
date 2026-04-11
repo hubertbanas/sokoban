@@ -1,5 +1,33 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# Desktop Icon Preparation Script (Just-In-Time Asset Generation)
+# ==============================================================================
+# 
+# This script prepares the necessary icon assets for `electron-builder` before 
+# packaging the cross-platform desktop application. By running this script via 
+# a `prebuild` hook, we keep the git repository clean of duplicate binary files 
+# while satisfying the strict packaging requirements of various operating systems.
+#
+# How electron-builder uses these generated assets (via auto-discovery in `build/`):
+#
+# Windows (.exe, nsis):
+#    Automatically consumes `build/icon.ico` for the executable and installer.
+#
+# macOS (.dmg):
+#    Automatically consumes `build/icon.png` and converts it into the required 
+#    Apple `.icns` format on the fly for Retina display scaling.
+#
+# Linux (AppImage, Deb, RPM, Pacman):
+#    Automatically consumes the master `build/icon.png` as a fallback `.DirIcon`.
+#
+# Linux (Flatpak, Snap):
+#    These heavily sandboxed formats require strict AppStream validation. They 
+#    will fall back to the default Electron atom icon (or crash the build) if a 
+#    specific matrix of physically resized icons does not exist. If ImageMagick 
+#    is present, this script generates that required matrix in `build/icons/`.
+# ==============================================================================
+
 set -euo pipefail
 
 echo "Preparing desktop build resources..."
