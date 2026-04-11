@@ -1,6 +1,6 @@
 {
   "name": "sokoban",
-  "version": "1.16.0-rc.3",
+  "version": "1.16.0",
   "private": true,
   "type": "module",
   "main": "electron-main.cjs",
