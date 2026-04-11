@@ -48,6 +48,9 @@ jobs:
           node-version: 24
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Set up QEMU for ARM emulation
         if: runner.os == 'Linux'
         uses: docker/setup-qemu-action@v4
@@ -59,7 +62,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder elfutils rpm libarchive-tools zstd
+          sudo apt-get install -y flatpak flatpak-builder elfutils rpm libarchive-tools zstd imagemagick
           flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
       - name: Linux build tooling diagnostics
@@ -67,6 +70,8 @@ jobs:
         run: |
           flatpak --version
           flatpak-builder --version
+          magick --version || true
+          convert -version || true
           flatpak remotes --user
           bsdtar --version || true
           zstd --version || true
@@ -78,6 +83,25 @@ jobs:
         env:
           DEBUG: flatpak-bundler
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summarize prepared Linux icon files
+        if: runner.os == 'Linux'
+        run: |
+          echo "Top-level desktop icons:"
+          ls -1 build/icon.png build/icon.ico 2>/dev/null || echo "(missing build/icon.png and/or build/icon.ico)"
+          echo ""
+          echo "Generated icon matrix files:"
+          ls -1 build/icons/*.png 2>/dev/null || echo "(no files found in build/icons)"
+
+      - name: Verify prepared Linux icon assets
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          test -f build/icon.png
+          test -f build/icon.ico
+          for size in 16 24 32 48 64 96 128 256 512; do
+            test -f "build/icons/${size}x${size}.png"
+          done
 
       - name: Import Release GPG Key
         uses: crazy-max/ghaction-import-gpg@v7

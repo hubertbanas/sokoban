@@ -60,6 +60,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "prebuild:desktop": "bash scripts/prepare-icons.sh",
     "build:desktop": "yarn build && electron-builder --publish never",
     "preview": "vite preview",
     "test": "vitest run --environment jsdom"
@@ -75,7 +76,9 @@
       "dist/**/*",
       "electron-main.cjs",
       "package.json",
-      "public/favicon.ico"
+      "public/icon.ico",
+      "public/icon.png",
+      "public/favicon.png"
     ],
     "win": {
       "target": [
