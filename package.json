@@ -60,6 +60,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "prebuild:desktop": "bash scripts/prepare-icons.sh",
     "build:desktop": "yarn build && electron-builder --publish never",
     "preview": "vite preview",
     "test": "vitest run --environment jsdom"
@@ -80,7 +81,6 @@
       "public/favicon.png"
     ],
     "win": {
-      "icon": "public/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -106,7 +106,6 @@
       "artifactName": "${productName}-${version}-setup-${arch}.${ext}"
     },
     "linux": {
-      "icon": "public/icon.png",
       "target": [
         {
           "target": "AppImage",
@@ -158,7 +157,6 @@
       "summary": "A retro Sokoban puzzle game."
     },
     "mac": {
-      "icon": "public/icon.png",
       "target": [
         {
           "target": "dmg",
