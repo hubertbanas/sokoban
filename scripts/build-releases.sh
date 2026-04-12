@@ -25,6 +25,7 @@
 # - Prints timing summary on both success and failure.
 # - Supports optional per-phase debug mode (off by default).
 # - Collects artifacts into a single local directory with local-only filenames.
+# - Supports optional full execution logging for debugging.
 # - Preserves host file ownership after containerized build steps.
 # ==============================================================================
 
@@ -46,6 +47,8 @@ LINUX_TARGET="both"
 LINUX_ARCH="both"
 ANDROID_TARGET="both"
 DEBUG_REQUESTED="none"
+LOG_ENABLED=0
+LOG_FILE="${BUILD_RELEASES_LOG_FILE:-}"
 USE_SUDO_CHOWN=1
 
 RUN_CLEAN=0
@@ -106,6 +109,8 @@ Options:
   --debug <csv>                   Enable debug for selected phases.
                                   Values: web,test,appimage,flatpak,deb,rpm,pacman,android,all,none
                                   Default: none
+  --log                           Write full script output to a timestamped log file.
+  --log-file <path>               Write full script output to the specified log file.
   --artifact-dir <path>           Output directory for gathered artifacts.
                                   Must be a relative path inside the repo.
                                   Default: ${LOCAL_RELEASES_DIR}
@@ -127,6 +132,9 @@ Artifact Handling:
   - Renames copied artifacts with -${LOCAL_ARTIFACT_TAG} suffix to avoid CI/GitHub naming collisions
   - Can be overridden with --artifact-dir and --artifact-tag
 
+Execution Logging:
+  - Enable with --log or --log-file to capture full run output for debugging
+
 Convenience Shortcuts:
   --appimage-only                 Same as: --steps appimage
   --flatpak-only                  Same as: --steps flatpak
@@ -145,6 +153,8 @@ Examples:
   ${SCRIPT_NAME} --flatpak-only --linux-arch x64
   ${SCRIPT_NAME} --apk-only
   ${SCRIPT_NAME} --steps clean,web,test
+  ${SCRIPT_NAME} --log
+  ${SCRIPT_NAME} --log-file build-logs/debug-run.log --steps pacman --debug pacman
   ${SCRIPT_NAME} --steps deb,rpm --artifact-dir local-release-candidates --artifact-tag localdev
 EOF
 }
@@ -388,6 +398,37 @@ validate_artifact_options() {
   fi
 }
 
+configure_log_options() {
+  local default_log_name
+
+  if [ "$LOG_ENABLED" -eq 0 ]; then
+    return
+  fi
+
+  if [ -z "$LOG_FILE" ]; then
+    default_log_name="${SCRIPT_NAME%.*}-$(date +%Y%m%d-%H%M%S).log"
+    LOG_FILE="build-logs/${default_log_name}"
+  fi
+
+  if [[ "$LOG_FILE" == */ ]]; then
+    die "--log-file must be a file path, not a directory path."
+  fi
+
+  if ! command -v tee >/dev/null 2>&1; then
+    die "Execution logging requires 'tee', but it is not available in PATH."
+  fi
+}
+
+prepare_log_file() {
+  local log_dir
+
+  [ "$LOG_ENABLED" -eq 1 ] || return
+
+  log_dir="$(dirname "$LOG_FILE")"
+  mkdir -p "$log_dir" || die "Unable to create log directory: ${log_dir}"
+  : > "$LOG_FILE" || die "Unable to write log file: ${LOG_FILE}"
+}
+
 configure_steps() {
   local step
   local raw
@@ -517,6 +558,16 @@ parse_args() {
         DEBUG_REQUESTED="$(to_lower "$2")"
         shift 2
         ;;
+      --log)
+        LOG_ENABLED=1
+        shift
+        ;;
+      --log-file)
+        [ "$#" -ge 2 ] || die "--log-file requires a value"
+        LOG_ENABLED=1
+        LOG_FILE="$2"
+        shift 2
+        ;;
       --artifact-dir)
         [ "$#" -ge 2 ] || die "--artifact-dir requires a value"
         LOCAL_RELEASES_DIR="$2"
@@ -583,6 +634,7 @@ parse_args() {
   validate_choice "linux arch" "$LINUX_ARCH" "x64,arm64,both"
   validate_choice "android target" "$ANDROID_TARGET" "apk,aab,both"
   validate_artifact_options
+  configure_log_options
 
   configure_steps
   configure_debug_flags
@@ -844,6 +896,9 @@ print_selection() {
   log "Linux architecture: ${LINUX_ARCH}"
   log "Android target: ${ANDROID_TARGET}"
   log "Debug phases: ${DEBUG_REQUESTED}"
+  if [ "$LOG_ENABLED" -eq 1 ]; then
+    log "Execution log file: ${LOG_FILE}"
+  fi
   log "Artifact directory: ${LOCAL_RELEASES_DIR}"
   log "Artifact tag: ${LOCAL_ARTIFACT_TAG}"
   log "Sudo ownership fix: ${USE_SUDO_CHOWN}"
@@ -1187,9 +1242,8 @@ print_artifact_summary() {
   log "No artifacts found in ${LOCAL_RELEASES_DIR}/."
 }
 
-main() {
+execute_pipeline() {
   SCRIPT_START_MILLIS="$(now_millis)"
-  parse_args "$@"
   init_phase_tracking
   TIMING_ACTIVE=1
   print_selection
@@ -1226,6 +1280,31 @@ main() {
   log "Build flow complete."
   gather_artifacts
   print_artifact_summary
+}
+
+run_with_execution_log() {
+  local pipeline_status
+
+  prepare_log_file
+
+  set +e
+  BUILD_RELEASES_LOG_FILE="$LOG_FILE" BUILD_RELEASES_LOG_ACTIVE=1 \
+    bash "${SCRIPT_DIR}/${SCRIPT_NAME}" "$@" 2>&1 | tee -a "$LOG_FILE"
+  pipeline_status=$?
+  set -e
+
+  return "$pipeline_status"
+}
+
+main() {
+  parse_args "$@"
+
+  if [ "$LOG_ENABLED" -eq 1 ] && [ "${BUILD_RELEASES_LOG_ACTIVE:-0}" != "1" ]; then
+    run_with_execution_log "$@"
+    return $?
+  fi
+
+  execute_pipeline
 }
 
 main "$@"

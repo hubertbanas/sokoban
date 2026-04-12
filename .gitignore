@@ -13,6 +13,7 @@
 /dist
 /dist-desktop
 /local-releases
+/build-logs
 
 # misc
 .DS_Store
