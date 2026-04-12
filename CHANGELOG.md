@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.16.1] - 2026-04-12
+
+### Added
+* Local Release Tooling: Introduced a fully containerized, parameter-driven CLI script (`build-releases.sh`) to safely generate, track, and isolate release artifacts across all desktop and mobile platforms without polluting the host environment.
+* Application Branding: Integrated a new custom application icon.
+
+### Fixed
+* Desktop Window Menus: Hid the native Electron application menu (File, Edit, View, etc.) on Windows and Linux targets to provide a cleaner, distraction-free game window, while preserving the standard global application menu on macOS.
+
 ## [1.16.0] - 2026-04-11
 
 ### Added
