@@ -24,6 +24,7 @@
 # - Tracks execution time per phase with millisecond precision.
 # - Prints timing summary on both success and failure.
 # - Supports optional per-phase debug mode (off by default).
+# - Collects artifacts into a single local directory with local-only filenames.
 # - Preserves host file ownership after containerized build steps.
 # ==============================================================================
 
@@ -37,6 +38,8 @@ NODE_ALPINE_IMAGE="node:24-alpine"
 NODE_BOOKWORM_IMAGE="node:24-bookworm"
 ANDROID_IMAGE="reactnativecommunity/react-native-android:latest"
 ANDROID_ENV_FILE=".env.android-release"
+LOCAL_RELEASES_DIR="local-releases"
+LOCAL_ARTIFACT_TAG="local"
 
 STEPS_REQUESTED="all"
 LINUX_TARGET="both"
@@ -103,6 +106,12 @@ Options:
   --debug <csv>                   Enable debug for selected phases.
                                   Values: web,test,appimage,flatpak,deb,rpm,pacman,android,all,none
                                   Default: none
+  --artifact-dir <path>           Output directory for gathered artifacts.
+                                  Must be a relative path inside the repo.
+                                  Default: ${LOCAL_RELEASES_DIR}
+  --artifact-tag <value>          Tag injected into gathered artifact names.
+                                  Allowed: letters, numbers, dot, underscore, dash
+                                  Default: ${LOCAL_ARTIFACT_TAG}
   --no-sudo-chown                 Skip sudo ownership normalization in clean step.
 
 Preflight Validation:
@@ -112,6 +121,11 @@ Preflight Validation:
   - Confirms required binaries exist in selected Docker images
   - May pull missing Docker images during preflight (first run can take time)
   - Validates Android signing variables in ${ANDROID_ENV_FILE} when Android is requested
+
+Artifact Handling:
+  - Copies discovered artifacts into ${LOCAL_RELEASES_DIR}/
+  - Renames copied artifacts with -${LOCAL_ARTIFACT_TAG} suffix to avoid CI/GitHub naming collisions
+  - Can be overridden with --artifact-dir and --artifact-tag
 
 Convenience Shortcuts:
   --appimage-only                 Same as: --steps appimage
@@ -131,6 +145,7 @@ Examples:
   ${SCRIPT_NAME} --flatpak-only --linux-arch x64
   ${SCRIPT_NAME} --apk-only
   ${SCRIPT_NAME} --steps clean,web,test
+  ${SCRIPT_NAME} --steps deb,rpm --artifact-dir local-release-candidates --artifact-tag localdev
 EOF
 }
 
@@ -336,6 +351,43 @@ validate_choice() {
   die "Invalid ${label}: ${value}. Allowed values: ${allowed_csv}"
 }
 
+validate_artifact_options() {
+  local part
+  local -a path_parts
+
+  while [ "${LOCAL_RELEASES_DIR%/}" != "$LOCAL_RELEASES_DIR" ]; do
+    LOCAL_RELEASES_DIR="${LOCAL_RELEASES_DIR%/}"
+  done
+
+  [ -n "$LOCAL_RELEASES_DIR" ] || die "--artifact-dir cannot be empty."
+  [ "$LOCAL_RELEASES_DIR" != "." ] || die "--artifact-dir cannot be '.'; choose a directory name."
+
+  case "$LOCAL_RELEASES_DIR" in
+    /*)
+      die "--artifact-dir must be a relative path inside the repository."
+      ;;
+  esac
+
+  IFS='/' read -r -a path_parts <<< "$LOCAL_RELEASES_DIR"
+  for part in "${path_parts[@]}"; do
+    case "$part" in
+      ""|".")
+        ;;
+      "..")
+        die "--artifact-dir must not contain '..' path segments."
+        ;;
+    esac
+  done
+
+  if [ -z "$LOCAL_ARTIFACT_TAG" ]; then
+    die "--artifact-tag cannot be empty."
+  fi
+
+  if [[ ! "$LOCAL_ARTIFACT_TAG" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    die "Invalid --artifact-tag '${LOCAL_ARTIFACT_TAG}'. Use only letters, numbers, dot, underscore, or dash."
+  fi
+}
+
 configure_steps() {
   local step
   local raw
@@ -465,6 +517,16 @@ parse_args() {
         DEBUG_REQUESTED="$(to_lower "$2")"
         shift 2
         ;;
+      --artifact-dir)
+        [ "$#" -ge 2 ] || die "--artifact-dir requires a value"
+        LOCAL_RELEASES_DIR="$2"
+        shift 2
+        ;;
+      --artifact-tag)
+        [ "$#" -ge 2 ] || die "--artifact-tag requires a value"
+        LOCAL_ARTIFACT_TAG="$2"
+        shift 2
+        ;;
       --no-sudo-chown)
         USE_SUDO_CHOWN=0
         shift
@@ -520,6 +582,7 @@ parse_args() {
   validate_choice "linux target" "$LINUX_TARGET" "appimage,flatpak,both"
   validate_choice "linux arch" "$LINUX_ARCH" "x64,arm64,both"
   validate_choice "android target" "$ANDROID_TARGET" "apk,aab,both"
+  validate_artifact_options
 
   configure_steps
   configure_debug_flags
@@ -781,11 +844,13 @@ print_selection() {
   log "Linux architecture: ${LINUX_ARCH}"
   log "Android target: ${ANDROID_TARGET}"
   log "Debug phases: ${DEBUG_REQUESTED}"
+  log "Artifact directory: ${LOCAL_RELEASES_DIR}"
+  log "Artifact tag: ${LOCAL_ARTIFACT_TAG}"
   log "Sudo ownership fix: ${USE_SUDO_CHOWN}"
 }
 
 run_cleanup() {
-  local -a cleanup_paths=(build/ dist/ dist-desktop/ android/app/build/)
+  local -a cleanup_paths=(build/ dist/ dist-desktop/ android/app/build/ "${LOCAL_RELEASES_DIR}"/)
 
   log "Step clean: removing prior build output and fixing ownership..."
 
@@ -1032,38 +1097,94 @@ run_android() {
   log "Step android: done."
 }
 
+tag_local_artifact_name() {
+  local filename="$1"
+  local stem
+  local tail
+
+  if [[ "$filename" == *.pkg.tar.* ]]; then
+    stem="${filename%%.pkg.tar.*}"
+    tail="${filename#${stem}}"
+    printf '%s-%s%s' "$stem" "$LOCAL_ARTIFACT_TAG" "$tail"
+    return
+  fi
+
+  if [[ "$filename" == *.* ]]; then
+    printf '%s-%s.%s' "${filename%.*}" "$LOCAL_ARTIFACT_TAG" "${filename##*.}"
+    return
+  fi
+
+  printf '%s-%s' "$filename" "$LOCAL_ARTIFACT_TAG"
+}
+
+copy_local_artifact() {
+  local source_file="$1"
+  local target_name="$2"
+
+  [ -f "$source_file" ] || return 1
+  cp -f "$source_file" "${LOCAL_RELEASES_DIR}/${target_name}"
+  return 0
+}
+
+gather_artifacts() {
+  local pattern
+  local file
+  local filename
+  local tagged_name
+  local copied_count=0
+  local -a desktop_patterns=(
+    dist-desktop/*.AppImage
+    dist-desktop/*.flatpak
+    dist-desktop/*.deb
+    dist-desktop/*.rpm
+    dist-desktop/*.pacman
+    dist-desktop/*.pkg.tar.*
+  )
+
+  log "Gathering artifacts into ${LOCAL_RELEASES_DIR}/..."
+  mkdir -p "$LOCAL_RELEASES_DIR"
+
+  for pattern in "${desktop_patterns[@]}"; do
+    for file in $pattern; do
+      [ -f "$file" ] || continue
+      filename="$(basename "$file")"
+      tagged_name="$(tag_local_artifact_name "$filename")"
+      cp -f "$file" "${LOCAL_RELEASES_DIR}/${tagged_name}"
+      copied_count=$((copied_count + 1))
+    done
+  done
+
+  if copy_local_artifact "android/app/build/outputs/apk/release/app-release.apk" "Sokoban-${LOCAL_ARTIFACT_TAG}-release.apk"; then
+    copied_count=$((copied_count + 1))
+  fi
+
+  if copy_local_artifact "android/app/build/outputs/bundle/release/app-release.aab" "Sokoban-${LOCAL_ARTIFACT_TAG}-release.aab"; then
+    copied_count=$((copied_count + 1))
+  fi
+
+  if [ "$copied_count" -eq 0 ]; then
+    log "Gathering artifacts: no files found to collect."
+    return
+  fi
+
+  if [ "$HOST_UID" -eq 0 ]; then
+    chown -R "${HOST_UID}:${HOST_GID}" "$LOCAL_RELEASES_DIR" || true
+  elif command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+    sudo -n chown -R "${HOST_UID}:${HOST_GID}" "$LOCAL_RELEASES_DIR" || true
+  else
+    chown -R "${HOST_UID}:${HOST_GID}" "$LOCAL_RELEASES_DIR" 2>/dev/null || true
+  fi
+
+  log "Gathering artifacts: copied ${copied_count} file(s) into ${LOCAL_RELEASES_DIR}/."
+}
+
 print_artifact_summary() {
-  log "Artifact summary:"
-
-  if [ "$RUN_APPIMAGE" -eq 1 ] && [ "$LINUX_TARGET" != "flatpak" ]; then
-    ls -lh dist-desktop/*.AppImage 2>/dev/null || true
+  log "Artifact summary (${LOCAL_RELEASES_DIR}/):"
+  if ls -lh "${LOCAL_RELEASES_DIR}"/* 2>/dev/null; then
+    return
   fi
 
-  if [ "$RUN_FLATPAK" -eq 1 ] && [ "$LINUX_TARGET" != "appimage" ]; then
-    ls -lh dist-desktop/*.flatpak 2>/dev/null || true
-  fi
-
-  if [ "$RUN_DEB" -eq 1 ]; then
-    ls -lh dist-desktop/*.deb 2>/dev/null || true
-  fi
-
-  if [ "$RUN_RPM" -eq 1 ]; then
-    ls -lh dist-desktop/*.rpm 2>/dev/null || true
-  fi
-
-  if [ "$RUN_PACMAN" -eq 1 ]; then
-    ls -lh dist-desktop/*.pacman 2>/dev/null || true
-    ls -lh dist-desktop/*.pkg.tar.* 2>/dev/null || true
-  fi
-
-  if [ "$RUN_ANDROID" -eq 1 ]; then
-    if [ "$ANDROID_TARGET" = "apk" ] || [ "$ANDROID_TARGET" = "both" ]; then
-      ls -lh android/app/build/outputs/apk/release/app-release.apk 2>/dev/null || true
-    fi
-    if [ "$ANDROID_TARGET" = "aab" ] || [ "$ANDROID_TARGET" = "both" ]; then
-      ls -lh android/app/build/outputs/bundle/release/app-release.aab 2>/dev/null || true
-    fi
-  fi
+  log "No artifacts found in ${LOCAL_RELEASES_DIR}/."
 }
 
 main() {
@@ -1103,6 +1224,7 @@ main() {
   fi
 
   log "Build flow complete."
+  gather_artifacts
   print_artifact_summary
 }
 
