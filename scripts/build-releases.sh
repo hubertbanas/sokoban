@@ -39,6 +39,7 @@ NODE_ALPINE_IMAGE="node:24-alpine"
 NODE_BOOKWORM_IMAGE="node:24-bookworm"
 ANDROID_IMAGE="reactnativecommunity/react-native-android:latest"
 ANDROID_ENV_FILE=".env.android-release"
+RELEASE_ASSET_PREFIX="Sokoban"
 LOCAL_RELEASES_DIR="local-releases"
 LOCAL_ARTIFACT_TAG="local"
 
@@ -77,6 +78,7 @@ HOST_GID="$(id -g)"
 SCRIPT_START_MILLIS=0
 TIMING_ACTIVE=0
 SUMMARY_PRINTED=0
+PROJECT_VERSION=""
 
 declare -A PHASE_MILLIS=()
 declare -A PHASE_STATUS=()
@@ -130,6 +132,7 @@ Preflight Validation:
 Artifact Handling:
   - Copies discovered artifacts into ${LOCAL_RELEASES_DIR}/
   - Renames copied artifacts with -${LOCAL_ARTIFACT_TAG} suffix to avoid CI/GitHub naming collisions
+  - Uses package.json version to name Android artifacts as ${RELEASE_ASSET_PREFIX}-<version>-${LOCAL_ARTIFACT_TAG}.apk/.aab
   - Can be overridden with --artifact-dir and --artifact-tag
 
 Execution Logging:
@@ -170,6 +173,20 @@ die() {
 
 to_lower() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+get_project_version() {
+  if [ -n "$PROJECT_VERSION" ]; then
+    printf '%s' "$PROJECT_VERSION"
+    return
+  fi
+
+  [ -f package.json ] || die "package.json not found; unable to determine project version for artifact naming."
+
+  PROJECT_VERSION="$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^\"]+)".*/\1/p' package.json | head -n 1)"
+  [ -n "$PROJECT_VERSION" ] || die "Unable to parse 'version' from package.json for artifact naming."
+
+  printf '%s' "$PROJECT_VERSION"
 }
 
 phase_debug_enabled() {
@@ -1154,8 +1171,19 @@ run_android() {
 
 tag_local_artifact_name() {
   local filename="$1"
+  local project_version="$2"
+  local prefix
+  local remainder
   local stem
   local tail
+
+  prefix="${RELEASE_ASSET_PREFIX}-${project_version}-"
+
+  if [[ "$filename" == "${prefix}"* ]]; then
+    remainder="${filename#${prefix}}"
+    printf '%s%s-%s' "$prefix" "$LOCAL_ARTIFACT_TAG" "$remainder"
+    return
+  fi
 
   if [[ "$filename" == *.pkg.tar.* ]]; then
     stem="${filename%%.pkg.tar.*}"
@@ -1186,6 +1214,7 @@ gather_artifacts() {
   local file
   local filename
   local tagged_name
+  local project_version
   local copied_count=0
   local -a desktop_patterns=(
     dist-desktop/*.AppImage
@@ -1196,6 +1225,8 @@ gather_artifacts() {
     dist-desktop/*.pkg.tar.*
   )
 
+  project_version="$(get_project_version)"
+
   log "Gathering artifacts into ${LOCAL_RELEASES_DIR}/..."
   mkdir -p "$LOCAL_RELEASES_DIR"
 
@@ -1203,17 +1234,27 @@ gather_artifacts() {
     for file in $pattern; do
       [ -f "$file" ] || continue
       filename="$(basename "$file")"
-      tagged_name="$(tag_local_artifact_name "$filename")"
+
+      # Keep local discovery focused on artifacts for the current project version.
+      if [[ "$filename" != "${RELEASE_ASSET_PREFIX}-${project_version}-"* ]]; then
+        continue
+      fi
+
+      tagged_name="$(tag_local_artifact_name "$filename" "$project_version")"
       cp -f "$file" "${LOCAL_RELEASES_DIR}/${tagged_name}"
       copied_count=$((copied_count + 1))
     done
   done
 
-  if copy_local_artifact "android/app/build/outputs/apk/release/app-release.apk" "Sokoban-${LOCAL_ARTIFACT_TAG}-release.apk"; then
+  if copy_local_artifact \
+    "android/app/build/outputs/apk/release/app-release.apk" \
+    "${RELEASE_ASSET_PREFIX}-${project_version}-${LOCAL_ARTIFACT_TAG}.apk"; then
     copied_count=$((copied_count + 1))
   fi
 
-  if copy_local_artifact "android/app/build/outputs/bundle/release/app-release.aab" "Sokoban-${LOCAL_ARTIFACT_TAG}-release.aab"; then
+  if copy_local_artifact \
+    "android/app/build/outputs/bundle/release/app-release.aab" \
+    "${RELEASE_ASSET_PREFIX}-${project_version}-${LOCAL_ARTIFACT_TAG}.aab"; then
     copied_count=$((copied_count + 1))
   fi
 
