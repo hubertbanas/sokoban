@@ -1,5 +1,7 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
+
+const isMac = process.platform === "darwin";
 
 // Explicitly tell Linux desktop environments (like GNOME/Wayland) 
 // to map the running window to the Flatpak .desktop file.
@@ -22,6 +24,7 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
+        autoHideMenuBar: !isMac,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -29,10 +32,53 @@ function createWindow() {
         icon: iconPath,
     });
 
+    if (!isMac) {
+        win.setMenu(null);
+    }
+
     win.loadFile(path.join(__dirname, "dist", "index.html"));
 }
 
-app.whenReady().then(createWindow);
+function configureApplicationMenu() {
+    if (!isMac) {
+        Menu.setApplicationMenu(null);
+        return;
+    }
+
+    const template = [
+        {
+            label: app.name,
+            submenu: [
+                { role: "about" },
+                { type: "separator" },
+                { role: "services" },
+                { type: "separator" },
+                { role: "hide" },
+                { role: "hideOthers" },
+                { role: "unhide" },
+                { type: "separator" },
+                { role: "quit" },
+            ],
+        },
+        {
+            label: "Window",
+            submenu: [
+                { role: "minimize" },
+                { role: "zoom" },
+                { type: "separator" },
+                { role: "togglefullscreen" },
+                { role: "front" },
+            ],
+        },
+    ];
+
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+app.whenReady().then(() => {
+    configureApplicationMenu();
+    createWindow();
+});
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
