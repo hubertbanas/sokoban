@@ -50,6 +50,8 @@ ANDROID_TARGET="both"
 DEBUG_REQUESTED="none"
 LOG_ENABLED=0
 LOG_FILE="${BUILD_RELEASES_LOG_FILE:-}"
+HAS_STEPS_OPTION=0
+ONLY_SHORTCUT_USED=""
 USE_SUDO_CHOWN=1
 
 RUN_CLEAN=0
@@ -149,12 +151,14 @@ Convenience Shortcuts:
   --linux-arm64                   Same as: --linux-arch arm64
   --linux-x64                     Same as: --linux-arch x64
   --debug-all                     Same as: --debug all
+  Note: *-only shortcuts are exclusive and cannot be combined with --steps.
 
 Examples:
   ${SCRIPT_NAME}
   ${SCRIPT_NAME} --steps appimage,flatpak --linux-arch arm64
   ${SCRIPT_NAME} --flatpak-only --linux-arch x64
   ${SCRIPT_NAME} --apk-only
+  ${SCRIPT_NAME} --steps clean,web,test,appimage,android --android-target apk
   ${SCRIPT_NAME} --steps clean,web,test
   ${SCRIPT_NAME} --log
   ${SCRIPT_NAME} --log-file build-logs/debug-run.log --steps pacman --debug pacman
@@ -503,6 +507,22 @@ configure_steps() {
   fi
 }
 
+set_only_steps_shortcut() {
+  local shortcut_name="$1"
+  local steps_value="$2"
+
+  if [ "$HAS_STEPS_OPTION" -eq 1 ]; then
+    die "Cannot combine ${shortcut_name} with --steps. Use --steps ... and add android via --steps ... ,android with --android-target when needed."
+  fi
+
+  if [ -n "$ONLY_SHORTCUT_USED" ] && [ "$ONLY_SHORTCUT_USED" != "$shortcut_name" ]; then
+    die "Cannot combine ${ONLY_SHORTCUT_USED} with ${shortcut_name}. Choose only one *-only shortcut."
+  fi
+
+  ONLY_SHORTCUT_USED="$shortcut_name"
+  STEPS_REQUESTED="$steps_value"
+}
+
 configure_debug_flags() {
   local raw
   local debug_target
@@ -552,6 +572,12 @@ parse_args() {
         ;;
       --steps)
         [ "$#" -ge 2 ] || die "--steps requires a value"
+
+        if [ -n "$ONLY_SHORTCUT_USED" ]; then
+          die "Cannot combine --steps with ${ONLY_SHORTCUT_USED}. Use either --steps or one *-only shortcut."
+        fi
+
+        HAS_STEPS_OPTION=1
         STEPS_REQUESTED="$(to_lower "$2")"
         shift 2
         ;;
@@ -600,32 +626,32 @@ parse_args() {
         shift
         ;;
       --appimage-only)
-        STEPS_REQUESTED="appimage"
+        set_only_steps_shortcut "--appimage-only" "appimage"
         shift
         ;;
       --flatpak-only)
-        STEPS_REQUESTED="flatpak"
+        set_only_steps_shortcut "--flatpak-only" "flatpak"
         shift
         ;;
       --deb-only)
-        STEPS_REQUESTED="deb"
+        set_only_steps_shortcut "--deb-only" "deb"
         shift
         ;;
       --rpm-only)
-        STEPS_REQUESTED="rpm"
+        set_only_steps_shortcut "--rpm-only" "rpm"
         shift
         ;;
       --pacman-only)
-        STEPS_REQUESTED="pacman"
+        set_only_steps_shortcut "--pacman-only" "pacman"
         shift
         ;;
       --apk-only)
-        STEPS_REQUESTED="android"
+        set_only_steps_shortcut "--apk-only" "android"
         ANDROID_TARGET="apk"
         shift
         ;;
       --aab-only)
-        STEPS_REQUESTED="android"
+        set_only_steps_shortcut "--aab-only" "android"
         ANDROID_TARGET="aab"
         shift
         ;;
