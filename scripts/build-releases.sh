@@ -16,13 +16,14 @@
 # --------------
 # - Uses Dockerized tooling so host setup stays minimal.
 # - Uses node:24-alpine for dependency install, web build, and tests.
-# - Uses node:24-bookworm (privileged) for AppImage/Flatpak packaging.
+# - Uses node:24-bookworm (privileged) for Linux packaging.
 # - Uses reactnativecommunity/react-native-android for Android release builds.
 # - Runs step-aware preflight checks for repository location, host binaries,
 #   Docker availability/permissions, and Android signing env configuration.
 # - Preflight may pull missing Docker images on first run.
 # - Tracks execution time per phase with millisecond precision.
 # - Prints timing summary on both success and failure.
+# - Supports optional per-phase debug mode (off by default).
 # - Preserves host file ownership after containerized build steps.
 # ==============================================================================
 
@@ -41,6 +42,7 @@ STEPS_REQUESTED="all"
 LINUX_TARGET="both"
 LINUX_ARCH="both"
 ANDROID_TARGET="both"
+DEBUG_REQUESTED="none"
 USE_SUDO_CHOWN=1
 
 RUN_CLEAN=0
@@ -48,8 +50,20 @@ RUN_WEB=0
 RUN_TESTS=0
 RUN_APPIMAGE=0
 RUN_FLATPAK=0
+RUN_DEB=0
+RUN_RPM=0
+RUN_PACMAN=0
 RUN_ANDROID=0
 ANDROID_ENV_READY=0
+
+DEBUG_WEB=0
+DEBUG_TEST=0
+DEBUG_APPIMAGE=0
+DEBUG_FLATPAK=0
+DEBUG_DEB=0
+DEBUG_RPM=0
+DEBUG_PACMAN=0
+DEBUG_ANDROID=0
 
 HOST_UID="$(id -u)"
 HOST_GID="$(id -g)"
@@ -61,7 +75,7 @@ SUMMARY_PRINTED=0
 declare -A PHASE_MILLIS=()
 declare -A PHASE_STATUS=()
 declare -A PHASE_START_MILLIS=()
-declare -a PHASE_ORDER=(preflight clean web test appimage flatpak android)
+declare -a PHASE_ORDER=(preflight clean web test appimage flatpak deb rpm pacman android)
 
 trap 'handle_exit "$?"' EXIT
 
@@ -75,7 +89,7 @@ Build local release artifacts for Sokoban.
 Options:
   -h, --help                      Show this help and exit.
   --steps <csv>                   Steps to run (comma-separated).
-                                  Values: clean,web,test,appimage,flatpak,android,all
+                                  Values: clean,web,test,appimage,flatpak,deb,rpm,pacman,android,all
                                   Default: all
   --linux-target <value>          Linux desktop target filter.
                                   Values: appimage,flatpak,both
@@ -86,6 +100,9 @@ Options:
   --android-target <value>        Android output to build.
                                   Values: apk,aab,both
                                   Default: both
+  --debug <csv>                   Enable debug for selected phases.
+                                  Values: web,test,appimage,flatpak,deb,rpm,pacman,android,all,none
+                                  Default: none
   --no-sudo-chown                 Skip sudo ownership normalization in clean step.
 
 Preflight Validation:
@@ -99,10 +116,14 @@ Preflight Validation:
 Convenience Shortcuts:
   --appimage-only                 Same as: --steps appimage
   --flatpak-only                  Same as: --steps flatpak
+  --deb-only                      Same as: --steps deb
+  --rpm-only                      Same as: --steps rpm
+  --pacman-only                   Same as: --steps pacman
   --apk-only                      Same as: --steps android --android-target apk
   --aab-only                      Same as: --steps android --android-target aab
   --linux-arm64                   Same as: --linux-arch arm64
   --linux-x64                     Same as: --linux-arch x64
+  --debug-all                     Same as: --debug all
 
 Examples:
   ${SCRIPT_NAME}
@@ -124,6 +145,22 @@ die() {
 
 to_lower() {
   printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+phase_debug_enabled() {
+  local phase="$1"
+
+  case "$phase" in
+    web) [ "$DEBUG_WEB" -eq 1 ] ;;
+    test) [ "$DEBUG_TEST" -eq 1 ] ;;
+    appimage) [ "$DEBUG_APPIMAGE" -eq 1 ] ;;
+    flatpak) [ "$DEBUG_FLATPAK" -eq 1 ] ;;
+    deb) [ "$DEBUG_DEB" -eq 1 ] ;;
+    rpm) [ "$DEBUG_RPM" -eq 1 ] ;;
+    pacman) [ "$DEBUG_PACMAN" -eq 1 ] ;;
+    android) [ "$DEBUG_ANDROID" -eq 1 ] ;;
+    *) return 1 ;;
+  esac
 }
 
 now_millis() {
@@ -171,6 +208,9 @@ init_phase_tracking() {
   [ "$RUN_TESTS" -eq 1 ] && PHASE_STATUS["test"]="pending"
   [ "$RUN_APPIMAGE" -eq 1 ] && PHASE_STATUS["appimage"]="pending"
   [ "$RUN_FLATPAK" -eq 1 ] && PHASE_STATUS["flatpak"]="pending"
+  [ "$RUN_DEB" -eq 1 ] && PHASE_STATUS["deb"]="pending"
+  [ "$RUN_RPM" -eq 1 ] && PHASE_STATUS["rpm"]="pending"
+  [ "$RUN_PACMAN" -eq 1 ] && PHASE_STATUS["pacman"]="pending"
   [ "$RUN_ANDROID" -eq 1 ] && PHASE_STATUS["android"]="pending"
 
   return 0
@@ -307,6 +347,9 @@ configure_steps() {
     RUN_TESTS=1
     RUN_APPIMAGE=1
     RUN_FLATPAK=1
+    RUN_DEB=1
+    RUN_RPM=1
+    RUN_PACMAN=1
     RUN_ANDROID=1
     return
   fi
@@ -320,6 +363,9 @@ configure_steps() {
       test) RUN_TESTS=1 ;;
       appimage) RUN_APPIMAGE=1 ;;
       flatpak) RUN_FLATPAK=1 ;;
+      deb) RUN_DEB=1 ;;
+      rpm) RUN_RPM=1 ;;
+      pacman) RUN_PACMAN=1 ;;
       android) RUN_ANDROID=1 ;;
       all)
         RUN_CLEAN=1
@@ -327,6 +373,9 @@ configure_steps() {
         RUN_TESTS=1
         RUN_APPIMAGE=1
         RUN_FLATPAK=1
+        RUN_DEB=1
+        RUN_RPM=1
+        RUN_PACMAN=1
         RUN_ANDROID=1
         ;;
       "")
@@ -338,9 +387,50 @@ configure_steps() {
   done
 
   if [ "$RUN_CLEAN" -eq 0 ] && [ "$RUN_WEB" -eq 0 ] && [ "$RUN_TESTS" -eq 0 ] && \
-     [ "$RUN_APPIMAGE" -eq 0 ] && [ "$RUN_FLATPAK" -eq 0 ] && [ "$RUN_ANDROID" -eq 0 ]; then
+     [ "$RUN_APPIMAGE" -eq 0 ] && [ "$RUN_FLATPAK" -eq 0 ] && [ "$RUN_DEB" -eq 0 ] && \
+     [ "$RUN_RPM" -eq 0 ] && [ "$RUN_PACMAN" -eq 0 ] && [ "$RUN_ANDROID" -eq 0 ]; then
     die "No runnable steps selected. Use --steps with at least one valid step."
   fi
+}
+
+configure_debug_flags() {
+  local raw
+  local debug_target
+  local -a raw_targets
+
+  if [ "$DEBUG_REQUESTED" = "none" ] || [ -z "$DEBUG_REQUESTED" ]; then
+    return
+  fi
+
+  IFS=',' read -r -a raw_targets <<< "$DEBUG_REQUESTED"
+  for raw in "${raw_targets[@]}"; do
+    debug_target="${raw//[[:space:]]/}"
+    case "$debug_target" in
+      web) DEBUG_WEB=1 ;;
+      test) DEBUG_TEST=1 ;;
+      appimage) DEBUG_APPIMAGE=1 ;;
+      flatpak) DEBUG_FLATPAK=1 ;;
+      deb) DEBUG_DEB=1 ;;
+      rpm) DEBUG_RPM=1 ;;
+      pacman) DEBUG_PACMAN=1 ;;
+      android) DEBUG_ANDROID=1 ;;
+      all)
+        DEBUG_WEB=1
+        DEBUG_TEST=1
+        DEBUG_APPIMAGE=1
+        DEBUG_FLATPAK=1
+        DEBUG_DEB=1
+        DEBUG_RPM=1
+        DEBUG_PACMAN=1
+        DEBUG_ANDROID=1
+        ;;
+      none|"")
+        ;;
+      *)
+        die "Unknown value in --debug: ${debug_target}. Allowed values: web,test,appimage,flatpak,deb,rpm,pacman,android,all,none"
+        ;;
+    esac
+  done
 }
 
 parse_args() {
@@ -370,6 +460,11 @@ parse_args() {
         ANDROID_TARGET="$(to_lower "$2")"
         shift 2
         ;;
+      --debug)
+        [ "$#" -ge 2 ] || die "--debug requires a value"
+        DEBUG_REQUESTED="$(to_lower "$2")"
+        shift 2
+        ;;
       --no-sudo-chown)
         USE_SUDO_CHOWN=0
         shift
@@ -380,6 +475,18 @@ parse_args() {
         ;;
       --flatpak-only)
         STEPS_REQUESTED="flatpak"
+        shift
+        ;;
+      --deb-only)
+        STEPS_REQUESTED="deb"
+        shift
+        ;;
+      --rpm-only)
+        STEPS_REQUESTED="rpm"
+        shift
+        ;;
+      --pacman-only)
+        STEPS_REQUESTED="pacman"
         shift
         ;;
       --apk-only)
@@ -400,6 +507,10 @@ parse_args() {
         LINUX_ARCH="x64"
         shift
         ;;
+      --debug-all)
+        DEBUG_REQUESTED="all"
+        shift
+        ;;
       *)
         die "Unknown option: $1. Run ${SCRIPT_NAME} --help"
         ;;
@@ -411,11 +522,13 @@ parse_args() {
   validate_choice "android target" "$ANDROID_TARGET" "apk,aab,both"
 
   configure_steps
+  configure_debug_flags
 }
 
 docker_steps_selected() {
   if [ "$RUN_WEB" -eq 1 ] || [ "$RUN_TESTS" -eq 1 ] || [ "$RUN_APPIMAGE" -eq 1 ] || \
-     [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_ANDROID" -eq 1 ]; then
+     [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_DEB" -eq 1 ] || [ "$RUN_RPM" -eq 1 ] || \
+     [ "$RUN_PACMAN" -eq 1 ] || [ "$RUN_ANDROID" -eq 1 ]; then
     return 0
   fi
   return 1
@@ -442,7 +555,8 @@ validate_host_bins_for_selected_steps() {
     host_bins+=(rm chown)
   fi
 
-  if [ "$RUN_APPIMAGE" -eq 1 ] || [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_ANDROID" -eq 1 ]; then
+  if [ "$RUN_APPIMAGE" -eq 1 ] || [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_DEB" -eq 1 ] || \
+     [ "$RUN_RPM" -eq 1 ] || [ "$RUN_PACMAN" -eq 1 ] || [ "$RUN_ANDROID" -eq 1 ]; then
     host_bins+=(ls)
   fi
 
@@ -450,8 +564,9 @@ validate_host_bins_for_selected_steps() {
     host_bins+=(grep)
   fi
 
-  if [ "$RUN_APPIMAGE" -eq 1 ] || [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_ANDROID" -eq 1 ] || \
-     [ "$RUN_WEB" -eq 1 ] || [ "$RUN_TESTS" -eq 1 ]; then
+    if [ "$RUN_APPIMAGE" -eq 1 ] || [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_DEB" -eq 1 ] || \
+      [ "$RUN_RPM" -eq 1 ] || [ "$RUN_PACMAN" -eq 1 ] || [ "$RUN_ANDROID" -eq 1 ] || \
+      [ "$RUN_WEB" -eq 1 ] || [ "$RUN_TESTS" -eq 1 ]; then
     host_bins+=(docker)
   fi
 
@@ -601,7 +716,8 @@ run_preflight_checks() {
     validate_container_bins "$NODE_ALPINE_IMAGE" yarn npx
   fi
 
-  if [ "$RUN_APPIMAGE" -eq 1 ] || [ "$RUN_FLATPAK" -eq 1 ]; then
+  if [ "$RUN_APPIMAGE" -eq 1 ] || [ "$RUN_FLATPAK" -eq 1 ] || [ "$RUN_DEB" -eq 1 ] || \
+     [ "$RUN_RPM" -eq 1 ] || [ "$RUN_PACMAN" -eq 1 ]; then
     validate_container_bins "$NODE_BOOKWORM_IMAGE" bash apt-get yarn npx chown
     validate_privileged_docker
   fi
@@ -664,6 +780,7 @@ print_selection() {
   log "Linux target filter: ${LINUX_TARGET}"
   log "Linux architecture: ${LINUX_ARCH}"
   log "Android target: ${ANDROID_TARGET}"
+  log "Debug phases: ${DEBUG_REQUESTED}"
   log "Sudo ownership fix: ${USE_SUDO_CHOWN}"
 }
 
@@ -704,14 +821,29 @@ run_cleanup() {
 
 run_web_build() {
   log "Step web: installing dependencies and building web app..."
-  docker_node_alpine yarn install --mode update-lockfile
-  docker_node_alpine yarn build
+
+  if phase_debug_enabled web; then
+    log "Step web: DEBUG enabled."
+    docker_node_alpine env DEBUG="*" yarn install --mode update-lockfile
+    docker_node_alpine env DEBUG="*" yarn build
+  else
+    docker_node_alpine yarn install --mode update-lockfile
+    docker_node_alpine yarn build
+  fi
+
   log "Step web: done."
 }
 
 run_tests() {
   log "Step test: running automated tests..."
-  docker_node_alpine yarn test --run --reporter=verbose
+
+  if phase_debug_enabled test; then
+    log "Step test: DEBUG enabled."
+    docker_node_alpine env DEBUG="*" yarn test --run --reporter=verbose
+  else
+    docker_node_alpine yarn test --run --reporter=verbose
+  fi
+
   log "Step test: done."
 }
 
@@ -723,7 +855,15 @@ run_appimage() {
   fi
 
   local arch_args
+  local electron_builder_cmd
+
   arch_args="$(linux_arch_args)"
+  electron_builder_cmd="npx electron-builder --linux AppImage ${arch_args}"
+
+  if phase_debug_enabled appimage; then
+    log "Step appimage: DEBUG enabled."
+    electron_builder_cmd="DEBUG=* ${electron_builder_cmd}"
+  fi
 
   log "Step appimage: building Linux AppImage (${LINUX_ARCH})..."
   docker_node_bookworm_script "
@@ -733,7 +873,7 @@ run_appimage() {
     yarn install
     yarn prebuild:desktop
     yarn build
-    npx electron-builder --linux AppImage ${arch_args}
+    ${electron_builder_cmd}
     chown -R ${HOST_UID}:${HOST_GID} dist dist-desktop node_modules build
   "
   log "Step appimage: done."
@@ -747,7 +887,15 @@ run_flatpak() {
   fi
 
   local arch_args
+  local flatpak_debug_value
+
   arch_args="$(linux_arch_args)"
+  flatpak_debug_value="flatpak-bundler"
+
+  if phase_debug_enabled flatpak; then
+    log "Step flatpak: DEBUG enabled."
+    flatpak_debug_value="flatpak-bundler,*"
+  fi
 
   log "Step flatpak: building Linux Flatpak (${LINUX_ARCH})..."
   docker_node_bookworm_script "
@@ -760,11 +908,89 @@ run_flatpak() {
     yarn install
     yarn prebuild:desktop
     yarn build
-    DEBUG=flatpak-bundler npx electron-builder --linux flatpak ${arch_args}
+    DEBUG=${flatpak_debug_value} npx electron-builder --linux flatpak ${arch_args}
     chown -R ${HOST_UID}:${HOST_GID} dist dist-desktop node_modules build
     [ ! -d .flatpak-builder ] || chown -R ${HOST_UID}:${HOST_GID} .flatpak-builder
   "
   log "Step flatpak: done."
+}
+
+run_deb() {
+  local arch_args
+  local electron_builder_cmd
+
+  arch_args="$(linux_arch_args)"
+  electron_builder_cmd="npx electron-builder --linux deb ${arch_args}"
+
+  if phase_debug_enabled deb; then
+    log "Step deb: DEBUG enabled."
+    electron_builder_cmd="DEBUG=* ${electron_builder_cmd}"
+  fi
+
+  log "Step deb: building Linux DEB (${LINUX_ARCH})..."
+  docker_node_bookworm_script "
+    set -euo pipefail
+    apt-get update
+    apt-get install -y fakeroot dpkg
+    yarn install
+    yarn prebuild:desktop
+    yarn build
+    ${electron_builder_cmd}
+    chown -R ${HOST_UID}:${HOST_GID} dist dist-desktop node_modules build
+  "
+  log "Step deb: done."
+}
+
+run_rpm() {
+  local arch_args
+  local electron_builder_cmd
+
+  arch_args="$(linux_arch_args)"
+  electron_builder_cmd="npx electron-builder --linux rpm ${arch_args}"
+
+  if phase_debug_enabled rpm; then
+    log "Step rpm: DEBUG enabled."
+    electron_builder_cmd="DEBUG=* ${electron_builder_cmd}"
+  fi
+
+  log "Step rpm: building Linux RPM (${LINUX_ARCH})..."
+  docker_node_bookworm_script "
+    set -euo pipefail
+    apt-get update
+    apt-get install -y rpm
+    yarn install
+    yarn prebuild:desktop
+    yarn build
+    ${electron_builder_cmd}
+    chown -R ${HOST_UID}:${HOST_GID} dist dist-desktop node_modules build
+  "
+  log "Step rpm: done."
+}
+
+run_pacman() {
+  local arch_args
+  local electron_builder_cmd
+
+  arch_args="$(linux_arch_args)"
+  electron_builder_cmd="npx electron-builder --linux pacman ${arch_args}"
+
+  if phase_debug_enabled pacman; then
+    log "Step pacman: DEBUG enabled."
+    electron_builder_cmd="DEBUG=* ${electron_builder_cmd}"
+  fi
+
+  log "Step pacman: building Linux Pacman package (${LINUX_ARCH})..."
+  docker_node_bookworm_script "
+    set -euo pipefail
+    apt-get update
+    apt-get install -y zstd xz-utils
+    yarn install
+    yarn prebuild:desktop
+    yarn build
+    ${electron_builder_cmd}
+    chown -R ${HOST_UID}:${HOST_GID} dist dist-desktop node_modules build
+  "
+  log "Step pacman: done."
 }
 
 run_android() {
@@ -775,12 +1001,20 @@ run_android() {
   fi
 
   local gradle_tasks
+  local debug_preamble=""
+
   gradle_tasks="$(android_gradle_tasks)"
+
+  if phase_debug_enabled android; then
+    log "Step android: DEBUG enabled."
+    debug_preamble='export DEBUG="*"'
+  fi
 
   log "Step android: building Android target (${ANDROID_TARGET})..."
   docker_android_script "
     set -euo pipefail
     trap 'rm -f android/app/keystore.jks' EXIT
+    ${debug_preamble}
     apt-get update
     apt-get install -y openjdk-21-jdk
     export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
@@ -806,6 +1040,19 @@ print_artifact_summary() {
 
   if [ "$RUN_FLATPAK" -eq 1 ] && [ "$LINUX_TARGET" != "appimage" ]; then
     ls -lh dist-desktop/*.flatpak 2>/dev/null || true
+  fi
+
+  if [ "$RUN_DEB" -eq 1 ]; then
+    ls -lh dist-desktop/*.deb 2>/dev/null || true
+  fi
+
+  if [ "$RUN_RPM" -eq 1 ]; then
+    ls -lh dist-desktop/*.rpm 2>/dev/null || true
+  fi
+
+  if [ "$RUN_PACMAN" -eq 1 ]; then
+    ls -lh dist-desktop/*.pacman 2>/dev/null || true
+    ls -lh dist-desktop/*.pkg.tar.* 2>/dev/null || true
   fi
 
   if [ "$RUN_ANDROID" -eq 1 ]; then
@@ -840,6 +1087,15 @@ main() {
   fi
   if [ "$RUN_FLATPAK" -eq 1 ]; then
     run_phase flatpak run_flatpak
+  fi
+  if [ "$RUN_DEB" -eq 1 ]; then
+    run_phase deb run_deb
+  fi
+  if [ "$RUN_RPM" -eq 1 ]; then
+    run_phase rpm run_rpm
+  fi
+  if [ "$RUN_PACMAN" -eq 1 ]; then
+    run_phase pacman run_pacman
   fi
   if [ "$RUN_ANDROID" -eq 1 ]; then
     run_phase android run_android
