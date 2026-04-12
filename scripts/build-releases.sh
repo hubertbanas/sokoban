@@ -983,7 +983,8 @@ run_pacman() {
   docker_node_bookworm_script "
     set -euo pipefail
     apt-get update
-    apt-get install -y zstd xz-utils
+    apt-get install -y libarchive-tools zstd fakeroot xz-utils
+    command -v bsdtar >/dev/null 2>&1 || { echo 'Error: bsdtar is required for pacman packaging but was not found.' >&2; exit 1; }
     yarn install
     yarn prebuild:desktop
     yarn build
