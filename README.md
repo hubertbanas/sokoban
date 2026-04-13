@@ -310,9 +310,9 @@ gpg --verify "$file.asc" "$file"
 
 ## Screenshots
 
-![Sokoban dark theme](docs/assets/screenshot-gameplay-dark.png)
+![Sokoban dark theme](docs/assets/screenshot-gameplay-mobile-dark.png)
 
-Light theme preview: [docs/assets/screenshot-gameplay-light.png](docs/assets/screenshot-gameplay-light.png)
+For more screenshots please visit [Screenshots Page](docs/screenshots.md)
 
 ## Attribution
 
