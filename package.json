@@ -60,7 +60,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prebuild:desktop": "bash scripts/prepare-icons.sh",
+    "prepare:desktop-icons": "sh scripts/prepare-icons.sh",
+    "prepare:flatpak-metainfo": "sh scripts/prepare-flatpak-metainfo.sh",
+    "prebuild:desktop": "yarn prepare:desktop-icons && yarn prepare:flatpak-metainfo",
     "build:desktop": "yarn build && electron-builder --publish never",
     "preview": "vite preview",
     "test": "vitest run --environment jsdom"
@@ -150,6 +152,15 @@
         }
       ],
       "category": "Game"
+    },
+    "flatpak": {
+      "branch": "stable",
+      "files": [
+        [
+          "build/flatpak/com.hubertbanas.sokoban.metainfo.xml",
+          "/share/metainfo/com.hubertbanas.sokoban.metainfo.xml"
+        ]
+      ]
     },
     "snap": {
       "confinement": "strict",

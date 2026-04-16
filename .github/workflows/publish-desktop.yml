@@ -62,7 +62,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder elfutils rpm libarchive-tools zstd imagemagick
+          sudo apt-get install -y flatpak flatpak-builder elfutils rpm libarchive-tools zstd imagemagick appstream
           flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
       - name: Linux build tooling diagnostics
@@ -105,6 +105,13 @@ jobs:
           for size in 16 24 32 48 64 96 128 256 512; do
             test -f "build/icons/${size}x${size}.png"
           done
+
+      - name: Verify Flatpak AppStream metainfo
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          test -f build/flatpak/com.hubertbanas.sokoban.metainfo.xml
+          appstreamcli validate --no-net --pedantic build/flatpak/com.hubertbanas.sokoban.metainfo.xml
 
       - name: Import Release GPG Key
         uses: crazy-max/ghaction-import-gpg@v7
