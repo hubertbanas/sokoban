@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # ==============================================================================
 # Desktop Icon Preparation Script (Just-In-Time Asset Generation)
@@ -29,7 +29,10 @@
 #    generates that required matrix in `build/icons/` using ImageMagick (or `sips`).
 # ==============================================================================
 
-set -euo pipefail
+set -eu
+
+# Enable pipefail when supported by the active shell.
+(set -o pipefail >/dev/null 2>&1) && set -o pipefail || true
 
 echo "Preparing desktop build resources..."
 
