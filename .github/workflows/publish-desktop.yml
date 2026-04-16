@@ -165,6 +165,14 @@ jobs:
             fi
           done
 
+      - name: Generate Flatpak metainfo checksum and signature
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          metainfo_file="build/flatpak/com.hubertbanas.sokoban.metainfo.xml"
+          sha256sum "$metainfo_file" > "${metainfo_file}.sha256"
+          gpg --batch --yes --armor --detach-sign --output "${metainfo_file}.asc" "$metainfo_file"
+
       - name: Generate MacOS checksums and signatures
         if: runner.os == 'macOS'
         working-directory: dist-desktop
@@ -229,6 +237,14 @@ jobs:
           path: dist-desktop/*.flatpak
           if-no-files-found: error
 
+      - name: Upload Linux Flatpak metainfo artifact
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-build-linux-metainfo
+          path: build/flatpak/com.hubertbanas.sokoban.metainfo.xml
+          if-no-files-found: error
+
       - name: Upload Linux Snap artifact bundle
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v7
@@ -279,6 +295,8 @@ jobs:
             dist-desktop/*.AppImage.asc
             dist-desktop/*.flatpak.sha256
             dist-desktop/*.flatpak.asc
+            build/flatpak/com.hubertbanas.sokoban.metainfo.xml.sha256
+            build/flatpak/com.hubertbanas.sokoban.metainfo.xml.asc
             dist-desktop/*.snap.sha256
             dist-desktop/*.snap.asc
             dist-desktop/*.deb.sha256
@@ -381,6 +399,33 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist-desktop/*.flatpak.asc
           file_glob: true
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Flatpak metainfo to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/flatpak/com.hubertbanas.sokoban.metainfo.xml
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Flatpak metainfo checksum to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/flatpak/com.hubertbanas.sokoban.metainfo.xml.sha256
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Flatpak metainfo signature to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/flatpak/com.hubertbanas.sokoban.metainfo.xml.asc
           tag: v${{ inputs.tag }}
           overwrite: true
 
