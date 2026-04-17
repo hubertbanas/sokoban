@@ -16,17 +16,38 @@
     <category>Game</category>
     <category>LogicGame</category>
   </categories>
+
   <screenshots>
     <screenshot type="default">
-      <caption>Sokoban gameplay on desktop</caption>
-      <image>https://raw.githubusercontent.com/hubertbanas/sokoban/main/docs/assets/screenshot-gameplay-desktop-dark.png</image>
+      <caption>Sokoban gameplay on desktop (Dark Theme)</caption>
+      <image>
+        https://raw.githubusercontent.com/hubertbanas/sokoban/main/docs/assets/screenshot-gameplay-desktop-dark.png</image>
+    </screenshot>
+
+    <screenshot>
+      <caption>Sokoban gameplay on desktop (Light Theme)</caption>
+      <image>
+        https://raw.githubusercontent.com/hubertbanas/sokoban/main/docs/assets/screenshot-gameplay-desktop-light.png</image>
+    </screenshot>
+
+    <screenshot>
+      <caption>Mobile touch controls (Dark Theme)</caption>
+      <image>
+        https://raw.githubusercontent.com/hubertbanas/sokoban/main/docs/assets/screenshot-gameplay-mobile-dark.png</image>
+    </screenshot>
+
+    <screenshot>
+      <caption>Mobile touch controls (Light Theme)</caption>
+      <image>
+        https://raw.githubusercontent.com/hubertbanas/sokoban/main/docs/assets/screenshot-gameplay-mobile-light.png</image>
     </screenshot>
   </screenshots>
+
   <url type="homepage">https://hubertbanas.github.io/sokoban/</url>
   <url type="bugtracker">https://github.com/hubertbanas/sokoban/issues</url>
   <developer_name>Hubert Banas</developer_name>
   <releases>
-    <release version="@VERSION@" date="@DATE@"/>
+    <release version="@VERSION@" date="@DATE@" />
   </releases>
-  <content_rating type="oars-1.1"/>
+  <content_rating type="oars-1.1" />
 </component>
