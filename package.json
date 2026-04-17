@@ -162,6 +162,11 @@
         ]
       ]
     },
+    "rpm": {
+      "packageCategory": "Amusements/Games",
+      "synopsis": "A retro Sokoban puzzle game.",
+      "description": "Sokoban is a classic puzzle game where you push crates onto target tiles while planning each move carefully to avoid dead ends."
+    },
     "snap": {
       "confinement": "strict",
       "grade": "stable",
