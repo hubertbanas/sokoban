@@ -172,6 +172,7 @@ jobs:
           metainfo_file="build/flatpak/com.hubertbanas.sokoban.metainfo.xml"
           sha256sum "$metainfo_file" > "${metainfo_file}.sha256"
           gpg --batch --yes --armor --detach-sign --output "${metainfo_file}.asc" "$metainfo_file"
+          gpg --batch --yes --armor --detach-sign --output "${metainfo_file}.sha256.asc" "${metainfo_file}.sha256"
 
       - name: Generate MacOS checksums and signatures
         if: runner.os == 'macOS'
@@ -297,6 +298,7 @@ jobs:
             dist-desktop/*.flatpak.asc
             build/flatpak/com.hubertbanas.sokoban.metainfo.xml.sha256
             build/flatpak/com.hubertbanas.sokoban.metainfo.xml.asc
+            build/flatpak/com.hubertbanas.sokoban.metainfo.xml.sha256.asc
             dist-desktop/*.snap.sha256
             dist-desktop/*.snap.asc
             dist-desktop/*.deb.sha256
@@ -426,6 +428,15 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/flatpak/com.hubertbanas.sokoban.metainfo.xml.asc
+          tag: v${{ inputs.tag }}
+          overwrite: true
+
+      - name: Upload Flatpak metainfo checksum signature to GitHub Release
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/flatpak/com.hubertbanas.sokoban.metainfo.xml.sha256.asc
           tag: v${{ inputs.tag }}
           overwrite: true
 
