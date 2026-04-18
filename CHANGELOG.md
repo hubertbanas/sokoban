@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.16.2] - 2026-04-17
+
+### Packaging & Metadata
+- Fixed AppStream XML structure and strict formatting requirements for application screenshots.
+- Configured explicit desktop metadata (synopsis, description, and package categories) for DEB, RPM, and Snap targets.
+- Configured automatic injection of `metainfo.xml` into the required `/usr/share/metainfo` directory for Flathub and AppImageHub compliance.
+- Added DMG configuration for macOS packaging.
+
+### Dependencies
+- Bumped `actions/upload-pages-artifact` to v5 to align with the latest GitHub Pages architecture.
+- Bumped `@capacitor/android`, `@capacitor/cli`, and `@capacitor/core` to 8.3.1.
+- Bumped `electron` to 41.2.1.
+- Bumped `jsdom` to 29.0.2.
+- Bumped `react` and `react-dom` to 19.2.5.
+- Bumped `vite` to 8.0.8.
+- Bumped `vitest` to 4.1.4.
+
 ## [1.16.1] - 2026-04-12
 
 ### Added
