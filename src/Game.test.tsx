@@ -27,6 +27,10 @@ vi.mock("./components/mobile-controls", () => ({
   MobileControls: () => <div data-testid="mobile-controls" />,
 }));
 
+vi.mock("./components/sfx-settings", () => ({
+  SfxSettings: () => <div data-testid="sfx-settings" />,
+}));
+
 vi.mock("./hooks/useGameSounds", () => ({
   useGameSounds: vi.fn(),
 }));
@@ -110,6 +114,23 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
   return value;
 }
 
+function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds>> = {}) {
+  return {
+    play: vi.fn(),
+    playCratePush: vi.fn(),
+    playCrateDocked: vi.fn(),
+    playPlayerStep: vi.fn(),
+    playPlayerBump: vi.fn(),
+    playLevelComplete: vi.fn(),
+    muted: false,
+    volume: 1,
+    setMuted: vi.fn(),
+    toggleMuted: vi.fn(),
+    setVolume: vi.fn(),
+    ...overrides,
+  };
+}
+
 beforeAll(() => {
   class ResizeObserverMock {
     observe() { }
@@ -128,11 +149,7 @@ beforeEach(() => {
   mockedUseSokoban.mockReset();
   mockedUseKeyBoard.mockReset();
   mockedUseGameSounds.mockReset();
-  mockedUseGameSounds.mockReturnValue({
-    play: vi.fn(),
-    playCratePush: vi.fn(),
-    playCrateDocked: vi.fn(),
-  });
+  mockedUseGameSounds.mockReturnValue(createMockGameSounds());
 });
 
 afterEach(() => {
@@ -515,6 +532,7 @@ test("renders auxiliary components", () => {
 
   expect(screen.getByTestId("help")).toBeInTheDocument();
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
+  expect(screen.getByTestId("sfx-settings")).toBeInTheDocument();
   expect(screen.getByTestId("theme-switcher")).toBeInTheDocument();
 });
 
@@ -569,11 +587,12 @@ test("plays crate push sound when move result is crate-push", () => {
   const playCratePush = vi.fn();
   const playCrateDocked = vi.fn();
 
-  mockedUseGameSounds.mockReturnValue({
-    play: vi.fn(),
-    playCratePush,
-    playCrateDocked,
-  });
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playCratePush,
+      playCrateDocked,
+    })
+  );
   mockSokoban({ state: State.playing, move });
 
   render(<Game />);
@@ -593,11 +612,12 @@ test("plays crate docked sound when move result is crate-docked", () => {
   const playCratePush = vi.fn();
   const playCrateDocked = vi.fn();
 
-  mockedUseGameSounds.mockReturnValue({
-    play: vi.fn(),
-    playCratePush,
-    playCrateDocked,
-  });
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playCratePush,
+      playCrateDocked,
+    })
+  );
   mockSokoban({ state: State.playing, move });
 
   render(<Game />);

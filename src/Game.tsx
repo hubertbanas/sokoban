@@ -1,6 +1,7 @@
 import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
+import { SfxSettings } from "./components/sfx-settings";
 import { ThemeSwitcher } from "./components/theme-switcher";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
@@ -96,7 +97,7 @@ function useHoldToRepeat(
 
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
-  const { playCratePush, playCrateDocked } = useGameSounds();
+  const { playCratePush, playCrateDocked, muted, volume, setMuted, setVolume } = useGameSounds();
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -376,6 +377,12 @@ function Game() {
           >
             Next
           </button>
+          <SfxSettings
+            muted={muted}
+            volume={volume}
+            onMutedChange={setMuted}
+            onVolumeChange={setVolume}
+          />
           <Help />
           <ThemeSwitcher />
         </div>

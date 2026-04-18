@@ -404,6 +404,49 @@
     border-radius: 4px;
 }
 
+.sfxPanel {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+}
+
+.sfxRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--foreground);
+}
+
+.sfxLabel {
+    font-weight: 700;
+}
+
+.sfxValue {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.sfxSlider {
+    width: 100%;
+    accent-color: var(--accent);
+}
+
+.sfxSlider:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.sfxRow input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+}
+
 .helpRows {
     display: grid;
     grid-template-columns: minmax(72px, auto) 1fr;
