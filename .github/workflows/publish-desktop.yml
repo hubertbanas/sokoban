@@ -169,10 +169,14 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          metainfo_file="build/flatpak/com.hubertbanas.sokoban.metainfo.xml"
-          sha256sum "$metainfo_file" > "${metainfo_file}.sha256"
-          gpg --batch --yes --armor --detach-sign --output "${metainfo_file}.asc" "$metainfo_file"
-          gpg --batch --yes --armor --detach-sign --output "${metainfo_file}.sha256.asc" "${metainfo_file}.sha256"
+          metainfo_dir="build/flatpak"
+          metainfo_name="com.hubertbanas.sokoban.metainfo.xml"
+          (
+            cd "$metainfo_dir"
+            sha256sum "$metainfo_name" > "${metainfo_name}.sha256"
+            gpg --batch --yes --armor --detach-sign --output "${metainfo_name}.asc" "$metainfo_name"
+            gpg --batch --yes --armor --detach-sign --output "${metainfo_name}.sha256.asc" "${metainfo_name}.sha256"
+          )
 
       - name: Generate MacOS checksums and signatures
         if: runner.os == 'macOS'
