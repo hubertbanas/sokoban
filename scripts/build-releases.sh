@@ -127,6 +127,7 @@ Preflight Validation:
   - Must run from repository root: ${REPO_ROOT}
   - Confirms host binaries needed by selected steps are executable
   - Confirms Docker daemon access and workspace mount permissions
+  - Confirms Docker arm64 emulation is available when Linux arm64 packaging is selected on non-ARM hosts
   - Confirms required binaries exist in selected Docker images
   - May pull missing Docker images during preflight (first run can take time)
   - Validates Android signing variables in ${ANDROID_ENV_FILE} when Android is requested
@@ -772,6 +773,34 @@ validate_docker_access() {
   fi
 }
 
+validate_linux_arm64_emulation() {
+  local host_arch
+
+  if [ "$LINUX_ARCH" = "x64" ]; then
+    return
+  fi
+
+  if [ "$RUN_APPIMAGE" -eq 0 ] && [ "$RUN_FLATPAK" -eq 0 ] && [ "$RUN_DEB" -eq 0 ] && \
+     [ "$RUN_RPM" -eq 0 ] && [ "$RUN_PACMAN" -eq 0 ]; then
+    return
+  fi
+
+  host_arch="$(uname -m)"
+  if [ "$host_arch" = "aarch64" ] || [ "$host_arch" = "arm64" ]; then
+    return
+  fi
+
+  if docker run --rm --platform linux/arm64 "$NODE_ALPINE_IMAGE" uname -m >/dev/null 2>&1; then
+    return
+  fi
+
+  log "Preflight: arm64 Linux packaging requested on host architecture ${host_arch}."
+  log "Preflight: Docker cannot execute linux/arm64 containers yet (QEMU/binfmt is not configured)."
+  log "Run this once on the host (typically after reboot), then retry:"
+  log "  docker run --rm --privileged multiarch/qemu-user-static --reset -p yes"
+  die "Missing ARM64 emulation support for Docker cross-architecture builds."
+}
+
 ensure_docker_image() {
   local image="$1"
 
@@ -868,6 +897,7 @@ run_preflight_checks() {
   fi
 
   validate_docker_access
+  validate_linux_arm64_emulation
   validate_docker_mount_permissions
 
   if [ "$RUN_WEB" -eq 1 ] || [ "$RUN_TESTS" -eq 1 ]; then
