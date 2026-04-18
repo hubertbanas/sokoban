@@ -151,6 +151,12 @@
           ]
         }
       ],
+      "extraFiles": [
+        {
+          "from": "build/flatpak/com.hubertbanas.sokoban.metainfo.xml",
+          "to": "usr/share/metainfo/com.hubertbanas.sokoban.metainfo.xml"
+        }
+      ],
       "category": "Game"
     },
     "flatpak": {
