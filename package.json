@@ -195,6 +195,22 @@
         }
       ],
       "category": "public.app-category.puzzle-games"
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     }
   }
 }
