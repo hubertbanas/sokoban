@@ -6,8 +6,9 @@ import { fireEvent, render, screen, cleanup, act } from "@testing-library/react"
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
 import Game from "./Game";
 import { Block } from "./hooks/levels";
-import { Direction, State, useSokoban } from "./hooks/sokoban";
+import { Direction, State, useSokoban, type MoveOutcome } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
+import { useGameSounds } from "./hooks/useGameSounds";
 import style from "./components/sokoban.module.css";
 
 vi.mock("./hooks/keyboard", () => ({
@@ -24,6 +25,10 @@ vi.mock("./components/theme-switcher", () => ({
 
 vi.mock("./components/mobile-controls", () => ({
   MobileControls: () => <div data-testid="mobile-controls" />,
+}));
+
+vi.mock("./hooks/useGameSounds", () => ({
+  useGameSounds: vi.fn(),
 }));
 
 vi.mock("./hooks/sokoban", () => {
@@ -47,12 +52,13 @@ vi.mock("./hooks/sokoban", () => {
 
 const mockedUseSokoban = vi.mocked(useSokoban);
 const mockedUseKeyBoard = vi.mocked(useKeyBoard);
+const mockedUseGameSounds = vi.mocked(useGameSounds);
 const cssText = readFileSync(resolve(process.cwd(), "src/components/sokoban.module.css"), "utf-8");
 
 function hasUserSelectNone(className: string) {
   const ruleRegex = new RegExp(`\\.${className}[\\s\\S]*?{[\\s\\S]*?}`, "g");
   const matches = cssText.match(ruleRegex) ?? [];
-  return matches.some((rule) => /user-select\s*:\s*none/.test(rule));
+  return matches.some((rule: string) => /user-select\s*:\s*none/.test(rule));
 }
 
 function getLatestKeyboardHandler() {
@@ -121,6 +127,12 @@ beforeAll(() => {
 beforeEach(() => {
   mockedUseSokoban.mockReset();
   mockedUseKeyBoard.mockReset();
+  mockedUseGameSounds.mockReset();
+  mockedUseGameSounds.mockReturnValue({
+    play: vi.fn(),
+    playCratePush: vi.fn(),
+    playCrateDocked: vi.fn(),
+  });
 });
 
 afterEach(() => {
@@ -550,6 +562,54 @@ test("arrow keys trigger player movement", () => {
     onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
   });
   expect(move).toHaveBeenCalledWith(Direction.Right);
+});
+
+test("plays crate push sound when move result is crate-push", () => {
+  const move = vi.fn((_: Direction): MoveOutcome => "crate-push");
+  const playCratePush = vi.fn();
+  const playCrateDocked = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue({
+    play: vi.fn(),
+    playCratePush,
+    playCrateDocked,
+  });
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
+  });
+
+  expect(move).toHaveBeenCalledWith(Direction.Right);
+  expect(playCratePush).toHaveBeenCalledTimes(1);
+  expect(playCrateDocked).not.toHaveBeenCalled();
+});
+
+test("plays crate docked sound when move result is crate-docked", () => {
+  const move = vi.fn((_: Direction): MoveOutcome => "crate-docked");
+  const playCratePush = vi.fn();
+  const playCrateDocked = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue({
+    play: vi.fn(),
+    playCratePush,
+    playCrateDocked,
+  });
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
+  });
+
+  expect(move).toHaveBeenCalledWith(Direction.Right);
+  expect(playCrateDocked).toHaveBeenCalledTimes(1);
+  expect(playCratePush).not.toHaveBeenCalled();
 });
 
 test("restart confirmation opens with Escape when progress exists", () => {

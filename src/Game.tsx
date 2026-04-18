@@ -4,6 +4,7 @@ import { Help } from "./components/help";
 import { ThemeSwitcher } from "./components/theme-switcher";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
+import { useGameSounds } from "./hooks/useGameSounds";
 import { useKeyBoard } from "./hooks/keyboard";
 import { Block } from "./hooks/levels";
 import style from "./components/sokoban.module.css";
@@ -95,6 +96,7 @@ function useHoldToRepeat(
 
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
+  const { playCratePush, playCrateDocked } = useGameSounds();
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -178,6 +180,18 @@ function Game() {
   const onCancelAction = React.useCallback(() => {
     setPendingAction(null);
   }, []);
+
+  const onMove = React.useCallback(
+    (direction: Direction) => {
+      const outcome = move(direction);
+      if (outcome === "crate-docked") {
+        playCrateDocked();
+      } else if (outcome === "crate-push") {
+        playCratePush();
+      }
+    },
+    [move, playCrateDocked, playCratePush]
+  );
 
   const confirmationDialog = React.useMemo(() => {
     switch (pendingAction) {
@@ -299,16 +313,16 @@ function Game() {
 
       switch (event.code) {
         case "ArrowUp":
-          move(Direction.Top);
+          onMove(Direction.Top);
           break;
         case "ArrowDown":
-          move(Direction.Bottom);
+          onMove(Direction.Bottom);
           break;
         case "ArrowLeft":
-          move(Direction.Left);
+          onMove(Direction.Left);
           break;
         case "ArrowRight":
-          move(Direction.Right);
+          onMove(Direction.Right);
           break;
         case "Enter":
           next();
@@ -390,7 +404,7 @@ function Game() {
         </div>
       </section>
 
-      <MobileControls onMove={move} onUndo={undo} onRestart={onRequestRestart} />
+      <MobileControls onMove={onMove} onUndo={undo} onRestart={onRequestRestart} />
 
       {isConfirmationDialogOpen && confirmationDialog && (
         <Modal

@@ -14,6 +14,8 @@ export enum State {
   completed,
 }
 
+export type MoveOutcome = "blocked" | "step" | "crate-push" | "crate-docked";
+
 type Position = {
   row: number;
   column: number;
@@ -68,59 +70,76 @@ export function useSokoban() {
   );
   const [board, setBoard] = useState<Board>(initboard);
   const move = useCallback(
-    (direction: Direction) => {
-      if (state === State.playing) {
-        const dir = directionToPosition(direction);
-        const last = board[board.length - 1];
-        let next = cloneDeep(last);
-        next.playerPosition = {
-          row: last.playerPosition.row + dir.row,
-          column: last.playerPosition.column + dir.column,
-        };
-        next.playerDirection = direction;
-        // are we moving a block
-        let movingBlock = false;
+    (direction: Direction): MoveOutcome => {
+      if (state !== State.playing) {
+        return "blocked";
+      }
+
+      const dir = directionToPosition(direction);
+      const last = board[board.length - 1];
+      const next = cloneDeep(last);
+      next.playerPosition = {
+        row: last.playerPosition.row + dir.row,
+        column: last.playerPosition.column + dir.column,
+      };
+      next.playerDirection = direction;
+
+      // are we moving a block
+      let movingBlock = false;
+      let crateDocked = false;
+      if (
+        [Block.box, Block.boxOnObjective].includes(
+          last.shape[next.playerPosition.row][next.playerPosition.column]
+        ) &&
+        [Block.empty, Block.objective].includes(
+          last.shape[next.playerPosition.row + dir.row][
+          next.playerPosition.column + dir.column
+          ]
+        )
+      ) {
+        crateDocked =
+          last.shape[next.playerPosition.row + dir.row][
+          next.playerPosition.column + dir.column
+          ] === Block.objective;
+        next.shape[next.playerPosition.row][next.playerPosition.column] -=
+          Block.box;
+        next.shape[next.playerPosition.row + dir.row][
+          next.playerPosition.column + dir.column
+        ] += Block.box;
+        movingBlock = true;
+      }
+
+      //are we moving into an empty space
+      if (
+        [Block.empty, Block.objective].includes(
+          next.shape[next.playerPosition.row][next.playerPosition.column]
+        )
+      ) {
+        next.shape[last.playerPosition.row][last.playerPosition.column] -=
+          Block.player;
+        next.shape[next.playerPosition.row][next.playerPosition.column] +=
+          Block.player;
         if (
-          [Block.box, Block.boxOnObjective].includes(
-            last.shape[next.playerPosition.row][next.playerPosition.column]
-          ) &&
-          [Block.empty, Block.objective].includes(
-            last.shape[next.playerPosition.row + dir.row][
-            next.playerPosition.column + dir.column
-            ]
-          )
-        ) {
-          next.shape[next.playerPosition.row][next.playerPosition.column] -=
-            Block.box;
-          next.shape[next.playerPosition.row + dir.row][
-            next.playerPosition.column + dir.column
-          ] += Block.box;
-          movingBlock = true;
-        }
-        //are we moving into an empty space
-        if (
-          [Block.empty, Block.objective].includes(
-            next.shape[next.playerPosition.row][next.playerPosition.column]
-          )
-        ) {
-          next.shape[last.playerPosition.row][last.playerPosition.column] -=
-            Block.player;
-          next.shape[next.playerPosition.row][next.playerPosition.column] +=
-            Block.player;
-          if (
-            !next.shape.some((row) =>
-              row.some((block) =>
-                [Block.objective, Block.playerOnObjective].includes(block)
-              )
+          !next.shape.some((row) =>
+            row.some((block) =>
+              [Block.objective, Block.playerOnObjective].includes(block)
             )
           )
-            setState(State.completed);
-          if (!movingBlock) board.pop();
+        )
+          setState(State.completed);
+        if (!movingBlock) board.pop();
 
-          setHasProgress(true);
-          setBoard([...board, next]);
+        setHasProgress(true);
+        setBoard([...board, next]);
+
+        if (movingBlock) {
+          return crateDocked ? "crate-docked" : "crate-push";
         }
+
+        return "step";
       }
+
+      return "blocked";
     },
     [board, state]
   );
