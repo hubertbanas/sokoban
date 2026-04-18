@@ -60,7 +60,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prebuild:desktop": "bash scripts/prepare-icons.sh",
+    "prepare:desktop-icons": "sh scripts/prepare-icons.sh",
+    "prepare:flatpak-metainfo": "sh scripts/prepare-flatpak-metainfo.sh",
+    "prebuild:desktop": "yarn prepare:desktop-icons && yarn prepare:flatpak-metainfo",
     "build:desktop": "yarn build && electron-builder --publish never",
     "preview": "vite preview",
     "test": "vitest run --environment jsdom"
@@ -149,12 +151,38 @@
           ]
         }
       ],
+      "extraFiles": [
+        {
+          "from": "build/flatpak/com.hubertbanas.sokoban.metainfo.xml",
+          "to": "usr/share/metainfo/com.hubertbanas.sokoban.metainfo.xml"
+        }
+      ],
       "category": "Game"
+    },
+    "flatpak": {
+      "branch": "stable",
+      "files": [
+        [
+          "build/flatpak/com.hubertbanas.sokoban.metainfo.xml",
+          "/share/metainfo/com.hubertbanas.sokoban.metainfo.xml"
+        ]
+      ]
+    },
+    "deb": {
+      "packageCategory": "games",
+      "synopsis": "A retro Sokoban puzzle game.",
+      "description": "Sokoban is a classic puzzle game where you push crates onto target tiles while planning each move carefully to avoid dead ends."
+    },
+    "rpm": {
+      "packageCategory": "Amusements/Games",
+      "synopsis": "A retro Sokoban puzzle game.",
+      "description": "Sokoban is a classic puzzle game where you push crates onto target tiles while planning each move carefully to avoid dead ends."
     },
     "snap": {
       "confinement": "strict",
       "grade": "stable",
-      "summary": "A retro Sokoban puzzle game."
+      "summary": "A retro Sokoban puzzle game.",
+      "description": "Sokoban is a classic puzzle game where you push crates onto target tiles while planning each move carefully to avoid dead ends."
     },
     "mac": {
       "target": [
@@ -167,6 +195,22 @@
         }
       ],
       "category": "public.app-category.puzzle-games"
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     }
   }
 }

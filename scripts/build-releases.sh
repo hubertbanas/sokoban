@@ -1064,7 +1064,7 @@ run_flatpak() {
   docker_node_bookworm_script "
     set -euo pipefail
     apt-get update
-    apt-get install -y flatpak flatpak-builder dbus elfutils imagemagick
+    apt-get install -y flatpak flatpak-builder dbus elfutils imagemagick appstream
     mkdir -p /var/lib/dbus
     dbus-uuidgen > /var/lib/dbus/machine-id
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
