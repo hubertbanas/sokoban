@@ -1,9 +1,11 @@
 import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
+import { SfxSettings } from "./components/sfx-settings";
 import { ThemeSwitcher } from "./components/theme-switcher";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
+import { useGameSounds } from "./hooks/useGameSounds";
 import { useKeyBoard } from "./hooks/keyboard";
 import { Block } from "./hooks/levels";
 import style from "./components/sokoban.module.css";
@@ -95,6 +97,17 @@ function useHoldToRepeat(
 
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
+  const {
+    playCratePush,
+    playCrateDocked,
+    playPlayerStep,
+    playPlayerBump,
+    playLevelComplete,
+    muted,
+    volume,
+    setMuted,
+    setVolume,
+  } = useGameSounds();
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -178,6 +191,41 @@ function Game() {
   const onCancelAction = React.useCallback(() => {
     setPendingAction(null);
   }, []);
+
+  const onMove = React.useCallback(
+    (direction: Direction) => {
+      if (state !== State.playing) {
+        return;
+      }
+
+      const outcome = move(direction);
+      switch (outcome) {
+        case "crate-docked":
+          playCrateDocked();
+          break;
+        case "crate-push":
+          playCratePush();
+          break;
+        case "step":
+          playPlayerStep();
+          break;
+        case "blocked":
+          playPlayerBump();
+          break;
+      }
+    },
+    [move, playCrateDocked, playCratePush, playPlayerBump, playPlayerStep, state]
+  );
+
+  const previousStateRef = React.useRef(state);
+
+  React.useEffect(() => {
+    if (state === State.completed && previousStateRef.current !== State.completed) {
+      playLevelComplete();
+    }
+
+    previousStateRef.current = state;
+  }, [playLevelComplete, state]);
 
   const confirmationDialog = React.useMemo(() => {
     switch (pendingAction) {
@@ -299,16 +347,16 @@ function Game() {
 
       switch (event.code) {
         case "ArrowUp":
-          move(Direction.Top);
+          onMove(Direction.Top);
           break;
         case "ArrowDown":
-          move(Direction.Bottom);
+          onMove(Direction.Bottom);
           break;
         case "ArrowLeft":
-          move(Direction.Left);
+          onMove(Direction.Left);
           break;
         case "ArrowRight":
-          move(Direction.Right);
+          onMove(Direction.Right);
           break;
         case "Enter":
           next();
@@ -362,6 +410,12 @@ function Game() {
           >
             Next
           </button>
+          <SfxSettings
+            muted={muted}
+            volume={volume}
+            onMutedChange={setMuted}
+            onVolumeChange={setVolume}
+          />
           <Help />
           <ThemeSwitcher />
         </div>
@@ -390,7 +444,7 @@ function Game() {
         </div>
       </section>
 
-      <MobileControls onMove={move} onUndo={undo} onRestart={onRequestRestart} />
+      <MobileControls onMove={onMove} onUndo={undo} onRestart={onRequestRestart} />
 
       {isConfirmationDialogOpen && confirmationDialog && (
         <Modal

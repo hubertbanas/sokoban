@@ -1,4 +1,4 @@
-const gameAssetModules = import.meta.glob("../assets/*", {
+const gameAssetModules = import.meta.glob("../assets/**/*", {
     eager: true,
     import: "default",
 });
