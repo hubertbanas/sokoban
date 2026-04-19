@@ -111,6 +111,7 @@ docker compose -f compose.dev.yaml up -d
 ### Production (`compose.prod.yaml`)
 
 ```bash
+docker compose -f compose.prod.yaml pull
 docker compose -f compose.prod.yaml up -d
 ```
 
