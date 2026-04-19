@@ -89,6 +89,33 @@ function getAudioContextConstructor(): AudioContextConstructor | null {
     ?? null;
 }
 
+function decodeAudioDataCompat(context: AudioContext, audioData: ArrayBuffer): Promise<AudioBuffer> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+
+    const resolveOnce = (buffer: AudioBuffer) => {
+      if (settled) return;
+      settled = true;
+      resolve(buffer);
+    };
+
+    const rejectOnce = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      reject(error);
+    };
+
+    try {
+      const decodeResult = context.decodeAudioData(audioData, resolveOnce, rejectOnce);
+      if (decodeResult && typeof decodeResult.then === "function") {
+        decodeResult.then(resolveOnce).catch(rejectOnce);
+      }
+    } catch (error) {
+      rejectOnce(error);
+    }
+  });
+}
+
 export function useGameSounds() {
   const webAudioRef = useRef<WebAudioResources | null>(null);
   const decodedBuffersRef = useRef<Partial<Record<GameSoundName, AudioBuffer>>>({});
@@ -154,7 +181,7 @@ export function useGameSounds() {
 
       const task = fetch(SOUND_SOURCES[name], { cache: "force-cache" })
         .then((response) => response.arrayBuffer())
-        .then((audioData) => webAudio.context.decodeAudioData(audioData.slice(0)))
+        .then((audioData) => decodeAudioDataCompat(webAudio.context, audioData.slice(0)))
         .then((decodedBuffer) => {
           decodedBuffersRef.current[name] = decodedBuffer;
         })
@@ -280,10 +307,6 @@ export function useGameSounds() {
 
       if (webAudio.context.state === "suspended") {
         void webAudio.context.resume().catch(() => undefined);
-      }
-
-      if (webAudio.context.state !== "running") {
-        return false;
       }
 
       const source = webAudio.context.createBufferSource();
