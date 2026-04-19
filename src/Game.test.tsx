@@ -632,6 +632,75 @@ test("plays crate docked sound when move result is crate-docked", () => {
   expect(playCratePush).not.toHaveBeenCalled();
 });
 
+test("plays player step sound when move result is step", () => {
+  const move = vi.fn((_: Direction): MoveOutcome => "step");
+  const playPlayerStep = vi.fn();
+  const playPlayerBump = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playPlayerStep,
+      playPlayerBump,
+    })
+  );
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
+  });
+
+  expect(move).toHaveBeenCalledWith(Direction.Right);
+  expect(playPlayerStep).toHaveBeenCalledTimes(1);
+  expect(playPlayerBump).not.toHaveBeenCalled();
+});
+
+test("plays player bump sound when move result is blocked", () => {
+  const move = vi.fn((_: Direction): MoveOutcome => "blocked");
+  const playPlayerStep = vi.fn();
+  const playPlayerBump = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playPlayerStep,
+      playPlayerBump,
+    })
+  );
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
+  });
+
+  expect(move).toHaveBeenCalledWith(Direction.Right);
+  expect(playPlayerBump).toHaveBeenCalledTimes(1);
+  expect(playPlayerStep).not.toHaveBeenCalled();
+});
+
+test("plays level complete sound when state changes to completed", () => {
+  const playLevelComplete = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playLevelComplete,
+    })
+  );
+  mockSokoban({ state: State.playing });
+
+  const { rerender } = render(<Game />);
+  expect(playLevelComplete).not.toHaveBeenCalled();
+
+  mockSokoban({ state: State.completed });
+  rerender(<Game />);
+
+  expect(playLevelComplete).toHaveBeenCalledTimes(1);
+});
+
 test("restart confirmation opens with Escape when progress exists", () => {
   const restart = vi.fn();
   mockSokoban({ hasProgress: true, state: State.playing, restart });

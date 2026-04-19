@@ -97,7 +97,17 @@ function useHoldToRepeat(
 
 function Game() {
   const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
-  const { playCratePush, playCrateDocked, muted, volume, setMuted, setVolume } = useGameSounds();
+  const {
+    playCratePush,
+    playCrateDocked,
+    playPlayerStep,
+    playPlayerBump,
+    playLevelComplete,
+    muted,
+    volume,
+    setMuted,
+    setVolume,
+  } = useGameSounds();
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -184,15 +194,38 @@ function Game() {
 
   const onMove = React.useCallback(
     (direction: Direction) => {
+      if (state !== State.playing) {
+        return;
+      }
+
       const outcome = move(direction);
-      if (outcome === "crate-docked") {
-        playCrateDocked();
-      } else if (outcome === "crate-push") {
-        playCratePush();
+      switch (outcome) {
+        case "crate-docked":
+          playCrateDocked();
+          break;
+        case "crate-push":
+          playCratePush();
+          break;
+        case "step":
+          playPlayerStep();
+          break;
+        case "blocked":
+          playPlayerBump();
+          break;
       }
     },
-    [move, playCrateDocked, playCratePush]
+    [move, playCrateDocked, playCratePush, playPlayerBump, playPlayerStep, state]
   );
+
+  const previousStateRef = React.useRef(state);
+
+  React.useEffect(() => {
+    if (state === State.completed && previousStateRef.current !== State.completed) {
+      playLevelComplete();
+    }
+
+    previousStateRef.current = state;
+  }, [playLevelComplete, state]);
 
   const confirmationDialog = React.useMemo(() => {
     switch (pendingAction) {

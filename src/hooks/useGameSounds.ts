@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import cratePushUrl from "../assets/audio/crate-push.ogg";
 import crateDockedUrl from "../assets/audio/crate-docked.ogg";
+import playerStepUrl from "../assets/audio/player-step.ogg";
+import playerBumpUrl from "../assets/audio/player-bump.ogg";
+import levelCompleteUrl from "../assets/audio/level-complete.ogg";
 
 export type GameSoundName =
   | "crate-push"
@@ -21,13 +24,12 @@ const DEFAULT_SFX_SETTINGS: SfxSettings = {
   volume: 1,
 };
 
-const SOUND_SOURCES: Record<GameSoundName, string | null> = {
+const SOUND_SOURCES: Record<GameSoundName, string> = {
   "crate-push": cratePushUrl,
   "crate-docked": crateDockedUrl,
-  // Scaffolding for upcoming sounds. Wire assets when files are added.
-  "player-step": null,
-  "player-bump": null,
-  "level-complete": null,
+  "player-step": playerStepUrl,
+  "player-bump": playerBumpUrl,
+  "level-complete": levelCompleteUrl,
 };
 
 const SOUND_VOLUMES: Record<GameSoundName, number> = {
@@ -112,17 +114,12 @@ export function useGameSounds() {
       return;
     }
 
-    const source = SOUND_SOURCES[name];
-    if (!source) {
-      return;
-    }
-
     const currentSettings = settingsRef.current;
     if (currentSettings.muted || currentSettings.volume <= 0) {
       return;
     }
 
-    const audio = new Audio(source);
+    const audio = new Audio(SOUND_SOURCES[name]);
     audio.preload = "auto";
     audio.volume = clampVolume(SOUND_VOLUMES[name] * currentSettings.volume);
 
