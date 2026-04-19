@@ -17,6 +17,13 @@ type SfxSettings = {
   volume: number;
 };
 
+type WebAudioResources = {
+  context: AudioContext;
+  masterGain: GainNode;
+};
+
+type AudioContextConstructor = new (options?: AudioContextOptions) => AudioContext;
+
 const SFX_SETTINGS_STORAGE_KEY = "sokoban.sfx.settings";
 
 const DEFAULT_SFX_SETTINGS: SfxSettings = {
@@ -68,10 +75,128 @@ function readStoredSfxSettings(): SfxSettings {
   }
 }
 
+function getAudioContextConstructor(): AudioContextConstructor | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const webkitWindow = window as Window & {
+    webkitAudioContext?: AudioContextConstructor;
+  };
+
+  return (window.AudioContext as AudioContextConstructor | undefined)
+    ?? webkitWindow.webkitAudioContext
+    ?? null;
+}
+
 export function useGameSounds() {
+  const webAudioRef = useRef<WebAudioResources | null>(null);
+  const decodedBuffersRef = useRef<Partial<Record<GameSoundName, AudioBuffer>>>({});
+  const loadingBuffersRef = useRef<Partial<Record<GameSoundName, Promise<void>>>>({});
+  const unlockedWebAudioRef = useRef(false);
   const activeSoundsRef = useRef(new Set<HTMLAudioElement>());
   const [settings, setSettings] = useState<SfxSettings>(readStoredSfxSettings);
   const settingsRef = useRef(settings);
+
+  const ensureWebAudio = useCallback((): WebAudioResources | null => {
+    if (webAudioRef.current) {
+      return webAudioRef.current;
+    }
+
+    const AudioContextCtor = getAudioContextConstructor();
+    if (!AudioContextCtor) {
+      return null;
+    }
+
+    let context: AudioContext;
+    try {
+      context = new AudioContextCtor({ latencyHint: "interactive" });
+    } catch {
+      context = new AudioContextCtor();
+    }
+
+    const masterGain = context.createGain();
+    masterGain.connect(context.destination);
+
+    webAudioRef.current = {
+      context,
+      masterGain,
+    };
+
+    return webAudioRef.current;
+  }, []);
+
+  const setMasterGainFromSettings = useCallback((nextSettings: SfxSettings) => {
+    const webAudio = webAudioRef.current;
+    if (!webAudio) {
+      return;
+    }
+
+    const nextGain = nextSettings.muted ? 0 : clampVolume(nextSettings.volume);
+    webAudio.masterGain.gain.setTargetAtTime(nextGain, webAudio.context.currentTime, 0.01);
+  }, []);
+
+  const loadDecodedBuffer = useCallback(
+    (name: GameSoundName): Promise<void> => {
+      if (decodedBuffersRef.current[name]) {
+        return Promise.resolve();
+      }
+
+      const existingTask = loadingBuffersRef.current[name];
+      if (existingTask) {
+        return existingTask;
+      }
+
+      const webAudio = ensureWebAudio();
+      if (!webAudio) {
+        return Promise.resolve();
+      }
+
+      const task = fetch(SOUND_SOURCES[name], { cache: "force-cache" })
+        .then((response) => response.arrayBuffer())
+        .then((audioData) => webAudio.context.decodeAudioData(audioData.slice(0)))
+        .then((decodedBuffer) => {
+          decodedBuffersRef.current[name] = decodedBuffer;
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          delete loadingBuffersRef.current[name];
+        });
+
+      loadingBuffersRef.current[name] = task;
+      return task;
+    },
+    [ensureWebAudio]
+  );
+
+  const preloadDecodedBuffers = useCallback(() => {
+    (Object.keys(SOUND_SOURCES) as GameSoundName[]).forEach((name) => {
+      void loadDecodedBuffer(name);
+    });
+  }, [loadDecodedBuffer]);
+
+  const unlockWebAudio = useCallback(() => {
+    if (unlockedWebAudioRef.current) {
+      return;
+    }
+
+    const webAudio = ensureWebAudio();
+    if (!webAudio) {
+      unlockedWebAudioRef.current = true;
+      return;
+    }
+
+    if (webAudio.context.state === "suspended") {
+      void webAudio.context.resume().then(() => {
+        unlockedWebAudioRef.current = true;
+        preloadDecodedBuffers();
+      }).catch(() => undefined);
+      return;
+    }
+
+    unlockedWebAudioRef.current = true;
+    preloadDecodedBuffers();
+  }, [ensureWebAudio, preloadDecodedBuffers]);
 
   useEffect(() => {
     settingsRef.current = settings;
@@ -80,6 +205,7 @@ export function useGameSounds() {
     }
 
     window.localStorage.setItem(SFX_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    setMasterGainFromSettings(settings);
   }, [settings]);
 
   useEffect(() => {
@@ -100,7 +226,37 @@ export function useGameSounds() {
   }, []);
 
   useEffect(() => {
+    ensureWebAudio();
+    setMasterGainFromSettings(settingsRef.current);
+    preloadDecodedBuffers();
+  }, [ensureWebAudio, preloadDecodedBuffers, setMasterGainFromSettings]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const unlock = () => {
+      unlockWebAudio();
+    };
+
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
+
     return () => {
+      window.removeEventListener("pointerdown", unlock, true);
+      window.removeEventListener("keydown", unlock, true);
+    };
+  }, [unlockWebAudio]);
+
+  useEffect(() => {
+    return () => {
+      const webAudio = webAudioRef.current;
+      if (webAudio) {
+        void webAudio.context.close().catch(() => undefined);
+        webAudioRef.current = null;
+      }
+
       activeSoundsRef.current.forEach((audio) => {
         audio.pause();
         audio.src = "";
@@ -109,13 +265,53 @@ export function useGameSounds() {
     };
   }, []);
 
+  const playViaWebAudio = useCallback(
+    (name: GameSoundName): boolean => {
+      const webAudio = ensureWebAudio();
+      if (!webAudio) {
+        return false;
+      }
+
+      const decodedBuffer = decodedBuffersRef.current[name];
+      if (!decodedBuffer) {
+        void loadDecodedBuffer(name);
+        return false;
+      }
+
+      if (webAudio.context.state === "suspended") {
+        void webAudio.context.resume().catch(() => undefined);
+      }
+
+      if (webAudio.context.state !== "running") {
+        return false;
+      }
+
+      const source = webAudio.context.createBufferSource();
+      source.buffer = decodedBuffer;
+
+      const sourceGain = webAudio.context.createGain();
+      sourceGain.gain.value = SOUND_VOLUMES[name];
+
+      source.connect(sourceGain);
+      sourceGain.connect(webAudio.masterGain);
+      source.start();
+
+      return true;
+    },
+    [ensureWebAudio, loadDecodedBuffer]
+  );
+
   const play = useCallback((name: GameSoundName) => {
-    if (typeof Audio === "undefined") {
+    const currentSettings = settingsRef.current;
+    if (currentSettings.muted || currentSettings.volume <= 0) {
       return;
     }
 
-    const currentSettings = settingsRef.current;
-    if (currentSettings.muted || currentSettings.volume <= 0) {
+    if (playViaWebAudio(name)) {
+      return;
+    }
+
+    if (typeof Audio === "undefined") {
       return;
     }
 
@@ -136,7 +332,7 @@ export function useGameSounds() {
     void audio.play().catch(() => {
       cleanup();
     });
-  }, []);
+  }, [playViaWebAudio]);
 
   const playCratePush = useCallback(() => {
     play("crate-push");
