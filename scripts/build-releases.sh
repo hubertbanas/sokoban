@@ -1093,8 +1093,11 @@ run_flatpak() {
   log "Step flatpak: building Linux Flatpak (${LINUX_ARCH})..."
   docker_node_bookworm_script "
     set -euo pipefail
+    export DEBIAN_FRONTEND=noninteractive
+    echo 'deb http://deb.debian.org/debian bookworm-backports main' > /etc/apt/sources.list.d/bookworm-backports.list
     apt-get update
-    apt-get install -y flatpak flatpak-builder dbus elfutils imagemagick appstream
+    apt-get install -y --no-install-recommends -t bookworm-backports flatpak flatpak-builder elfutils
+    apt-get install -y --no-install-recommends dbus imagemagick appstream appstream-compose appstream-util
     mkdir -p /var/lib/dbus
     dbus-uuidgen > /var/lib/dbus/machine-id
     flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
