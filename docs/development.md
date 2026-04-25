@@ -114,28 +114,28 @@ UI controls:
 
 ## Docker
 
-Project `Dockerfile` is multi-stage:
+Project `docker/Dockerfile` is multi-stage:
 
 - Stage 1: `node:24-alpine` builds `dist/`
 - Stage 2: `nginx:alpine` serves static files on port `80`
 
 ## Docker Compose
 
-### Development (`compose.dev.yaml`)
+### Development (`docker/compose.dev.yaml`)
 
 ```bash
-docker compose -f compose.dev.yaml build --progress=plain --no-cache
-docker compose -f compose.dev.yaml up -d
+docker compose -f docker/compose.dev.yaml build --progress=plain --no-cache
+docker compose -f docker/compose.dev.yaml up -d
 ```
 
 - Service/container: `sokoban-dev`
 - Host port: `8081` -> container `80`
 
-### Production (`compose.prod.yaml`)
+### Production (`docker/compose.prod.yaml`)
 
 ```bash
-docker compose -f compose.prod.yaml pull
-docker compose -f compose.prod.yaml up -d
+docker compose -f docker/compose.prod.yaml pull
+docker compose -f docker/compose.prod.yaml up -d
 ```
 
 - Pulls image: `ghcr.io/hubertbanas/sokoban:latest`
