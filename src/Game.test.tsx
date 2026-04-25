@@ -16,7 +16,16 @@ vi.mock("./hooks/keyboard", () => ({
 }));
 
 vi.mock("./components/help", () => ({
-  Help: () => <div data-testid="help" />,
+  Help: ({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) => (
+    <div data-testid="help">
+      <button type="button" data-testid="help-open" onClick={() => onOpenChange?.(true)}>
+        Open Help
+      </button>
+      <button type="button" data-testid="help-close" onClick={() => onOpenChange?.(false)}>
+        Close Help
+      </button>
+    </div>
+  ),
 }));
 
 vi.mock("./components/theme-switcher", () => ({
@@ -28,7 +37,16 @@ vi.mock("./components/mobile-controls", () => ({
 }));
 
 vi.mock("./components/sfx-settings", () => ({
-  SfxSettings: () => <div data-testid="sfx-settings" />,
+  SfxSettings: ({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) => (
+    <div data-testid="sfx-settings">
+      <button type="button" data-testid="sfx-open" onClick={() => onOpenChange?.(true)}>
+        Open SFX
+      </button>
+      <button type="button" data-testid="sfx-close" onClick={() => onOpenChange?.(false)}>
+        Close SFX
+      </button>
+    </div>
+  ),
 }));
 
 vi.mock("./hooks/useGameSounds", () => ({
@@ -579,6 +597,64 @@ test("arrow keys trigger player movement", () => {
   act(() => {
     onKeyboardEvent(createKeyboardEvent("ArrowRight").event);
   });
+  expect(move).toHaveBeenCalledWith(Direction.Right);
+});
+
+test("arrow keys are ignored while help modal is open", () => {
+  const move = vi.fn();
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByTestId("help-open"));
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("ArrowUp");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(move).not.toHaveBeenCalled();
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+
+  fireEvent.click(screen.getByTestId("help-close"));
+
+  const onKeyboardEventAfterClose = getLatestKeyboardHandler();
+
+  act(() => {
+    onKeyboardEventAfterClose(createKeyboardEvent("ArrowUp").event);
+  });
+
+  expect(move).toHaveBeenCalledWith(Direction.Top);
+});
+
+test("arrow keys are ignored while sfx modal is open", () => {
+  const move = vi.fn();
+  mockSokoban({ state: State.playing, move });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByTestId("sfx-open"));
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("ArrowRight");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(move).not.toHaveBeenCalled();
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+
+  fireEvent.click(screen.getByTestId("sfx-close"));
+
+  const onKeyboardEventAfterClose = getLatestKeyboardHandler();
+
+  act(() => {
+    onKeyboardEventAfterClose(createKeyboardEvent("ArrowRight").event);
+  });
+
   expect(move).toHaveBeenCalledWith(Direction.Right);
 });
 
