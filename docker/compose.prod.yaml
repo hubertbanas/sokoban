@@ -1,3 +1,5 @@
+name: sokoban
+
 services:
   sokoban-prod:
     image: ghcr.io/hubertbanas/sokoban:latest

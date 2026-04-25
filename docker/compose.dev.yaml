@@ -1,7 +1,10 @@
+name: sokoban
+
 services:
   sokoban-dev:
     build:
-      context: .
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: sokoban-dev
     ports:
       - "8081:80"

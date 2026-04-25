@@ -29,6 +29,29 @@ Notes:
 - Use `./scripts/build-releases.sh --help` for the full option list.
 - Host package-manager workflows (including yarn) are optional and not required for the recommended flow.
 
+## Git Hooks
+
+Install repository hooks once per clone.
+
+Docker-first setup (no host Node or Yarn required):
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/app -w /app node:24-alpine sh scripts/install-git-hooks.sh
+```
+
+Optional host shortcut (if Yarn is installed):
+
+```bash
+yarn hooks:install
+```
+
+The pre-commit guard blocks staged files that commonly contain secrets:
+
+- `.env` and `.env.*` (except `.env.example` and `.env.*.example`)
+- anything under `.secrets/`
+- Android signing files (`*.jks`, `*.keystore`, `*.p12`, `*.pfx`, `keystore-base64.txt`)
+- `android/local.properties`
+
 ## Tech Stack
 
 - React 19
@@ -91,28 +114,28 @@ UI controls:
 
 ## Docker
 
-Project `Dockerfile` is multi-stage:
+Project `docker/Dockerfile` is multi-stage:
 
 - Stage 1: `node:24-alpine` builds `dist/`
 - Stage 2: `nginx:alpine` serves static files on port `80`
 
 ## Docker Compose
 
-### Development (`compose.dev.yaml`)
+### Development (`docker/compose.dev.yaml`)
 
 ```bash
-docker compose -f compose.dev.yaml build --progress=plain --no-cache
-docker compose -f compose.dev.yaml up -d
+docker compose -f docker/compose.dev.yaml build --progress=plain --no-cache
+docker compose -f docker/compose.dev.yaml up -d
 ```
 
 - Service/container: `sokoban-dev`
 - Host port: `8081` -> container `80`
 
-### Production (`compose.prod.yaml`)
+### Production (`docker/compose.prod.yaml`)
 
 ```bash
-docker compose -f compose.prod.yaml pull
-docker compose -f compose.prod.yaml up -d
+docker compose -f docker/compose.prod.yaml pull
+docker compose -f docker/compose.prod.yaml up -d
 ```
 
 - Pulls image: `ghcr.io/hubertbanas/sokoban:latest`

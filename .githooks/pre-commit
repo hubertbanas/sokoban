@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+set -eu
+
+blocked_file_list="$(mktemp)"
+trap 'rm -f "$blocked_file_list"' EXIT HUP INT TERM
+
+git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r staged_path; do
+  [ -n "$staged_path" ] || continue
+
+  case "$staged_path" in
+    .secrets/*|*/.secrets/*|android/local.properties|*.jks|*.keystore|*.p12|*.pfx|*keystore-base64.txt)
+      printf '%s\n' "$staged_path" >> "$blocked_file_list"
+      continue
+      ;;
+  esac
+
+  case "$staged_path" in
+    .env|.env.*|*/.env|*/.env.*)
+      case "$staged_path" in
+        .env.example|.env.*.example|*/.env.example|*/.env.*.example)
+          ;;
+        *)
+          printf '%s\n' "$staged_path" >> "$blocked_file_list"
+          ;;
+      esac
+      ;;
+  esac
+done
+
+[ -s "$blocked_file_list" ] || exit 0
+
+echo "pre-commit: blocked staged file(s) that look like secrets:"
+while IFS= read -r staged_path; do
+  echo "  - $staged_path"
+done < "$blocked_file_list"
+
+cat <<'EOF'
+This repository blocks accidental commits of env/keystore material.
+Unstage/remove these files, then commit again.
+
+If this is intentional, bypass once with:
+  git commit --no-verify
+EOF
+
+exit 1
