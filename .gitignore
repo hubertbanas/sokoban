@@ -27,8 +27,10 @@
 /coverage/
 /local-releases/
 /build-logs/
+/.flatpak-builder/
 .vite/
 *.tsbuildinfo
+.eslintcache
 
 # Android/Capacitor generated outputs
 # (Some are also handled in android/.gitignore; duplicated here for root safety.)
@@ -71,7 +73,13 @@ notes.md
 .vscode/
 .idea/
 *.iml
+*.swp
+*.swo
+*~
 
 # OS metadata
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
+Desktop.ini
