@@ -33,7 +33,13 @@ vi.mock("./components/theme-switcher", () => ({
 }));
 
 vi.mock("./components/mobile-controls", () => ({
-  MobileControls: () => <div data-testid="mobile-controls" />,
+  MobileControls: ({ onUndo }: { onUndo: () => void }) => (
+    <div data-testid="mobile-controls">
+      <button type="button" data-testid="mobile-undo" onClick={onUndo}>
+        Mobile Undo
+      </button>
+    </div>
+  ),
 }));
 
 vi.mock("./components/sfx-settings", () => ({
@@ -137,6 +143,7 @@ function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds
     play: vi.fn(),
     playCratePush: vi.fn(),
     playCrateDocked: vi.fn(),
+    playCrateUndo: vi.fn(),
     playPlayerStep: vi.fn(),
     playPlayerBump: vi.fn(),
     playLevelComplete: vi.fn(),
@@ -569,6 +576,47 @@ test("keyboard Backspace triggers undo", () => {
 
   expect(undo).toHaveBeenCalledTimes(1);
   expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+});
+
+test("plays crate undo sound when keyboard Backspace undo succeeds", () => {
+  const undo = vi.fn(() => true);
+  const playCrateUndo = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playCrateUndo,
+    })
+  );
+  mockSokoban({ state: State.playing, undo });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  act(() => {
+    onKeyboardEvent(createKeyboardEvent("Backspace").event);
+  });
+
+  expect(undo).toHaveBeenCalledTimes(1);
+  expect(playCrateUndo).toHaveBeenCalledTimes(1);
+});
+
+test("plays crate undo sound when mobile undo succeeds", () => {
+  const undo = vi.fn(() => true);
+  const playCrateUndo = vi.fn();
+
+  mockedUseGameSounds.mockReturnValue(
+    createMockGameSounds({
+      playCrateUndo,
+    })
+  );
+  mockSokoban({ state: State.playing, undo });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByTestId("mobile-undo"));
+
+  expect(undo).toHaveBeenCalledTimes(1);
+  expect(playCrateUndo).toHaveBeenCalledTimes(1);
 });
 
 test("arrow keys trigger player movement", () => {
