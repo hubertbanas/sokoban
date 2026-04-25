@@ -29,6 +29,29 @@ Notes:
 - Use `./scripts/build-releases.sh --help` for the full option list.
 - Host package-manager workflows (including yarn) are optional and not required for the recommended flow.
 
+## Git Hooks
+
+Install repository hooks once per clone.
+
+Docker-first setup (no host Node or Yarn required):
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/app -w /app node:24-alpine sh scripts/install-git-hooks.sh
+```
+
+Optional host shortcut (if Yarn is installed):
+
+```bash
+yarn hooks:install
+```
+
+The pre-commit guard blocks staged files that commonly contain secrets:
+
+- `.env` and `.env.*` (except `.env.example` and `.env.*.example`)
+- anything under `.secrets/`
+- Android signing files (`*.jks`, `*.keystore`, `*.p12`, `*.pfx`, `keystore-base64.txt`)
+- `android/local.properties`
+
 ## Tech Stack
 
 - React 19

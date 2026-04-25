@@ -16,10 +16,10 @@ function createWindow() {
     // Check if the OS is Windows
     const isWindows = process.platform === "win32";
 
-    // Dynamically assign the icon path based on the operating system
+    // Jump up one directory level (..) to find the public folder
     const iconPath = isWindows
-        ? path.join(__dirname, "public", "icon.ico")
-        : path.join(__dirname, "public", "icon.png");
+        ? path.join(__dirname, "..", "public", "icon.ico")
+        : path.join(__dirname, "..", "public", "icon.png");
 
     const win = new BrowserWindow({
         width: 1200,
@@ -36,7 +36,8 @@ function createWindow() {
         win.setMenu(null);
     }
 
-    win.loadFile(path.join(__dirname, "dist", "index.html"));
+    // Jump up one directory level (..) to find the dist folder
+    win.loadFile(path.join(__dirname, "..", "dist", "index.html"));
 }
 
 function configureApplicationMenu() {
