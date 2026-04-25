@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import cratePushUrl from "../assets/audio/crate-push.ogg";
 import crateDockedUrl from "../assets/audio/crate-docked.ogg";
+import crateUndoUrl from "../assets/audio/crate-undo.ogg";
 import playerStepUrl from "../assets/audio/player-step.ogg";
 import playerBumpUrl from "../assets/audio/player-bump.ogg";
 import levelCompleteUrl from "../assets/audio/level-complete.ogg";
@@ -8,6 +9,7 @@ import levelCompleteUrl from "../assets/audio/level-complete.ogg";
 export type GameSoundName =
   | "crate-push"
   | "crate-docked"
+  | "crate-undo"
   | "player-step"
   | "player-bump"
   | "level-complete";
@@ -34,6 +36,7 @@ const DEFAULT_SFX_SETTINGS: SfxSettings = {
 const SOUND_SOURCES: Record<GameSoundName, string> = {
   "crate-push": cratePushUrl,
   "crate-docked": crateDockedUrl,
+  "crate-undo": crateUndoUrl,
   "player-step": playerStepUrl,
   "player-bump": playerBumpUrl,
   "level-complete": levelCompleteUrl,
@@ -42,6 +45,7 @@ const SOUND_SOURCES: Record<GameSoundName, string> = {
 const SOUND_VOLUMES: Record<GameSoundName, number> = {
   "crate-push": 0.45,
   "crate-docked": 0.6,
+  "crate-undo": 0.45,
   "player-step": 0.35,
   "player-bump": 0.5,
   "level-complete": 0.7,
@@ -365,6 +369,10 @@ export function useGameSounds() {
     play("crate-docked");
   }, [play]);
 
+  const playCrateUndo = useCallback(() => {
+    play("crate-undo");
+  }, [play]);
+
   const playPlayerStep = useCallback(() => {
     play("player-step");
   }, [play]);
@@ -406,6 +414,7 @@ export function useGameSounds() {
     play,
     playCratePush,
     playCrateDocked,
+    playCrateUndo,
     playPlayerStep,
     playPlayerBump,
     playLevelComplete,

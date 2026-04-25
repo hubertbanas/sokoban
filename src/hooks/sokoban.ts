@@ -171,7 +171,10 @@ export function useSokoban() {
   const undo = useCallback(() => {
     if (state === State.playing && board.length > 1) {
       setBoard(board.slice(0, -1));
+      return true;
     }
+
+    return false;
   }, [state, board]);
   const restart = useCallback(() => {
     if (state === State.playing) {

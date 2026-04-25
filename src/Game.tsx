@@ -100,6 +100,7 @@ function Game() {
   const {
     playCratePush,
     playCrateDocked,
+    playCrateUndo,
     playPlayerStep,
     playPlayerBump,
     playLevelComplete,
@@ -194,6 +195,17 @@ function Game() {
   const onCancelAction = React.useCallback(() => {
     setPendingAction(null);
   }, []);
+
+  const onUndoAction = React.useCallback(() => {
+    if (state !== State.playing || isAuxModalOpen || isConfirmationDialogOpen) {
+      return;
+    }
+
+    const didUndo = undo();
+    if (didUndo) {
+      playCrateUndo();
+    }
+  }, [isAuxModalOpen, isConfirmationDialogOpen, playCrateUndo, state, undo]);
 
   const onMove = React.useCallback(
     (direction: Direction) => {
@@ -379,7 +391,7 @@ function Game() {
           next();
           break;
         case "Backspace":
-          undo();
+          onUndoAction();
           break;
         case "Escape":
           onRequestRestart();
@@ -462,7 +474,7 @@ function Game() {
         </div>
       </section>
 
-      <MobileControls onMove={onMove} onUndo={undo} onRestart={onRequestRestart} />
+      <MobileControls onMove={onMove} onUndo={onUndoAction} onRestart={onRequestRestart} />
 
       {isConfirmationDialogOpen && confirmationDialog && (
         <Modal

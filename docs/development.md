@@ -70,6 +70,7 @@ The pre-commit guard blocks staged files that commonly contain secrets:
 - Keyboard gameplay controls (move, undo, restart, level navigation)
 - Mobile/coarse-pointer touch controls with a draggable dpad
 - Hold-to-repeat behavior for level and direction controls
+- Dedicated undo sound effect (`crate-undo.ogg`) for Backspace and touch Undo
 - Light/dark theme support with persisted user preference
 - About modal with runtime app version from `package.json`
 
