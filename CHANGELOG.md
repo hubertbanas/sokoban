@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.17.0-rc.1] - 2026-04-25
+
+### Added
+- Implement audio sound effects and SFX settings
+
+### Fixed
+- Pause gameplay input while modals are open
+- Update player facing on blocked movement
+- Migrate to Web Audio API for zero-latency mobile playback
+- Update Flatpak runtime to 24.08
+- Add validation for Docker arm64 emulation in preflight checks
+- Improve Flatpak metainfo checksum and signature generation process
+
+### Maintenance
+- Relocate root configurations and harden repository security
+- Migrate Renovate configuration to JSON5 format
+- Update all non-major dependencies
+
 ## [1.16.2] - 2026-04-17
 
 ### Packaging & Metadata
