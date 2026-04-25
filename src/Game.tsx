@@ -112,6 +112,9 @@ function Game() {
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
+  const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
+  const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
+  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen;
 
   type PendingAction = "restart" | "previous" | "next" | null;
   const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
@@ -194,7 +197,7 @@ function Game() {
 
   const onMove = React.useCallback(
     (direction: Direction) => {
-      if (state !== State.playing) {
+      if (state !== State.playing || isAuxModalOpen || isConfirmationDialogOpen) {
         return;
       }
 
@@ -214,7 +217,16 @@ function Game() {
           break;
       }
     },
-    [move, playCrateDocked, playCratePush, playPlayerBump, playPlayerStep, state]
+    [
+      isAuxModalOpen,
+      isConfirmationDialogOpen,
+      move,
+      playCrateDocked,
+      playCratePush,
+      playPlayerBump,
+      playPlayerStep,
+      state,
+    ]
   );
 
   const previousStateRef = React.useRef(state);
@@ -345,6 +357,11 @@ function Game() {
         return;
       }
 
+      if (isAuxModalOpen) {
+        event.preventDefault();
+        return;
+      }
+
       switch (event.code) {
         case "ArrowUp":
           onMove(Direction.Top);
@@ -415,8 +432,9 @@ function Game() {
             volume={volume}
             onMutedChange={setMuted}
             onVolumeChange={setVolume}
+            onOpenChange={setIsSfxModalOpen}
           />
-          <Help />
+          <Help onOpenChange={setIsHelpModalOpen} />
           <ThemeSwitcher />
         </div>
       </header>

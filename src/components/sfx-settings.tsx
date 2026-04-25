@@ -7,14 +7,19 @@ type SfxSettingsProps = {
     volume: number;
     onMutedChange: (muted: boolean) => void;
     onVolumeChange: (volume: number) => void;
+    onOpenChange?: (open: boolean) => void;
 };
 
-function SfxSettingsImpl({ muted, volume, onMutedChange, onVolumeChange }: SfxSettingsProps) {
+function SfxSettingsImpl({ muted, volume, onMutedChange, onVolumeChange, onOpenChange }: SfxSettingsProps) {
     const [open, setOpen] = React.useState(false);
     const sliderId = React.useId();
     const toggleId = React.useId();
 
     const volumePercent = Math.round(volume * 100);
+
+    React.useEffect(() => {
+        onOpenChange?.(open);
+    }, [onOpenChange, open]);
 
     React.useEffect(() => {
         if (!open) return;

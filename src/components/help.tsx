@@ -2,11 +2,19 @@ import React, { useEffect, useState } from "react";
 import style from "./sokoban.module.css";
 import { Modal } from "./modal";
 
-function HelpImpl() {
+type HelpProps = {
+  onOpenChange?: (open: boolean) => void;
+};
+
+function HelpImpl({ onOpenChange }: HelpProps) {
   const [open, setOpen] = useState(false);
   const suppressNextClickRef = React.useRef(false);
 
   const openAbout = React.useCallback(() => setOpen(true), []);
+
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
 
   const handleClick = React.useCallback(() => {
     if (suppressNextClickRef.current) {
