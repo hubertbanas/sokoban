@@ -139,6 +139,10 @@ export function useSokoban() {
         return "step";
       }
 
+      if (last.playerDirection !== direction) {
+        setBoard([...board.slice(0, -1), { ...last, playerDirection: direction }]);
+      }
+
       return "blocked";
     },
     [board, state]
