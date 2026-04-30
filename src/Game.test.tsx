@@ -16,8 +16,8 @@ vi.mock("./hooks/keyboard", () => ({
 }));
 
 vi.mock("./components/help", () => ({
-  Help: ({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) => (
-    <div data-testid="help">
+  Help: ({ open = false, onOpenChange }: { open?: boolean; onOpenChange?: (open: boolean) => void }) => (
+    <div data-testid="help" data-open={open ? "true" : "false"}>
       <button type="button" data-testid="help-open" onClick={() => onOpenChange?.(true)}>
         Open Help
       </button>
@@ -43,8 +43,8 @@ vi.mock("./components/mobile-controls", () => ({
 }));
 
 vi.mock("./components/sfx-settings", () => ({
-  SfxSettings: ({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) => (
-    <div data-testid="sfx-settings">
+  SfxSettings: ({ open = false, onOpenChange }: { open?: boolean; onOpenChange?: (open: boolean) => void }) => (
+    <div data-testid="sfx-settings" data-open={open ? "true" : "false"}>
       <button type="button" data-testid="sfx-open" onClick={() => onOpenChange?.(true)}>
         Open SFX
       </button>
@@ -559,6 +559,71 @@ test("renders auxiliary components", () => {
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
   expect(screen.getByTestId("sfx-settings")).toBeInTheDocument();
   expect(screen.getByTestId("theme-switcher")).toBeInTheDocument();
+});
+
+test("menu opens and closes when clicking backdrop", () => {
+  mockSokoban();
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  expect(screen.getByRole("dialog", { name: /game menu/i })).toBeInTheDocument();
+
+  const backdrop = document.querySelector(`.${style.menuBackdropOpen}`);
+  if (!backdrop) {
+    throw new Error("Expected menu backdrop to be rendered");
+  }
+
+  fireEvent.click(backdrop);
+  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+});
+
+test("menu blocks movement keys and escape closes the menu", () => {
+  const move = vi.fn();
+  const restart = vi.fn();
+  mockSokoban({ state: State.playing, move, restart });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  expect(screen.getByRole("dialog", { name: /game menu/i })).toBeInTheDocument();
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event: arrowEvent, preventDefaultSpy: arrowPreventDefault } = createKeyboardEvent("ArrowUp");
+
+  act(() => {
+    onKeyboardEvent(arrowEvent);
+  });
+
+  expect(move).not.toHaveBeenCalled();
+  expect(arrowPreventDefault).toHaveBeenCalledTimes(1);
+
+  const { event: escapeEvent, preventDefaultSpy: escapePreventDefault } = createKeyboardEvent("Escape");
+
+  act(() => {
+    onKeyboardEvent(escapeEvent);
+  });
+
+  expect(restart).not.toHaveBeenCalled();
+  expect(escapePreventDefault).toHaveBeenCalledTimes(1);
+  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+});
+
+test("menu actions open sfx and about dialogs", () => {
+  mockSokoban();
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  fireEvent.click(screen.getByRole("button", { name: /sfx settings/i }));
+
+  expect(screen.getByTestId("sfx-settings")).toHaveAttribute("data-open", "true");
+  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  fireEvent.click(screen.getByRole("button", { name: /^about$/i }));
+
+  expect(screen.getByTestId("help")).toHaveAttribute("data-open", "true");
 });
 
 test("keyboard Backspace triggers undo", () => {

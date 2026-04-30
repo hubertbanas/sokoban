@@ -2,7 +2,7 @@ import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
 import { SfxSettings } from "./components/sfx-settings";
-import { ThemeSwitcher } from "./components/theme-switcher";
+import { HamburgerMenu } from "./components/hamburger-menu";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
 import { useGameSounds } from "./hooks/useGameSounds";
@@ -113,9 +113,10 @@ function Game() {
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
-  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen;
+  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen;
 
   type PendingAction = "restart" | "previous" | "next" | null;
   const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
@@ -194,6 +195,24 @@ function Game() {
 
   const onCancelAction = React.useCallback(() => {
     setPendingAction(null);
+  }, []);
+
+  const onToggleMenu = React.useCallback(() => {
+    setIsMenuOpen((current) => !current);
+  }, []);
+
+  const onCloseMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
+
+  const onOpenSfxFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setIsSfxModalOpen(true);
+  }, []);
+
+  const onOpenAboutFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setIsHelpModalOpen(true);
   }, []);
 
   const onUndoAction = React.useCallback(() => {
@@ -369,6 +388,15 @@ function Game() {
         return;
       }
 
+      if (isMenuOpen) {
+        if (event.code === "Escape") {
+          onCloseMenu();
+        }
+
+        event.preventDefault();
+        return;
+      }
+
       if (isAuxModalOpen) {
         event.preventDefault();
         return;
@@ -439,15 +467,20 @@ function Game() {
           >
             Next
           </button>
-          <SfxSettings
-            muted={muted}
-            volume={volume}
-            onMutedChange={setMuted}
-            onVolumeChange={setVolume}
-            onOpenChange={setIsSfxModalOpen}
-          />
-          <Help onOpenChange={setIsHelpModalOpen} />
-          <ThemeSwitcher />
+          <button
+            type="button"
+            className={style.menuToggleButton}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-controls="game-menu"
+            aria-expanded={isMenuOpen}
+            onClick={onToggleMenu}
+          >
+            <span className={style.menuToggleGlyph} aria-hidden="true">
+              <span className={style.menuToggleGlyphLine} />
+              <span className={style.menuToggleGlyphLine} />
+              <span className={style.menuToggleGlyphLine} />
+            </span>
+          </button>
         </div>
       </header>
 
@@ -475,6 +508,29 @@ function Game() {
       </section>
 
       <MobileControls onMove={onMove} onUndo={onUndoAction} onRestart={onRequestRestart} />
+
+      <HamburgerMenu
+        open={isMenuOpen}
+        onClose={onCloseMenu}
+        onOpenSfx={onOpenSfxFromMenu}
+        onOpenAbout={onOpenAboutFromMenu}
+      />
+
+      <SfxSettings
+        muted={muted}
+        volume={volume}
+        onMutedChange={setMuted}
+        onVolumeChange={setVolume}
+        open={isSfxModalOpen}
+        showTrigger={false}
+        onOpenChange={setIsSfxModalOpen}
+      />
+
+      <Help
+        open={isHelpModalOpen}
+        showTrigger={false}
+        onOpenChange={setIsHelpModalOpen}
+      />
 
       {isConfirmationDialogOpen && confirmationDialog && (
         <Modal

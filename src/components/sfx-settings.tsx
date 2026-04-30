@@ -7,19 +7,35 @@ type SfxSettingsProps = {
     volume: number;
     onMutedChange: (muted: boolean) => void;
     onVolumeChange: (volume: number) => void;
+    open?: boolean;
+    showTrigger?: boolean;
     onOpenChange?: (open: boolean) => void;
 };
 
-function SfxSettingsImpl({ muted, volume, onMutedChange, onVolumeChange, onOpenChange }: SfxSettingsProps) {
-    const [open, setOpen] = React.useState(false);
+function SfxSettingsImpl({
+    muted,
+    volume,
+    onMutedChange,
+    onVolumeChange,
+    open: controlledOpen,
+    showTrigger = true,
+    onOpenChange,
+}: SfxSettingsProps) {
+    const [internalOpen, setInternalOpen] = React.useState(false);
     const sliderId = React.useId();
     const toggleId = React.useId();
 
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : internalOpen;
     const volumePercent = Math.round(volume * 100);
 
-    React.useEffect(() => {
-        onOpenChange?.(open);
-    }, [onOpenChange, open]);
+    const setOpen = React.useCallback((nextOpen: boolean) => {
+        if (!isControlled) {
+            setInternalOpen(nextOpen);
+        }
+
+        onOpenChange?.(nextOpen);
+    }, [isControlled, onOpenChange]);
 
     React.useEffect(() => {
         if (!open) return;
@@ -32,19 +48,21 @@ function SfxSettingsImpl({ muted, volume, onMutedChange, onVolumeChange, onOpenC
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [open]);
+    }, [open, setOpen]);
 
     return (
         <>
-            <button
-                type="button"
-                className={style.levelNavButton}
-                aria-haspopup="dialog"
-                aria-expanded={open}
-                onClick={() => setOpen(true)}
-            >
-                SFX
-            </button>
+            {showTrigger && (
+                <button
+                    type="button"
+                    className={style.levelNavButton}
+                    aria-haspopup="dialog"
+                    aria-expanded={open}
+                    onClick={() => setOpen(true)}
+                >
+                    SFX
+                </button>
+            )}
 
             {open && (
                 <Modal
