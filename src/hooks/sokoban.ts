@@ -55,7 +55,7 @@ function getPlayerPosition<T extends Level>(level: T): Position {
 }
 
 export function useSokoban() {
-  const { index, level, loadNext, loadPrevious } = useLevels();
+  const { index, level, loadNext, loadPrevious, totalLevels } = useLevels();
   const [state, setState] = useState<State>(State.playing);
   const [hasProgress, setHasProgress] = useState(false);
   const initboard = useCallback(
@@ -193,6 +193,7 @@ export function useSokoban() {
   return {
     index,
     level: board[board.length - 1],
+    totalLevels,
     state,
     move,
     next,

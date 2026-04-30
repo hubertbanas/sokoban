@@ -96,7 +96,7 @@ function useHoldToRepeat(
 }
 
 function Game() {
-  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
+  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress, totalLevels } = useSokoban();
   const {
     playCratePush,
     playCrateDocked,
@@ -284,14 +284,14 @@ function Game() {
           title: "Switch level?",
           ariaLabel: "Switch to previous level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Previous Level",
+          confirmLabel: "Go to Previous Level",
         };
       case "next":
         return {
           title: "Switch level?",
           ariaLabel: "Switch to next level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Next Level",
+          confirmLabel: "Go to Next Level",
         };
       default:
         return null;
@@ -357,6 +357,7 @@ function Game() {
     "--tile-gap": `${tileGap}px`,
     "--tile-radius": `${tileRadius}px`,
   } as React.CSSProperties;
+  const levelCount = totalLevels ?? index + 1;
 
   useKeyBoard(
     (event) => {
@@ -448,25 +449,7 @@ function Game() {
   return (
     <div className="game">
       <header className={style.topBar}>
-        <div className={style.levelInfo}>
-          <div className={style.levelNumber}>Level {index + 1}</div>
-          <div className={style.levelTitle}>{level.name}</div>
-        </div>
         <div className={style.topBarActions}>
-          <button
-            type="button"
-            className={style.levelNavButton}
-            {...previousButtonHandlers}
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            className={style.levelNavButton}
-            {...nextButtonHandlers}
-          >
-            Next
-          </button>
           <button
             type="button"
             className={style.menuToggleButton}
@@ -482,6 +465,34 @@ function Game() {
             </span>
           </button>
         </div>
+
+        <div className={style.levelInfo}>
+          <div className={style.levelPicker} aria-label="Level picker">
+            <button
+              type="button"
+              className={`${style.levelNavButton} ${style.levelPickerButton}`}
+              aria-label="Previous Level"
+              title="Previous Level"
+              {...previousButtonHandlers}
+            >
+              <span className={style.levelPickerChevron} aria-hidden="true">&lsaquo;</span>
+            </button>
+
+            <div className={style.levelNumber}>Level {index + 1} / {levelCount}</div>
+
+            <button
+              type="button"
+              className={`${style.levelNavButton} ${style.levelPickerButton}`}
+              aria-label="Next Level"
+              title="Next Level"
+              {...nextButtonHandlers}
+            >
+              <span className={style.levelPickerChevron} aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+        </div>
+
+        <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
       <section className={style.mapArea} aria-label="Sokoban board">

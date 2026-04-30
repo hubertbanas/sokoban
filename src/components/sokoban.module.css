@@ -1,8 +1,10 @@
 .topBar {
+    --topbar-side-size: 56px;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: var(--topbar-side-size) minmax(0, 1fr) var(--topbar-side-size);
+    align-items: center;
+    column-gap: clamp(8px, 2vw, 16px);
     padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -10,22 +12,52 @@
 
 .levelInfo {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.levelPicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.levelPickerButton {
+    display: inline-flex;
+    align-items: center;
+    min-width: 56px;
+    min-height: 56px;
+    justify-content: center;
+    padding: 0;
+    gap: 0;
+    font-size: 1.08rem;
+}
+
+.levelPickerChevron {
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1;
 }
 
 .topBarActions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
+    justify-self: start;
+}
+
+.topBarSpacer {
+    width: var(--topbar-side-size);
+    height: var(--topbar-side-size);
+    justify-self: end;
 }
 
 .menuToggleButton {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
     border: 1px solid var(--border);
     background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
     color: var(--foreground);
@@ -55,19 +87,6 @@
     min-height: 0;
     display: flex;
     overflow: hidden;
-}
-
-@media (min-width: 900px) {
-    .topBar {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-    }
-
-    .topBarActions {
-        justify-content: flex-end;
-    }
 }
 
 .board {
@@ -110,16 +129,12 @@
         padding-bottom: 10px;
     }
 
-    .topBarActions {
-        gap: 6px;
+    .levelPicker {
+        gap: 8px;
     }
 
     .levelNumber {
-        font-size: 0.72rem;
-    }
-
-    .levelTitle {
-        font-size: clamp(1.05rem, 4.4vw, 1.4rem);
+        font-size: 0.88rem;
     }
 
     .completedState {
@@ -151,6 +166,30 @@
     }
 }
 
+@media (max-width: 425px) {
+    .topBar {
+        grid-template-columns: var(--topbar-side-size) minmax(0, 1fr);
+        grid-template-rows: var(--topbar-side-size) auto;
+        column-gap: 8px;
+        row-gap: 10px;
+    }
+
+    .topBarActions {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .levelInfo {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+    }
+
+    .topBarSpacer {
+        display: none;
+    }
+}
+
 .level {
     display: flex;
     flex-direction: row;
@@ -168,18 +207,12 @@
 }
 
 .levelNumber {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-}
-
-.levelTitle {
-    font-size: clamp(1.4rem, 3.2vw, 2.1rem);
+    font-size: 1.06rem;
     font-weight: 800;
-    color: var(--accent);
-    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    white-space: nowrap;
 }
 
 @keyframes bounce {
@@ -275,7 +308,7 @@
 .menuDrawer {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0;
     width: min(84vw, 320px);
     height: 100dvh;
     padding: 16px 14px 18px;
@@ -283,9 +316,9 @@
     flex-direction: column;
     gap: 14px;
     background: var(--surface);
-    border-left: 1px solid var(--border);
-    box-shadow: -18px 0 42px rgba(0, 0, 0, 0.24);
-    transform: translateX(100%);
+    border-right: 1px solid var(--border);
+    box-shadow: 18px 0 42px rgba(0, 0, 0, 0.24);
+    transform: translateX(-100%);
     transition: transform 0.26s cubic-bezier(0.25, 0.8, 0.25, 1);
     will-change: transform;
     pointer-events: none;

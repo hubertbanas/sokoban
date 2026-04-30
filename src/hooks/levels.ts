@@ -160,5 +160,11 @@ export function useLevels() {
     updateIndex(-1);
   }, [updateIndex]);
 
-  return { index, level, loadNext, loadPrevious };
+  return {
+    index,
+    level,
+    loadNext,
+    loadPrevious,
+    totalLevels: levels.length,
+  };
 }
