@@ -3,18 +3,30 @@ import style from "./sokoban.module.css";
 import { Modal } from "./modal";
 
 type HelpProps = {
+  open?: boolean;
+  showTrigger?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
-function HelpImpl({ onOpenChange }: HelpProps) {
-  const [open, setOpen] = useState(false);
+function HelpImpl({ open: controlledOpen, showTrigger = true, onOpenChange }: HelpProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const suppressNextClickRef = React.useRef(false);
 
-  const openAbout = React.useCallback(() => setOpen(true), []);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
 
-  useEffect(() => {
-    onOpenChange?.(open);
-  }, [open, onOpenChange]);
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen);
+      }
+
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, onOpenChange]
+  );
+
+  const openAbout = React.useCallback(() => setOpen(true), [setOpen]);
 
   const handleClick = React.useCallback(() => {
     if (suppressNextClickRef.current) {
@@ -55,18 +67,20 @@ function HelpImpl({ onOpenChange }: HelpProps) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [open, setOpen]);
 
   return (
     <>
-      <button
-        type="button"
-        className={style.aboutButton}
-        onClick={handleClick}
-        onPointerDown={handlePointerDown}
-      >
-        About
-      </button>
+      {showTrigger && (
+        <button
+          type="button"
+          className={style.aboutButton}
+          onClick={handleClick}
+          onPointerDown={handlePointerDown}
+        >
+          About
+        </button>
+      )}
 
       {open && (
         <Modal

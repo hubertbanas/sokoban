@@ -1,8 +1,10 @@
 .topBar {
+    --topbar-side-size: 56px;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: var(--topbar-side-size) minmax(0, 1fr) var(--topbar-side-size);
+    align-items: center;
+    column-gap: clamp(8px, 2vw, 16px);
     padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -10,15 +12,73 @@
 
 .levelInfo {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.levelPicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.levelPickerButton {
+    display: inline-flex;
+    align-items: center;
+    min-width: 56px;
+    min-height: 56px;
+    justify-content: center;
+    padding: 0;
+    gap: 0;
+    font-size: 1.08rem;
+}
+
+.levelPickerChevron {
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1;
 }
 
 .topBarActions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
+    justify-self: start;
+}
+
+.topBarSpacer {
+    width: var(--topbar-side-size);
+    height: var(--topbar-side-size);
+    justify-self: end;
+}
+
+.menuToggleButton {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+    color: var(--foreground);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.menuToggleGlyph {
+    display: grid;
+    gap: 4px;
+    width: 18px;
+}
+
+.menuToggleGlyphLine {
+    width: 100%;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
 }
 
 .mapArea {
@@ -27,19 +87,6 @@
     min-height: 0;
     display: flex;
     overflow: hidden;
-}
-
-@media (min-width: 900px) {
-    .topBar {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-    }
-
-    .topBarActions {
-        justify-content: flex-end;
-    }
 }
 
 .board {
@@ -82,16 +129,12 @@
         padding-bottom: 10px;
     }
 
-    .topBarActions {
-        gap: 6px;
+    .levelPicker {
+        gap: 8px;
     }
 
     .levelNumber {
-        font-size: 0.72rem;
-    }
-
-    .levelTitle {
-        font-size: clamp(1.05rem, 4.4vw, 1.4rem);
+        font-size: 0.88rem;
     }
 
     .completedState {
@@ -117,6 +160,34 @@
     .themeToggleCheckbox:checked+.themeToggleLabel .themeToggleBall {
         transform: translateX(24px);
     }
+
+    .menuDrawer {
+        width: min(90vw, 320px);
+    }
+}
+
+@media (max-width: 425px) {
+    .topBar {
+        grid-template-columns: var(--topbar-side-size) minmax(0, 1fr);
+        grid-template-rows: var(--topbar-side-size) auto;
+        column-gap: 8px;
+        row-gap: 10px;
+    }
+
+    .topBarActions {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .levelInfo {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+    }
+
+    .topBarSpacer {
+        display: none;
+    }
 }
 
 .level {
@@ -136,18 +207,12 @@
 }
 
 .levelNumber {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-}
-
-.levelTitle {
-    font-size: clamp(1.4rem, 3.2vw, 2.1rem);
+    font-size: 1.06rem;
     font-weight: 800;
-    color: var(--accent);
-    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    white-space: nowrap;
 }
 
 @keyframes bounce {
@@ -225,6 +290,122 @@
     outline-offset: 2px;
 }
 
+.menuBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 90;
+}
+
+.menuBackdropOpen {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.menuDrawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(84vw, 320px);
+    height: 100dvh;
+    padding: 16px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    box-shadow: 18px 0 42px rgba(0, 0, 0, 0.24);
+    transform: translateX(-100%);
+    transition: transform 0.26s cubic-bezier(0.25, 0.8, 0.25, 1);
+    will-change: transform;
+    pointer-events: none;
+    z-index: 91;
+}
+
+.menuDrawerOpen {
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.menuDrawerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.menuDrawerTitle {
+    margin: 0;
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.menuDrawerCloseButton {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--foreground);
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.menuSection {
+    display: grid;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.menuThemeRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+}
+
+.menuThemeLabel {
+    color: var(--foreground);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.menuItemButton {
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+    color: var(--foreground);
+    border-radius: 12px;
+    padding: 12px 12px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.menuVersion {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
 .helpNext {
     margin-left: 20px;
     font-size: 1em;
@@ -260,6 +441,9 @@
 
 .aboutButton,
 .levelNavButton,
+.menuToggleButton,
+.menuDrawerCloseButton,
+.menuItemButton,
 .completionButton,
 .modalCloseButton,
 .themeToggleLabel {
@@ -277,12 +461,25 @@
     border-color: var(--accent);
 }
 
+.menuToggleButton:hover,
+.menuDrawerCloseButton:hover,
+.menuItemButton:hover {
+    border-color: var(--accent);
+}
+
 .aboutButton:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
 .levelNavButton:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.menuToggleButton:focus-visible,
+.menuDrawerCloseButton:focus-visible,
+.menuItemButton:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
@@ -655,6 +852,14 @@
 (pointer: coarse) {
     .mobileControlsShell {
         display: block;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .menuBackdrop,
+    .menuDrawer {
+        transition: none;
     }
 }
 

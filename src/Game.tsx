@@ -2,7 +2,7 @@ import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
 import { SfxSettings } from "./components/sfx-settings";
-import { ThemeSwitcher } from "./components/theme-switcher";
+import { HamburgerMenu } from "./components/hamburger-menu";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
 import { useGameSounds } from "./hooks/useGameSounds";
@@ -96,7 +96,7 @@ function useHoldToRepeat(
 }
 
 function Game() {
-  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress } = useSokoban();
+  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress, totalLevels } = useSokoban();
   const {
     playCratePush,
     playCrateDocked,
@@ -113,9 +113,10 @@ function Game() {
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
-  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen;
+  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen;
 
   type PendingAction = "restart" | "previous" | "next" | null;
   const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
@@ -196,6 +197,24 @@ function Game() {
     setPendingAction(null);
   }, []);
 
+  const onToggleMenu = React.useCallback(() => {
+    setIsMenuOpen((current) => !current);
+  }, []);
+
+  const onCloseMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
+
+  const onOpenSfxFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setIsSfxModalOpen(true);
+  }, []);
+
+  const onOpenAboutFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setIsHelpModalOpen(true);
+  }, []);
+
   const onUndoAction = React.useCallback(() => {
     if (state !== State.playing || isAuxModalOpen || isConfirmationDialogOpen) {
       return;
@@ -265,14 +284,14 @@ function Game() {
           title: "Switch level?",
           ariaLabel: "Switch to previous level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Previous Level",
+          confirmLabel: "Go to Previous Level",
         };
       case "next":
         return {
           title: "Switch level?",
           ariaLabel: "Switch to next level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Next Level",
+          confirmLabel: "Go to Next Level",
         };
       default:
         return null;
@@ -338,6 +357,7 @@ function Game() {
     "--tile-gap": `${tileGap}px`,
     "--tile-radius": `${tileRadius}px`,
   } as React.CSSProperties;
+  const levelCount = totalLevels ?? index + 1;
 
   useKeyBoard(
     (event) => {
@@ -363,6 +383,15 @@ function Game() {
           }
         } else if (event.code === "Escape") {
           onCancelAction();
+        }
+
+        event.preventDefault();
+        return;
+      }
+
+      if (isMenuOpen) {
+        if (event.code === "Escape") {
+          onCloseMenu();
         }
 
         event.preventDefault();
@@ -420,35 +449,50 @@ function Game() {
   return (
     <div className="game">
       <header className={style.topBar}>
-        <div className={style.levelInfo}>
-          <div className={style.levelNumber}>Level {index + 1}</div>
-          <div className={style.levelTitle}>{level.name}</div>
-        </div>
         <div className={style.topBarActions}>
           <button
             type="button"
-            className={style.levelNavButton}
-            {...previousButtonHandlers}
+            className={style.menuToggleButton}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-controls="game-menu"
+            aria-expanded={isMenuOpen}
+            onClick={onToggleMenu}
           >
-            Previous
+            <span className={style.menuToggleGlyph} aria-hidden="true">
+              <span className={style.menuToggleGlyphLine} />
+              <span className={style.menuToggleGlyphLine} />
+              <span className={style.menuToggleGlyphLine} />
+            </span>
           </button>
-          <button
-            type="button"
-            className={style.levelNavButton}
-            {...nextButtonHandlers}
-          >
-            Next
-          </button>
-          <SfxSettings
-            muted={muted}
-            volume={volume}
-            onMutedChange={setMuted}
-            onVolumeChange={setVolume}
-            onOpenChange={setIsSfxModalOpen}
-          />
-          <Help onOpenChange={setIsHelpModalOpen} />
-          <ThemeSwitcher />
         </div>
+
+        <div className={style.levelInfo}>
+          <div className={style.levelPicker} aria-label="Level picker">
+            <button
+              type="button"
+              className={`${style.levelNavButton} ${style.levelPickerButton}`}
+              aria-label="Previous Level"
+              title="Previous Level"
+              {...previousButtonHandlers}
+            >
+              <span className={style.levelPickerChevron} aria-hidden="true">&lsaquo;</span>
+            </button>
+
+            <div className={style.levelNumber}>Level {index + 1} / {levelCount}</div>
+
+            <button
+              type="button"
+              className={`${style.levelNavButton} ${style.levelPickerButton}`}
+              aria-label="Next Level"
+              title="Next Level"
+              {...nextButtonHandlers}
+            >
+              <span className={style.levelPickerChevron} aria-hidden="true">&rsaquo;</span>
+            </button>
+          </div>
+        </div>
+
+        <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
       <section className={style.mapArea} aria-label="Sokoban board">
@@ -475,6 +519,29 @@ function Game() {
       </section>
 
       <MobileControls onMove={onMove} onUndo={onUndoAction} onRestart={onRequestRestart} />
+
+      <HamburgerMenu
+        open={isMenuOpen}
+        onClose={onCloseMenu}
+        onOpenSfx={onOpenSfxFromMenu}
+        onOpenAbout={onOpenAboutFromMenu}
+      />
+
+      <SfxSettings
+        muted={muted}
+        volume={volume}
+        onMutedChange={setMuted}
+        onVolumeChange={setVolume}
+        open={isSfxModalOpen}
+        showTrigger={false}
+        onOpenChange={setIsSfxModalOpen}
+      />
+
+      <Help
+        open={isHelpModalOpen}
+        showTrigger={false}
+        onOpenChange={setIsHelpModalOpen}
+      />
 
       {isConfirmationDialogOpen && confirmationDialog && (
         <Modal
