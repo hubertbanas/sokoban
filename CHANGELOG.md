@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.17.0-rc.3] - 2026-05-02
+
+### Fixed
+- Update Flatpak runtime and base version to 25.08
+
 ## [1.17.0-rc.2] - 2026-05-02
 
 ### Added
