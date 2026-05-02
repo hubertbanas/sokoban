@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.17.0-rc.2] - 2026-05-02
+
+### Added
+- Implement hamburger menu
+- Enhance level navigation with total levels display and improved layout
+- Add tests for themes, modal, hamburger menu, keyboard hook, and classnames utility
+
+### Maintenance
+- Update all non-major dependencies
+
 ## [1.17.0-rc.1] - 2026-04-25
 
 ### Added
