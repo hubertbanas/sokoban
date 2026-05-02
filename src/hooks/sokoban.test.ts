@@ -40,6 +40,7 @@ test("blocked movement updates player orientation without moving or adding progr
         level,
         loadNext: vi.fn(),
         loadPrevious: vi.fn(),
+        totalLevels: 1,
     });
 
     const { result } = renderHook(() => useSokoban());

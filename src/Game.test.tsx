@@ -122,6 +122,7 @@ function buildLevel() {
 function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
   const defaults = {
     index: 0,
+    totalLevels: 500,
     level: buildLevel(),
     state: State.playing,
     hasProgress: false,
@@ -186,7 +187,7 @@ test("next level confirmation opens on click, not pointerdown, when progress exi
   mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
 
   render(<Game />);
-  const nextButton = screen.getByRole("button", { name: "Next" });
+  const nextButton = screen.getByRole("button", { name: "Next Level" });
 
   fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1 });
   expect(screen.queryByRole("dialog", { name: /switch to next level confirmation/i })).not.toBeInTheDocument();
@@ -196,7 +197,7 @@ test("next level confirmation opens on click, not pointerdown, when progress exi
   expect(screen.getByRole("dialog", { name: /switch to next level confirmation/i })).toBeInTheDocument();
   expect(nextLevel).not.toHaveBeenCalled();
 
-  fireEvent.click(screen.getByRole("button", { name: "Next Level" }));
+  fireEvent.click(screen.getByRole("button", { name: "Go to Next Level" }));
   expect(nextLevel).toHaveBeenCalledTimes(1);
 });
 
@@ -205,7 +206,7 @@ test("next level confirmation opens on touch pointerdown when progress exists", 
   mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
 
   render(<Game />);
-  const nextButton = screen.getByRole("button", { name: "Next" });
+  const nextButton = screen.getByRole("button", { name: "Next Level" });
 
   fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1, pointerType: "touch" });
   expect(screen.getByRole("dialog", { name: /switch to next level confirmation/i })).toBeInTheDocument();
@@ -216,7 +217,7 @@ test("touch pointerdown does not immediately close confirmation on overlay click
   mockSokoban({ hasProgress: true, state: State.playing });
 
   render(<Game />);
-  const nextButton = screen.getByRole("button", { name: "Next" });
+  const nextButton = screen.getByRole("button", { name: "Next Level" });
 
   fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1, pointerType: "touch" });
   const dialog = screen.getByRole("dialog", { name: /switch to next level confirmation/i });
@@ -232,7 +233,7 @@ test("touch pointerdown does not immediately close previous confirmation on over
   mockSokoban({ hasProgress: true, state: State.playing });
 
   render(<Game />);
-  const previousButton = screen.getByRole("button", { name: "Previous" });
+  const previousButton = screen.getByRole("button", { name: "Previous Level" });
 
   fireEvent.pointerDown(previousButton, { button: 0, pointerId: 1, pointerType: "touch" });
   const dialog = screen.getByRole("dialog", { name: /switch to previous level confirmation/i });
@@ -249,7 +250,7 @@ test("next level triggers immediately on pointerdown when no progress exists", (
   mockSokoban({ hasProgress: false, state: State.playing, nextLevel });
 
   render(<Game />);
-  const nextButton = screen.getByRole("button", { name: "Next" });
+  const nextButton = screen.getByRole("button", { name: "Next Level" });
 
   fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1 });
 
@@ -262,7 +263,7 @@ test("previous level confirmation opens on click, not pointerdown, when progress
   mockSokoban({ hasProgress: true, state: State.playing, previousLevel });
 
   render(<Game />);
-  const previousButton = screen.getByRole("button", { name: "Previous" });
+  const previousButton = screen.getByRole("button", { name: "Previous Level" });
 
   fireEvent.pointerDown(previousButton, { button: 0, pointerId: 1 });
   expect(screen.queryByRole("dialog", { name: /switch to previous level confirmation/i })).not.toBeInTheDocument();
@@ -272,7 +273,7 @@ test("previous level confirmation opens on click, not pointerdown, when progress
   expect(screen.getByRole("dialog", { name: /switch to previous level confirmation/i })).toBeInTheDocument();
   expect(previousLevel).not.toHaveBeenCalled();
 
-  fireEvent.click(screen.getByRole("button", { name: "Previous Level" }));
+  fireEvent.click(screen.getByRole("button", { name: "Go to Previous Level" }));
   expect(previousLevel).toHaveBeenCalledTimes(1);
 });
 
@@ -281,7 +282,7 @@ test("previous level confirmation opens on touch pointerdown when progress exist
   mockSokoban({ hasProgress: true, state: State.playing, previousLevel });
 
   render(<Game />);
-  const previousButton = screen.getByRole("button", { name: "Previous" });
+  const previousButton = screen.getByRole("button", { name: "Previous Level" });
 
   fireEvent.pointerDown(previousButton, { button: 0, pointerId: 1, pointerType: "touch" });
   expect(screen.getByRole("dialog", { name: /switch to previous level confirmation/i })).toBeInTheDocument();
@@ -293,7 +294,7 @@ test("previous level triggers immediately on pointerdown when no progress exists
   mockSokoban({ hasProgress: false, state: State.playing, previousLevel });
 
   render(<Game />);
-  const previousButton = screen.getByRole("button", { name: "Previous" });
+  const previousButton = screen.getByRole("button", { name: "Previous Level" });
 
   fireEvent.pointerDown(previousButton, { button: 0, pointerId: 1 });
 
@@ -305,8 +306,8 @@ test("long press does not enable text selection on nav, modal, or completion but
   mockSokoban({ hasProgress: true, state: State.playing });
 
   const { unmount } = render(<Game />);
-  const nextButton = screen.getByRole("button", { name: "Next" });
-  const previousButton = screen.getByRole("button", { name: "Previous" });
+  const nextButton = screen.getByRole("button", { name: "Next Level" });
+  const previousButton = screen.getByRole("button", { name: "Previous Level" });
 
   fireEvent.pointerDown(nextButton, { button: 0, pointerId: 1, pointerType: "mouse" });
   expect(nextButton).toHaveClass(style.levelNavButton);
@@ -318,7 +319,7 @@ test("long press does not enable text selection on nav, modal, or completion but
   fireEvent.click(nextButton);
   fireEvent.click(nextButton);
   const closeButton = screen.getByRole("button", { name: "Close" });
-  const confirmButton = screen.getByRole("button", { name: "Next Level" });
+  const confirmButton = screen.getByRole("button", { name: "Go to Next Level" });
   const cancelButton = screen.getByRole("button", { name: "Cancel" });
 
   fireEvent.pointerDown(closeButton, { button: 0, pointerId: 3 });
@@ -381,7 +382,7 @@ test("cancel closes confirmation dialog without navigation", () => {
   mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
 
   render(<Game />);
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  fireEvent.click(screen.getByRole("button", { name: "Next Level" }));
   expect(screen.getByRole("dialog", { name: /switch to next level confirmation/i })).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
@@ -395,7 +396,7 @@ test("escape closes confirmation dialog", () => {
   mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
 
   render(<Game />);
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  fireEvent.click(screen.getByRole("button", { name: "Next Level" }));
   expect(screen.getByRole("dialog", { name: /switch to next level confirmation/i })).toBeInTheDocument();
 
   const onKeyboardEvent = getLatestKeyboardHandler();
@@ -415,9 +416,9 @@ test("enter confirms when confirm button is focused", () => {
   mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
 
   render(<Game />);
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  fireEvent.click(screen.getByRole("button", { name: "Next Level" }));
 
-  const confirmButton = screen.getByRole("button", { name: "Next Level" });
+  const confirmButton = screen.getByRole("button", { name: "Go to Next Level" });
   confirmButton.focus();
 
   const onKeyboardEvent = getLatestKeyboardHandler();
@@ -437,7 +438,7 @@ test("enter cancels when confirm button is not focused", () => {
   mockSokoban({ hasProgress: true, state: State.playing, nextLevel });
 
   render(<Game />);
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  fireEvent.click(screen.getByRole("button", { name: "Next Level" }));
 
   const onKeyboardEvent = getLatestKeyboardHandler();
   const { event, preventDefaultSpy } = createKeyboardEvent("Enter");
@@ -455,10 +456,10 @@ test("arrow keys move focus between confirmation buttons", () => {
   mockSokoban({ hasProgress: true, state: State.playing });
 
   render(<Game />);
-  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  fireEvent.click(screen.getByRole("button", { name: "Next Level" }));
 
   const cancelButton = screen.getByRole("button", { name: "Cancel" });
-  const confirmButton = screen.getByRole("button", { name: "Next Level" });
+  const confirmButton = screen.getByRole("button", { name: "Go to Next Level" });
 
   cancelButton.focus();
   expect(cancelButton).toHaveFocus();
@@ -535,7 +536,7 @@ test("completion popup appears dynamically when state changes to completed", () 
   expect(screen.getByRole("dialog", { name: /level completed/i })).toBeInTheDocument();
 });
 
-test("renders correct level number and title", () => {
+test("renders correct level number", () => {
   mockSokoban({
     index: 4,
     level: {
@@ -546,8 +547,8 @@ test("renders correct level number and title", () => {
 
   render(<Game />);
 
-  expect(screen.getByText("Level 5")).toBeInTheDocument();
-  expect(screen.getByText("The Box Puzzle")).toBeInTheDocument();
+  expect(screen.getByText("Level 5 / 500")).toBeInTheDocument();
+  expect(screen.queryByText("The Box Puzzle")).not.toBeInTheDocument();
 });
 
 test("renders auxiliary components", () => {
