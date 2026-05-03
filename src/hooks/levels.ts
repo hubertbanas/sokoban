@@ -5,6 +5,8 @@ export type Level = {
   shape: Block[][];
   width: number;
   height: number;
+  packId?: string;
+  levelId?: string;
 };
 
 export interface SokobanLevels {
@@ -35,10 +37,27 @@ const levelPackPathComparer = new Intl.Collator(undefined, {
   sensitivity: "base",
 });
 
-function loadLevelPacks(): SokobanLevels[] {
+type LoadedLevelPack = {
+  packId: string;
+  levels: SokobanLevels;
+};
+
+function levelPackIdFromPath(path: string): string {
+  const fileName = path.split("/").pop() ?? path;
+  return fileName.replace(/\.json$/i, "");
+}
+
+function levelIdFromParts(packId: string, levelIndex: number): string {
+  return `${packId}:${levelIndex}`;
+}
+
+function loadLevelPacks(): LoadedLevelPack[] {
   return Object.entries(levelPackModules)
     .sort(([leftPath], [rightPath]) => levelPackPathComparer.compare(leftPath, rightPath))
-    .map(([, levels]) => levels);
+    .map(([path, levels]) => ({
+      packId: levelPackIdFromPath(path),
+      levels,
+    }));
 }
 
 export enum Block {
@@ -113,9 +132,9 @@ function normalizeIndex(index: number, length: number) {
 }
 
 function loadLevels() {
-  const allLevels = loadLevelPacks();
-  return allLevels.flatMap((levels) =>
-    levels.LevelCollection.Level.map((level) => {
+  const allLevelPacks = loadLevelPacks();
+  return allLevelPacks.flatMap(({ packId, levels }) =>
+    levels.LevelCollection.Level.map((level, levelIndex) => {
       const width = Number(level.Width);
       const height = Number(level.Height);
 
@@ -128,6 +147,8 @@ function loadLevels() {
       });
 
       return {
+        packId,
+        levelId: levelIdFromParts(packId, levelIndex),
         name: level.Id,
         shape: markExteriorVoid(filled),
         width,
