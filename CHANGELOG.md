@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.17.0] - 2026-05-03
+
+### Added
+- Implement audio sound effects and SFX settings interface
+- Add crate undo sound effect
+- Implement hamburger menu for peripheral settings
+- Enhance level navigation with total levels display and improved layout
+- Add extensive test coverage for UI components and hooks
+
+### Fixed
+- Pause gameplay input while modals are open
+- Update player facing on blocked movement
+- Migrate to Web Audio API for zero-latency mobile playback
+- Update Flatpak runtime and base version to 25.08
+- Add validation for Docker arm64 emulation in preflight checks
+- Improve Flatpak metainfo checksum and signature generation process
+
+### Maintenance
+- Relocate root configurations (Docker, Electron) and harden repository security
+- Migrate Renovate configuration to JSON5 format
+- Update all non-major dependencies
+
 ## [1.17.0-rc.3] - 2026-05-02
 
 ### Fixed
