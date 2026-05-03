@@ -1,0 +1,45 @@
+{
+  "Title": "Tutorial",
+  "Description": "This is the tutorial pack. It introduces the core mechanics of Sokoban, from basic pushing to avoiding common traps like corners and blocked boxes.",
+  "LevelCollection": {
+    "Level": [
+      {
+        "Id": "1",
+        "Width": "10",
+        "Height": "5",
+        "L": [
+          "#####",
+          "#   ######",
+          "#@   $  .#",
+          "#   ######",
+          "#####"
+        ]
+      },
+      {
+        "Id": "2",
+        "Width": "6",
+        "Height": "6",
+        "L": [
+          "######",
+          "#    #",
+          "# .  #",
+          "#  $ #",
+          "## @ #",
+          "######"
+        ]
+      },
+      {
+        "Id": "3",
+        "Width": "8",
+        "Height": "5",
+        "L": [
+          "########",
+          "# .  $ #",
+          "# .  $@#",
+          "#      #",
+          "########"
+        ]
+      }
+    ]
+  }
+}
