@@ -1,9 +1,4 @@
 import { useState, useMemo, useCallback } from "react";
-import Original from "../datas/Original.json";
-import Atlas01 from "../datas/Atlas01.json";
-import Atlas02 from "../datas/Atlas02.json";
-import Atlas03 from "../datas/Atlas03.json";
-import Atlas04 from "../datas/Atlas04.json";
 
 export type Level = {
   name: string;
@@ -28,6 +23,22 @@ export interface SokobanLevel {
   Width: string;
   Height: string;
   L: string[];
+}
+
+const levelPackModules = import.meta.glob("../datas/*.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, SokobanLevels>;
+
+const levelPackPathComparer = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+});
+
+function loadLevelPacks(): SokobanLevels[] {
+  return Object.entries(levelPackModules)
+    .sort(([leftPath], [rightPath]) => levelPackPathComparer.compare(leftPath, rightPath))
+    .map(([, levels]) => levels);
 }
 
 export enum Block {
@@ -102,14 +113,8 @@ function normalizeIndex(index: number, length: number) {
 }
 
 function loadLevels() {
-  const AllLevels = [
-    Original,
-    Atlas01,
-    Atlas02,
-    Atlas03,
-    Atlas04,
-  ] as SokobanLevels[];
-  return AllLevels.flatMap((levels) =>
+  const allLevels = loadLevelPacks();
+  return allLevels.flatMap((levels) =>
     levels.LevelCollection.Level.map((level) => {
       const width = Number(level.Width);
       const height = Number(level.Height);
