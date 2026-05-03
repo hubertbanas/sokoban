@@ -1,15 +1,14 @@
 import { useState, useMemo, useCallback } from "react";
-import Original from "../datas/Original.json";
-import Atlas01 from "../datas/Atlas01.json";
-import Atlas02 from "../datas/Atlas02.json";
-import Atlas03 from "../datas/Atlas03.json";
-import Atlas04 from "../datas/Atlas04.json";
+import { configuredLevelPackOrder } from "../datas/pack-order";
 
 export type Level = {
   name: string;
   shape: Block[][];
   width: number;
   height: number;
+  packId: string;
+  levelId: string;
+  puzzleId: string;
 };
 
 export interface SokobanLevels {
@@ -28,6 +27,68 @@ export interface SokobanLevel {
   Width: string;
   Height: string;
   L: string[];
+}
+
+const levelPackModules = import.meta.glob("../datas/*.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, SokobanLevels>;
+
+const levelPackPathComparer = new Intl.Collator("en", {
+  numeric: true,
+  sensitivity: "base",
+});
+
+const prioritizedPackOrder = new Map<string, number>(
+  configuredLevelPackOrder.map((packId, index) => [packId.toLowerCase(), index])
+);
+
+type LoadedLevelPack = {
+  packId: string;
+  levels: SokobanLevels;
+};
+
+function levelPackIdFromPath(path: string): string {
+  const fileName = path.split("/").pop() ?? path;
+  return fileName.replace(/\.json$/i, "");
+}
+
+function levelIdFromParts(packId: string, levelIndex: number): string {
+  return `${packId}:${levelIndex}`;
+}
+
+function compareLevelPackPaths(leftPath: string, rightPath: string): number {
+  const leftPackId = levelPackIdFromPath(leftPath);
+  const rightPackId = levelPackIdFromPath(rightPath);
+  const leftPriority = prioritizedPackOrder.get(leftPackId.toLowerCase());
+  const rightPriority = prioritizedPackOrder.get(rightPackId.toLowerCase());
+
+  if (leftPriority !== undefined || rightPriority !== undefined) {
+    if (leftPriority === undefined) return 1;
+    if (rightPriority === undefined) return -1;
+    if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+  }
+
+  return levelPackPathComparer.compare(leftPath, rightPath);
+}
+
+function generatePuzzleFingerprint(layout: string[]): string {
+  const joined = layout.join("|");
+  let hash = 2166136261;
+  for (let i = 0; i < joined.length; i++) {
+    hash ^= joined.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function loadLevelPacks(): LoadedLevelPack[] {
+  return Object.entries(levelPackModules)
+    .sort(([leftPath], [rightPath]) => compareLevelPackPaths(leftPath, rightPath))
+    .map(([path, levels]) => ({
+      packId: levelPackIdFromPath(path),
+      levels,
+    }));
 }
 
 export enum Block {
@@ -102,15 +163,9 @@ function normalizeIndex(index: number, length: number) {
 }
 
 function loadLevels() {
-  const AllLevels = [
-    Original,
-    Atlas01,
-    Atlas02,
-    Atlas03,
-    Atlas04,
-  ] as SokobanLevels[];
-  return AllLevels.flatMap((levels) =>
-    levels.LevelCollection.Level.map((level) => {
+  const allLevelPacks = loadLevelPacks();
+  return allLevelPacks.flatMap(({ packId, levels }) =>
+    levels.LevelCollection.Level.map((level, levelIndex) => {
       const width = Number(level.Width);
       const height = Number(level.Height);
 
@@ -123,6 +178,9 @@ function loadLevels() {
       });
 
       return {
+        packId,
+        levelId: levelIdFromParts(packId, levelIndex),
+        puzzleId: generatePuzzleFingerprint(level.L),
         name: level.Id,
         shape: markExteriorVoid(filled),
         width,

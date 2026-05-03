@@ -106,6 +106,9 @@ function createKeyboardEvent(code: string) {
 
 function buildLevel() {
   return {
+    packId: "test-pack",
+    levelId: "test-pack:0",
+    puzzleId: "test-puzzle-id",
     name: "Regression Test",
     width: 3,
     height: 3,
