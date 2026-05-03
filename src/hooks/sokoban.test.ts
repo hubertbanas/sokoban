@@ -16,6 +16,9 @@ const mockedUseLevels = vi.mocked(useLevels);
 
 function createLevel(shape: Block[][]): Level {
     return {
+        packId: "test-pack",
+        levelId: "test-pack:0",
+        puzzleId: "test-puzzle-id",
         name: "Blocked orientation regression",
         width: shape[0].length,
         height: shape.length,

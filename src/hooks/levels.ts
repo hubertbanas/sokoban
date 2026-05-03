@@ -1,12 +1,14 @@
 import { useState, useMemo, useCallback } from "react";
+import { configuredLevelPackOrder } from "../datas/pack-order";
 
 export type Level = {
   name: string;
   shape: Block[][];
   width: number;
   height: number;
-  packId?: string;
-  levelId?: string;
+  packId: string;
+  levelId: string;
+  puzzleId: string;
 };
 
 export interface SokobanLevels {
@@ -37,6 +39,10 @@ const levelPackPathComparer = new Intl.Collator(undefined, {
   sensitivity: "base",
 });
 
+const prioritizedPackOrder = new Map<string, number>(
+  configuredLevelPackOrder.map((packId, index) => [packId.toLowerCase(), index])
+);
+
 type LoadedLevelPack = {
   packId: string;
   levels: SokobanLevels;
@@ -51,9 +57,34 @@ function levelIdFromParts(packId: string, levelIndex: number): string {
   return `${packId}:${levelIndex}`;
 }
 
+function compareLevelPackPaths(leftPath: string, rightPath: string): number {
+  const leftPackId = levelPackIdFromPath(leftPath);
+  const rightPackId = levelPackIdFromPath(rightPath);
+  const leftPriority = prioritizedPackOrder.get(leftPackId.toLowerCase());
+  const rightPriority = prioritizedPackOrder.get(rightPackId.toLowerCase());
+
+  if (leftPriority !== undefined || rightPriority !== undefined) {
+    if (leftPriority === undefined) return 1;
+    if (rightPriority === undefined) return -1;
+    if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+  }
+
+  return levelPackPathComparer.compare(leftPath, rightPath);
+}
+
+function generatePuzzleFingerprint(layout: string[]): string {
+  const joined = layout.join("|");
+  let hash = 2166136261;
+  for (let i = 0; i < joined.length; i++) {
+    hash ^= joined.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
 function loadLevelPacks(): LoadedLevelPack[] {
   return Object.entries(levelPackModules)
-    .sort(([leftPath], [rightPath]) => levelPackPathComparer.compare(leftPath, rightPath))
+    .sort(([leftPath], [rightPath]) => compareLevelPackPaths(leftPath, rightPath))
     .map(([path, levels]) => ({
       packId: levelPackIdFromPath(path),
       levels,
@@ -149,6 +180,7 @@ function loadLevels() {
       return {
         packId,
         levelId: levelIdFromParts(packId, levelIndex),
+        puzzleId: generatePuzzleFingerprint(level.L),
         name: level.Id,
         shape: markExteriorVoid(filled),
         width,
