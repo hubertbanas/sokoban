@@ -1,4 +1,5 @@
 export const configuredLevelPackOrder = [
+    "Tutorial",
     "Original",
     "Atlas01",
     "Atlas02",
