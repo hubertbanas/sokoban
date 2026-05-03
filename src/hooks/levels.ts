@@ -34,7 +34,7 @@ const levelPackModules = import.meta.glob("../datas/*.json", {
   import: "default",
 }) as Record<string, SokobanLevels>;
 
-const levelPackPathComparer = new Intl.Collator(undefined, {
+const levelPackPathComparer = new Intl.Collator("en", {
   numeric: true,
   sensitivity: "base",
 });
