@@ -601,8 +601,8 @@ test("renders current run and level best placeholders when play stats toggle is 
     throw new Error("Expected stats rows to be paragraph elements");
   }
 
-  expect(currentRun).toHaveTextContent(/0\s*moves\s*in\s*0:00/);
-  expect(levelBest).toHaveTextContent(/No\s*record\s*yet/);
+  expect(currentRun).toHaveTextContent(/Moves\s*0\s*Time\s*0:00/);
+  expect(levelBest).toHaveTextContent(/Moves\s*--\s*Time\s*--:--/);
 });
 
 test("hides both play stats lines after disabling the toggle", () => {
@@ -633,7 +633,7 @@ test("renders realtime current run status from useSokoban", () => {
     throw new Error("Expected current run row to be a paragraph element");
   }
 
-  expect(currentRun).toHaveTextContent(/12\s*moves\s*in\s*1:14/);
+  expect(currentRun).toHaveTextContent(/Moves\s*12\s*Time\s*1:14/);
 });
 
 test("renders level best from useStats", () => {
@@ -677,7 +677,7 @@ test("renders level best from useStats", () => {
     throw new Error("Expected level best row to be a paragraph element");
   }
 
-  expect(levelBestLine).toHaveTextContent(/9\s*moves\s*in\s*0:13/);
+  expect(levelBestLine).toHaveTextContent(/Moves\s*9\s*Time\s*0:13/);
   expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
@@ -728,8 +728,8 @@ test("shows level best inside completion dialog", () => {
     throw new Error("Expected completion stats rows to be paragraph elements");
   }
 
-  expect(currentRun).toHaveTextContent(/0\s*moves\s*in\s*0:00/);
-  expect(levelBestLine).toHaveTextContent(/1\s*move\s*in\s*0:02/);
+  expect(currentRun).toHaveTextContent(/Moves\s*0\s*Time\s*0:00/);
+  expect(levelBestLine).toHaveTextContent(/Moves\s*1\s*Time\s*0:02/);
   expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 

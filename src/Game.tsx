@@ -22,10 +22,6 @@ function formatElapsedTime(timeMs: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function formatMoveLabel(moves: number): string {
-  return `${moves} ${moves === 1 ? "move" : "moves"}`;
-}
-
 type StatsRowProps = {
   className: string;
   label: string;
@@ -34,26 +30,17 @@ type StatsRowProps = {
 };
 
 function StatsRow({ className, label, moves, timeMs }: StatsRowProps) {
-  if (moves === null || timeMs === null) {
-    return (
-      <p className={className} aria-label={`${label}: No record yet`}>
-        <span className={style.statsLabel}>{label}:</span>
-        <span className={style.statsNoRecord}>No record yet</span>
-      </p>
-    );
-  }
+  const moveValue = moves === null ? "--" : String(moves);
+  const timeValue = timeMs === null ? "--:--" : formatElapsedTime(timeMs);
 
   return (
-    <p
-      className={className}
-      aria-label={`${label}: ${formatMoveLabel(moves)} in ${formatElapsedTime(timeMs)}`}
-    >
+    <p className={className} aria-label={`${label}: Moves ${moveValue} Time ${timeValue}`}>
       <span className={style.statsLabel}>{label}:</span>
       <span className={style.statsMetric}>
-        <span className={style.statsMoveCount}>{moves}</span>
-        <span className={style.statsMoveWord}>{moves === 1 ? "move" : "moves"}</span>
-        <span className={style.statsInWord}>in</span>
-        <span className={style.statsTimeValue}>{formatElapsedTime(timeMs)}</span>
+        <span className={style.statsMetricLabel}>Moves</span>
+        <span className={style.statsMoveCount}>{moveValue}</span>
+        <span className={style.statsMetricLabel}>Time</span>
+        <span className={style.statsTimeValue}>{timeValue}</span>
       </span>
     </p>
   );
