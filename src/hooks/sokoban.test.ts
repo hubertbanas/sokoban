@@ -41,8 +41,18 @@ test("blocked movement updates player orientation without moving or adding progr
     mockedUseLevels.mockReturnValue({
         index: 0,
         level,
+        levelPacks: [
+            {
+                packId: "test-pack",
+                title: "Test Pack",
+                description: "",
+                email: "",
+                levels: [level],
+            },
+        ],
         loadNext: vi.fn(),
         loadPrevious: vi.fn(),
+        loadLevel: vi.fn(),
         totalLevels: 1,
     });
 

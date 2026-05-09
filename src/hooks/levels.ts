@@ -11,6 +11,14 @@ export type Level = {
   puzzleId: string;
 };
 
+export type LevelPack = {
+  packId: string;
+  title: string;
+  description: string;
+  email: string;
+  levels: Level[];
+};
+
 export interface SokobanLevels {
   Title: string;
   Description: string;
@@ -45,7 +53,16 @@ const prioritizedPackOrder = new Map<string, number>(
 
 type LoadedLevelPack = {
   packId: string;
-  levels: SokobanLevels;
+  title: string;
+  description: string;
+  email: string;
+  levels: SokobanLevel[];
+};
+
+type LoadedLevelData = {
+  levels: Level[];
+  levelPacks: LevelPack[];
+  levelIndexById: Map<string, number>;
 };
 
 function levelPackIdFromPath(path: string): string {
@@ -85,9 +102,12 @@ function generatePuzzleFingerprint(layout: string[]): string {
 function loadLevelPacks(): LoadedLevelPack[] {
   return Object.entries(levelPackModules)
     .sort(([leftPath], [rightPath]) => compareLevelPackPaths(leftPath, rightPath))
-    .map(([path, levels]) => ({
+    .map(([path, levelPack]) => ({
       packId: levelPackIdFromPath(path),
-      levels,
+      title: levelPack.Title || levelPackIdFromPath(path),
+      description: levelPack.Description || "",
+      email: levelPack.Email || "",
+      levels: levelPack.LevelCollection.Level,
     }));
 }
 
@@ -162,10 +182,15 @@ function normalizeIndex(index: number, length: number) {
   return ((index % length) + length) % length;
 }
 
-function loadLevels() {
-  const allLevelPacks = loadLevelPacks();
-  return allLevelPacks.flatMap(({ packId, levels }) =>
-    levels.LevelCollection.Level.map((level, levelIndex) => {
+function loadLevelData(): LoadedLevelData {
+  const loadedLevelPacks = loadLevelPacks();
+  const levels: Level[] = [];
+  const levelPacks: LevelPack[] = [];
+  const levelIndexById = new Map<string, number>();
+
+  loadedLevelPacks.forEach((loadedPack) => {
+    const levelStartIndex = levels.length;
+    const packLevels = loadedPack.levels.map((level, levelIndex) => {
       const width = Number(level.Width);
       const height = Number(level.Height);
 
@@ -178,20 +203,39 @@ function loadLevels() {
       });
 
       return {
-        packId,
-        levelId: levelIdFromParts(packId, levelIndex),
+        packId: loadedPack.packId,
+        levelId: levelIdFromParts(loadedPack.packId, levelIndex),
         puzzleId: generatePuzzleFingerprint(level.L),
         name: level.Id,
         shape: markExteriorVoid(filled),
         width,
         height,
-      };
-    })
-  );
+      } satisfies Level;
+    });
+
+    packLevels.forEach((packLevel, packLevelIndex) => {
+      levelIndexById.set(packLevel.levelId, levelStartIndex + packLevelIndex);
+    });
+
+    levels.push(...packLevels);
+    levelPacks.push({
+      packId: loadedPack.packId,
+      title: loadedPack.title,
+      description: loadedPack.description,
+      email: loadedPack.email,
+      levels: packLevels,
+    });
+  });
+
+  return {
+    levels,
+    levelPacks,
+    levelIndexById,
+  };
 }
 
 export function useLevels() {
-  const [levels] = useState<Level[]>(loadLevels);
+  const [{ levels, levelPacks, levelIndexById }] = useState<LoadedLevelData>(loadLevelData);
   const [index, setIndex] = useState(() => {
     const stored = Number(localStorage.getItem(SOKOBAN_LEVEL_KEY));
     const initial = Number.isFinite(stored) ? stored : 0;
@@ -218,11 +262,28 @@ export function useLevels() {
     updateIndex(-1);
   }, [updateIndex]);
 
+  const loadLevel = useCallback(
+    (levelId: string) => {
+      setIndex((current) => {
+        const nextIndex = levelIndexById.get(levelId);
+        if (nextIndex === undefined) {
+          return current;
+        }
+
+        localStorage.setItem(SOKOBAN_LEVEL_KEY, String(nextIndex));
+        return nextIndex;
+      });
+    },
+    [levelIndexById]
+  );
+
   return {
     index,
     level,
+    levelPacks,
     loadNext,
     loadPrevious,
+    loadLevel,
     totalLevels: levels.length,
   };
 }

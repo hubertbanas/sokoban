@@ -55,7 +55,7 @@ function getPlayerPosition<T extends Level>(level: T): Position {
 }
 
 export function useSokoban() {
-  const { index, level, loadNext, loadPrevious, totalLevels } = useLevels();
+  const { index, level, levelPacks, loadNext, loadPrevious, loadLevel: loadLevelById, totalLevels } = useLevels();
   const [state, setState] = useState<State>(State.playing);
   const [hasProgress, setHasProgress] = useState(false);
   const initboard = useCallback(
@@ -168,6 +168,15 @@ export function useSokoban() {
     setHasProgress(false);
   }, [loadPrevious]);
 
+  const loadLevel = useCallback(
+    (levelId: string) => {
+      loadLevelById(levelId);
+      setState(State.playing);
+      setHasProgress(false);
+    },
+    [loadLevelById]
+  );
+
   const undo = useCallback(() => {
     if (state === State.playing && board.length > 1) {
       setBoard(board.slice(0, -1));
@@ -184,7 +193,7 @@ export function useSokoban() {
   }, [state, initboard]);
 
   useEffect(() => {
-    if (board[0].name !== level.name) {
+    if (board[0].levelId !== level.levelId) {
       setBoard(initboard());
       setHasProgress(false);
     }
@@ -193,12 +202,14 @@ export function useSokoban() {
   return {
     index,
     level: board[board.length - 1],
+    levelPacks,
     totalLevels,
     state,
     move,
     next,
     nextLevel,
     previousLevel,
+    loadLevel,
     undo,
     restart,
     hasProgress,

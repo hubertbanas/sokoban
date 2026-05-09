@@ -215,6 +215,23 @@
     white-space: nowrap;
 }
 
+.levelPickerLevelButton {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+}
+
+.levelPickerLevelButton:hover {
+    border-color: var(--accent);
+}
+
+.levelPickerLevelButton:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 @keyframes bounce {
     from {
         transform: translateY(0);
@@ -441,9 +458,11 @@
 
 .aboutButton,
 .levelNavButton,
+.levelPickerLevelButton,
 .menuToggleButton,
 .menuDrawerCloseButton,
 .menuItemButton,
+.levelSelectorLevelButton,
 .completionButton,
 .modalCloseButton,
 .themeToggleLabel {
@@ -546,6 +565,93 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+.levelSelector {
+    display: grid;
+    gap: 12px;
+    max-height: 62dvh;
+    overflow: auto;
+    padding-right: 2px;
+}
+
+.levelSelectorPack {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+}
+
+.levelSelectorPackHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.levelSelectorPackTitle {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--accent);
+}
+
+.levelSelectorPackMeta {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.levelSelectorPackDescription {
+    margin: 10px 0 12px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.levelSelectorLevelGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+}
+
+.levelSelectorLevelButton {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+    color: var(--foreground);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: grid;
+    gap: 2px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.levelSelectorLevelButton:hover {
+    border-color: var(--accent);
+}
+
+.levelSelectorLevelButton:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.levelSelectorLevelButtonActive {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.levelSelectorLevelIndex {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.levelSelectorLevelName {
+    font-size: 0.9rem;
+    font-weight: 700;
 }
 
 .aboutSection {
