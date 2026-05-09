@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import React from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { fireEvent, render, screen, cleanup, act } from "@testing-library/react";
+import { fireEvent, render, screen, cleanup, act, within } from "@testing-library/react";
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
 import Game from "./Game";
 import { Block } from "./hooks/levels";
@@ -575,7 +575,9 @@ test("renders pack-aware level number", () => {
 
   render(<Game />);
 
-  expect(screen.getByText("Test Pack: Level 1 / 2")).toBeInTheDocument();
+  const levelSelectorButton = screen.getByRole("button", { name: /open level selector/i });
+  expect(within(levelSelectorButton).getByText("Test Pack")).toBeInTheDocument();
+  expect(within(levelSelectorButton).getByText("1 / 2")).toBeInTheDocument();
   expect(screen.queryByText("The Box Puzzle")).not.toBeInTheDocument();
 });
 
@@ -589,7 +591,9 @@ test("renders currently selected pack and local level index", () => {
 
   render(<Game />);
 
-  expect(screen.getByText("Test Pack: Level 2 / 2")).toBeInTheDocument();
+  const levelSelectorButton = screen.getByRole("button", { name: /open level selector/i });
+  expect(within(levelSelectorButton).getByText("Test Pack")).toBeInTheDocument();
+  expect(within(levelSelectorButton).getByText("2 / 2")).toBeInTheDocument();
 });
 
 test("opens level selector modal from level number button", () => {

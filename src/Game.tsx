@@ -427,13 +427,14 @@ function Game() {
 
     return currentPack.levels.findIndex((packLevel) => packLevel.levelId === level.levelId);
   }, [currentPack, level.levelId]);
-  const levelPickerLabel = React.useMemo(() => {
+  const levelPickerPackName = currentPack?.title ?? "Levels";
+  const levelPickerNumbers = React.useMemo(() => {
     if (!currentPack || currentPack.levels.length === 0) {
-      return `Level ${index + 1} / ${levelCount}`;
+      return `${index + 1} / ${levelCount}`;
     }
 
     const currentPackLevelNumber = currentPackLevelIndex >= 0 ? currentPackLevelIndex + 1 : 1;
-    return `${currentPack.title}: Level ${currentPackLevelNumber} / ${currentPack.levels.length}`;
+    return `${currentPackLevelNumber} / ${currentPack.levels.length}`;
   }, [currentPack, currentPackLevelIndex, index, levelCount]);
 
   useKeyBoard(
@@ -566,12 +567,13 @@ function Game() {
 
             <button
               type="button"
-              className={`${style.levelNumber} ${style.levelPickerLevelButton}`}
+              className={style.levelPickerLevelButton}
               aria-label="Open level selector"
               title="Open level selector"
               onClick={onOpenLevelSelector}
             >
-              {levelPickerLabel}
+              <span className={style.levelPickerPackName}>{levelPickerPackName}</span>
+              <span className={style.levelPickerLevelNumbers}>{levelPickerNumbers}</span>
             </button>
 
             <button
