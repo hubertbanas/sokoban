@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fireEvent, render, screen, cleanup, act, within } from "@testing-library/react";
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
-import Game from "./Game";
+import Game, { PLAY_STATS_STORAGE_KEY } from "./Game";
 import { Block } from "./hooks/levels";
 import { Direction, State, useSokoban, type MoveOutcome } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
@@ -239,6 +239,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  localStorage.clear();
   mockedUseSokoban.mockReset();
   mockedUseKeyBoard.mockReset();
   mockedUseGameSounds.mockReset();
@@ -571,6 +572,40 @@ test("hides play stats UI when toggle is off by default", () => {
   render(<Game />);
 
   expect(screen.queryByRole("region", { name: /play statistics/i })).not.toBeInTheDocument();
+});
+
+test("restores play stats UI from persisted toggle state", () => {
+  localStorage.setItem(PLAY_STATS_STORAGE_KEY, "true");
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(screen.getByRole("region", { name: /play statistics/i })).toBeInTheDocument();
+  expect(screen.getByText(/^Current$/)).toBeInTheDocument();
+  expect(screen.getByText(/^Best$/)).toBeInTheDocument();
+});
+
+test("defaults play stats toggle to off for invalid persisted values", () => {
+  localStorage.setItem(PLAY_STATS_STORAGE_KEY, "invalid");
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(screen.queryByRole("region", { name: /play statistics/i })).not.toBeInTheDocument();
+});
+
+test("persists play stats toggle state when changed", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(localStorage.getItem(PLAY_STATS_STORAGE_KEY)).toBe("false");
+
+  setPlayStatsVisibility(true);
+  expect(localStorage.getItem(PLAY_STATS_STORAGE_KEY)).toBe("true");
+
+  setPlayStatsVisibility(false);
+  expect(localStorage.getItem(PLAY_STATS_STORAGE_KEY)).toBe("false");
 });
 
 test("keeps completion dialog play stats hidden when toggle is off", () => {

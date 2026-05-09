@@ -22,6 +22,20 @@ function formatElapsedTime(timeMs: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+export const PLAY_STATS_STORAGE_KEY = "sokoban-play-stats-visible";
+
+function parseStoredPlayStatsVisibility(value: string | null): boolean {
+  return value === "true";
+}
+
+function getInitialPlayStatsVisibility(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseStoredPlayStatsVisibility(window.localStorage.getItem(PLAY_STATS_STORAGE_KEY));
+}
+
 type StatsTableProps = {
   rowClassName: string;
   currentMoves: number;
@@ -177,11 +191,19 @@ function Game() {
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
-  const [showPlayStats, setShowPlayStats] = React.useState(false);
+  const [showPlayStats, setShowPlayStats] = React.useState(getInitialPlayStatsVisibility);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
   const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen || isLevelSelectorOpen;
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(PLAY_STATS_STORAGE_KEY, String(showPlayStats));
+  }, [showPlayStats]);
 
   type PendingAction =
     | { type: "restart" }
