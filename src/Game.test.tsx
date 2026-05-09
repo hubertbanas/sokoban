@@ -570,8 +570,8 @@ test("hides play stats UI when toggle is off by default", () => {
 
   render(<Game />);
 
-  expect(screen.queryByText("Current Run: 0 moves in 0:00")).not.toBeInTheDocument();
-  expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Current Run:/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Level Best:/)).not.toBeInTheDocument();
 });
 
 test("keeps completion dialog play stats hidden when toggle is off", () => {
@@ -594,8 +594,15 @@ test("renders current run and level best placeholders when play stats toggle is 
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
-  expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+  const currentRun = screen.getByText(/^Current Run:$/).closest("p");
+  const levelBest = screen.getByText(/^Level Best:$/).closest("p");
+
+  if (!currentRun || !levelBest) {
+    throw new Error("Expected stats rows to be paragraph elements");
+  }
+
+  expect(currentRun).toHaveTextContent(/0\s*moves\s*in\s*0:00/);
+  expect(levelBest).toHaveTextContent(/No\s*record\s*yet/);
 });
 
 test("hides both play stats lines after disabling the toggle", () => {
@@ -603,12 +610,12 @@ test("hides both play stats lines after disabling the toggle", () => {
 
   render(<Game />);
   setPlayStatsVisibility(true);
-  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
-  expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+  expect(screen.getByText(/^Current Run:/)).toBeInTheDocument();
+  expect(screen.getByText(/^Level Best:/)).toBeInTheDocument();
 
   setPlayStatsVisibility(false);
-  expect(screen.queryByText("Current Run: 0 moves in 0:00")).not.toBeInTheDocument();
-  expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Current Run:/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Level Best:/)).not.toBeInTheDocument();
 });
 
 test("renders realtime current run status from useSokoban", () => {
@@ -621,7 +628,12 @@ test("renders realtime current run status from useSokoban", () => {
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  expect(screen.getByText("Current Run: 12 moves in 1:14")).toBeInTheDocument();
+  const currentRun = screen.getByText(/^Current Run:$/).closest("p");
+  if (!currentRun) {
+    throw new Error("Expected current run row to be a paragraph element");
+  }
+
+  expect(currentRun).toHaveTextContent(/12\s*moves\s*in\s*1:14/);
 });
 
 test("renders level best from useStats", () => {
@@ -660,7 +672,12 @@ test("renders level best from useStats", () => {
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  expect(screen.getByText("Level Best: 9 moves in 0:13")).toBeInTheDocument();
+  const levelBestLine = screen.getByText(/^Level Best:$/).closest("p");
+  if (!levelBestLine) {
+    throw new Error("Expected level best row to be a paragraph element");
+  }
+
+  expect(levelBestLine).toHaveTextContent(/9\s*moves\s*in\s*0:13/);
   expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
@@ -704,8 +721,15 @@ test("shows level best inside completion dialog", () => {
   rerender(<Game />);
 
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
-  expect(within(completionDialog).getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
-  expect(within(completionDialog).getByText("Level Best: 1 move in 0:02")).toBeInTheDocument();
+  const currentRun = within(completionDialog).getByText(/^Current Run:$/).closest("p");
+  const levelBestLine = within(completionDialog).getByText(/^Level Best:$/).closest("p");
+
+  if (!currentRun || !levelBestLine) {
+    throw new Error("Expected completion stats rows to be paragraph elements");
+  }
+
+  expect(currentRun).toHaveTextContent(/0\s*moves\s*in\s*0:00/);
+  expect(levelBestLine).toHaveTextContent(/1\s*move\s*in\s*0:02/);
   expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 

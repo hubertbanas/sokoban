@@ -54,18 +54,19 @@
 }
 
 .bestStatsBar {
-    width: max-content;
+    width: min(100%, 34ch);
     max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    align-self: flex-start;
+    gap: 3px;
+    align-self: flex-end;
     margin: 0;
     border: 1px solid var(--border);
     border-radius: 12px;
     background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
     color: var(--muted);
-    padding: 6px 10px;
+    padding: 5px 7px;
     text-align: center;
     flex-shrink: 0;
 }
@@ -75,15 +76,57 @@
     border: 0;
     background: none;
     color: inherit;
-    padding: 0;
+    padding: 0 0.5ch;
+    display: grid;
+    grid-template-columns: 12ch auto;
+    column-gap: 0.75ch;
+    justify-content: center;
+    align-items: baseline;
     font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.1;
-    text-align: center;
+    text-align: left;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.statsLabel {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.statsMetric {
+    display: grid;
+    grid-template-columns: 4ch 5ch 2ch 8ch;
+    column-gap: 0.6ch;
+    align-items: baseline;
+    justify-content: start;
+}
+
+.statsMoveCount {
+    text-align: right;
+}
+
+.statsMoveWord,
+.statsInWord {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.statsInWord {
+    padding-left: 0.15ch;
+}
+
+.statsTimeValue {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.statsNoRecord {
+    text-align: left;
+    white-space: nowrap;
 }
 
 .menuToggleButton {
@@ -350,15 +393,16 @@
 .completionStats {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    width: max-content;
+    gap: 3px;
+    width: min(100%, 34ch);
     max-width: 100%;
+    box-sizing: border-box;
     margin: 4px auto 18px;
     border: 1px solid var(--border);
     border-radius: 12px;
     background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
     color: var(--muted);
-    padding: 6px 10px;
+    padding: 5px 7px;
     text-align: center;
 }
 
@@ -367,11 +411,16 @@
     border: 0;
     background: none;
     color: inherit;
-    padding: 0;
+    padding: 0 0.5ch;
+    display: grid;
+    grid-template-columns: 12ch auto;
+    column-gap: 0.75ch;
+    justify-content: center;
+    align-items: baseline;
     font-size: 0.8rem;
     font-weight: 700;
     line-height: 1.2;
-    text-align: center;
+    text-align: left;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     overflow: hidden;

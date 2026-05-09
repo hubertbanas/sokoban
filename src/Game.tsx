@@ -26,6 +26,39 @@ function formatMoveLabel(moves: number): string {
   return `${moves} ${moves === 1 ? "move" : "moves"}`;
 }
 
+type StatsRowProps = {
+  className: string;
+  label: string;
+  moves: number | null;
+  timeMs: number | null;
+};
+
+function StatsRow({ className, label, moves, timeMs }: StatsRowProps) {
+  if (moves === null || timeMs === null) {
+    return (
+      <p className={className} aria-label={`${label}: No record yet`}>
+        <span className={style.statsLabel}>{label}:</span>
+        <span className={style.statsNoRecord}>No record yet</span>
+      </p>
+    );
+  }
+
+  return (
+    <p
+      className={className}
+      aria-label={`${label}: ${formatMoveLabel(moves)} in ${formatElapsedTime(timeMs)}`}
+    >
+      <span className={style.statsLabel}>{label}:</span>
+      <span className={style.statsMetric}>
+        <span className={style.statsMoveCount}>{moves}</span>
+        <span className={style.statsMoveWord}>{moves === 1 ? "move" : "moves"}</span>
+        <span className={style.statsInWord}>in</span>
+        <span className={style.statsTimeValue}>{formatElapsedTime(timeMs)}</span>
+      </span>
+    </p>
+  );
+}
+
 function useHoldToRepeat(
   action: () => void,
   delay = 320,
@@ -476,17 +509,12 @@ function Game() {
     return `${currentPackLevelNumber} / ${currentPack.levels.length}`;
   }, [currentPack, currentPackLevelIndex, index, levelCount]);
   const levelBest = stats.progression[level.levelId];
-  const levelBestText = React.useMemo(() => {
-    if (!levelBest || levelBest.bestMovesInLevel === null || levelBest.bestTimeMsInLevel === null) {
-      return "Level Best: No record yet";
-    }
-
-    return `Level Best: ${formatMoveLabel(levelBest.bestMovesInLevel)} in ${formatElapsedTime(levelBest.bestTimeMsInLevel)}`;
-  }, [levelBest]);
-  const currentRunText = React.useMemo(
-    () => `Current Run: ${formatMoveLabel(moveCount)} in ${formatElapsedTime(elapsedTimeMs)}`,
-    [elapsedTimeMs, moveCount]
-  );
+  const hasLevelBestRecord =
+    levelBest !== undefined &&
+    levelBest.bestMovesInLevel !== null &&
+    levelBest.bestTimeMsInLevel !== null;
+  const levelBestMoves = hasLevelBestRecord ? levelBest.bestMovesInLevel : null;
+  const levelBestTimeMs = hasLevelBestRecord ? levelBest.bestTimeMsInLevel : null;
 
   useKeyBoard(
     (event) => {
@@ -644,8 +672,8 @@ function Game() {
 
       {showPlayStats && (
         <section className={style.bestStatsBar} aria-label="Play statistics">
-          <p className={style.bestStatsChip}>{currentRunText}</p>
-          <p className={style.bestStatsChip}>{levelBestText}</p>
+          <StatsRow className={style.bestStatsChip} label="Current Run" moves={moveCount} timeMs={elapsedTimeMs} />
+          <StatsRow className={style.bestStatsChip} label="Level Best" moves={levelBestMoves} timeMs={levelBestTimeMs} />
         </section>
       )}
 
@@ -757,8 +785,8 @@ function Game() {
             )}
             {showPlayStats && (
               <div className={style.completionStats} aria-label="Run and best records">
-                <p className={style.completionStatsLine}>{currentRunText}</p>
-                <p className={style.completionStatsLine}>{levelBestText}</p>
+                <StatsRow className={style.completionStatsLine} label="Current Run" moves={moveCount} timeMs={elapsedTimeMs} />
+                <StatsRow className={style.completionStatsLine} label="Level Best" moves={levelBestMoves} timeMs={levelBestTimeMs} />
               </div>
             )}
             <button type="button" className={style.completionButton} onClick={next}>
