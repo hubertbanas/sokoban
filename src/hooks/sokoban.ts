@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Level, Block, useLevels } from "./levels";
 import { cloneDeep } from "lodash";
 
@@ -15,6 +15,11 @@ export enum State {
 }
 
 export type MoveOutcome = "blocked" | "step" | "crate-push" | "crate-docked";
+
+export type CompletionMetrics = {
+  moves: number;
+  timeMs: number;
+};
 
 type Position = {
   row: number;
@@ -58,6 +63,9 @@ export function useSokoban() {
   const { index, level, levelPacks, loadNext, loadPrevious, loadLevel: loadLevelById, totalLevels } = useLevels();
   const [state, setState] = useState<State>(State.playing);
   const [hasProgress, setHasProgress] = useState(false);
+  const [moveCount, setMoveCount] = useState(0);
+  const [completionMetrics, setCompletionMetrics] = useState<CompletionMetrics | null>(null);
+  const levelStartedAtRef = useRef(Date.now());
   const initboard = useCallback(
     () => [
       {
@@ -69,6 +77,13 @@ export function useSokoban() {
     [level]
   );
   const [board, setBoard] = useState<Board>(initboard);
+
+  const resetLevelRuntime = useCallback(() => {
+    setMoveCount(0);
+    setCompletionMetrics(null);
+    levelStartedAtRef.current = Date.now();
+  }, []);
+
   const move = useCallback(
     (direction: Direction): MoveOutcome => {
       if (state !== State.playing) {
@@ -115,6 +130,7 @@ export function useSokoban() {
           next.shape[next.playerPosition.row][next.playerPosition.column]
         )
       ) {
+        const nextMoveCount = moveCount + 1;
         next.shape[last.playerPosition.row][last.playerPosition.column] -=
           Block.player;
         next.shape[next.playerPosition.row][next.playerPosition.column] +=
@@ -125,11 +141,17 @@ export function useSokoban() {
               [Block.objective, Block.playerOnObjective].includes(block)
             )
           )
-        )
+        ) {
           setState(State.completed);
+          setCompletionMetrics({
+            moves: nextMoveCount,
+            timeMs: Math.max(0, Date.now() - levelStartedAtRef.current),
+          });
+        }
         if (!movingBlock) board.pop();
 
         setHasProgress(true);
+        setMoveCount(nextMoveCount);
         setBoard([...board, next]);
 
         if (movingBlock) {
@@ -145,7 +167,7 @@ export function useSokoban() {
 
       return "blocked";
     },
-    [board, state]
+    [board, moveCount, state]
   );
 
   const next = useCallback(() => {
@@ -153,33 +175,38 @@ export function useSokoban() {
       loadNext();
       setState(State.playing);
       setHasProgress(false);
+      resetLevelRuntime();
     }
-  }, [state, loadNext]);
+  }, [state, loadNext, resetLevelRuntime]);
 
   const nextLevel = useCallback(() => {
     loadNext();
     setState(State.playing);
     setHasProgress(false);
-  }, [loadNext]);
+    resetLevelRuntime();
+  }, [loadNext, resetLevelRuntime]);
 
   const previousLevel = useCallback(() => {
     loadPrevious();
     setState(State.playing);
     setHasProgress(false);
-  }, [loadPrevious]);
+    resetLevelRuntime();
+  }, [loadPrevious, resetLevelRuntime]);
 
   const loadLevel = useCallback(
     (levelId: string) => {
       loadLevelById(levelId);
       setState(State.playing);
       setHasProgress(false);
+      resetLevelRuntime();
     },
-    [loadLevelById]
+    [loadLevelById, resetLevelRuntime]
   );
 
   const undo = useCallback(() => {
     if (state === State.playing && board.length > 1) {
       setBoard(board.slice(0, -1));
+      setMoveCount((current) => Math.max(0, current - 1));
       return true;
     }
 
@@ -189,21 +216,24 @@ export function useSokoban() {
     if (state === State.playing) {
       setBoard(initboard());
       setHasProgress(false);
+      resetLevelRuntime();
     }
-  }, [state, initboard]);
+  }, [state, initboard, resetLevelRuntime]);
 
   useEffect(() => {
     if (board[0].levelId !== level.levelId) {
       setBoard(initboard());
       setHasProgress(false);
+      resetLevelRuntime();
     }
-  }, [board, state, level, loadNext, next, restart, initboard, move]);
+  }, [board, state, level, loadNext, next, restart, initboard, move, resetLevelRuntime]);
 
   return {
     index,
     level: board[board.length - 1],
     levelPacks,
     totalLevels,
+    completionMetrics,
     state,
     move,
     next,

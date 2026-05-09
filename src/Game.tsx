@@ -8,6 +8,7 @@ import { useSokoban, Direction, State } from "./hooks/sokoban";
 import { useGameSounds } from "./hooks/useGameSounds";
 import { useKeyBoard } from "./hooks/keyboard";
 import { Block } from "./hooks/levels";
+import { useStats } from "./hooks/useStats";
 import style from "./components/sokoban.module.css";
 import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
@@ -101,6 +102,7 @@ function Game() {
     index,
     level,
     levelPacks,
+    completionMetrics,
     state,
     move,
     next,
@@ -112,6 +114,7 @@ function Game() {
     hasProgress,
     totalLevels,
   } = useSokoban();
+  const { saveLevelResult } = useStats();
   const {
     playCratePush,
     playCrateDocked,
@@ -314,12 +317,23 @@ function Game() {
   const previousStateRef = React.useRef(state);
 
   React.useEffect(() => {
-    if (state === State.completed && previousStateRef.current !== State.completed) {
+    const didCompleteNow = state === State.completed && previousStateRef.current !== State.completed;
+
+    if (didCompleteNow) {
       playLevelComplete();
+
+      if (completionMetrics) {
+        saveLevelResult({
+          levelId: level.levelId,
+          puzzleId: level.puzzleId,
+          moves: completionMetrics.moves,
+          timeMs: completionMetrics.timeMs,
+        });
+      }
     }
 
     previousStateRef.current = state;
-  }, [playLevelComplete, state]);
+  }, [completionMetrics, level.levelId, level.puzzleId, playLevelComplete, saveLevelResult, state]);
 
   const confirmationDialog = React.useMemo(() => {
     switch (pendingAction?.type) {

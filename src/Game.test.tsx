@@ -9,6 +9,7 @@ import { Block } from "./hooks/levels";
 import { Direction, State, useSokoban, type MoveOutcome } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
 import { useGameSounds } from "./hooks/useGameSounds";
+import { useStats } from "./hooks/useStats";
 import style from "./components/sokoban.module.css";
 
 vi.mock("./hooks/keyboard", () => ({
@@ -59,6 +60,10 @@ vi.mock("./hooks/useGameSounds", () => ({
   useGameSounds: vi.fn(),
 }));
 
+vi.mock("./hooks/useStats", () => ({
+  useStats: vi.fn(),
+}));
+
 vi.mock("./hooks/sokoban", () => {
   const Direction = {
     Left: 0,
@@ -81,6 +86,7 @@ vi.mock("./hooks/sokoban", () => {
 const mockedUseSokoban = vi.mocked(useSokoban);
 const mockedUseKeyBoard = vi.mocked(useKeyBoard);
 const mockedUseGameSounds = vi.mocked(useGameSounds);
+const mockedUseStats = vi.mocked(useStats);
 const cssText = readFileSync(resolve(process.cwd(), "src/components/sokoban.module.css"), "utf-8");
 
 function hasUserSelectNone(className: string) {
@@ -151,6 +157,7 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
     totalLevels: 500,
     level: buildLevel(),
     levelPacks: buildLevelPacks(),
+    completionMetrics: null,
     state: State.playing,
     hasProgress: false,
     move: vi.fn(),
@@ -165,6 +172,20 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
   const value = { ...defaults, ...overrides };
   mockedUseSokoban.mockReturnValue(value);
   return value;
+}
+
+function createMockStats(overrides: Partial<ReturnType<typeof useStats>> = {}): ReturnType<typeof useStats> {
+  return {
+    stats: {
+      version: 1,
+      updatedAt: 0,
+      progression: {},
+      records: {},
+    },
+    saveLevelResult: vi.fn(),
+    clearStats: vi.fn(),
+    ...overrides,
+  };
 }
 
 function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds>> = {}) {
@@ -203,7 +224,9 @@ beforeEach(() => {
   mockedUseSokoban.mockReset();
   mockedUseKeyBoard.mockReset();
   mockedUseGameSounds.mockReset();
+  mockedUseStats.mockReset();
   mockedUseGameSounds.mockReturnValue(createMockGameSounds());
+  mockedUseStats.mockReturnValue(createMockStats());
 });
 
 afterEach(() => {
@@ -1007,6 +1030,85 @@ test("plays level complete sound when state changes to completed", () => {
   rerender(<Game />);
 
   expect(playLevelComplete).toHaveBeenCalledTimes(1);
+});
+
+test("saves completion metrics when state changes to completed", () => {
+  const saveLevelResult = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      saveLevelResult,
+    })
+  );
+
+  const completedLevel = buildLevel();
+  const completionMetrics = {
+    moves: 12,
+    timeMs: 3456,
+  };
+
+  mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
+
+  const { rerender } = render(<Game />);
+  expect(saveLevelResult).not.toHaveBeenCalled();
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics });
+  rerender(<Game />);
+
+  expect(saveLevelResult).toHaveBeenCalledTimes(1);
+  expect(saveLevelResult).toHaveBeenCalledWith({
+    levelId: completedLevel.levelId,
+    puzzleId: completedLevel.puzzleId,
+    moves: completionMetrics.moves,
+    timeMs: completionMetrics.timeMs,
+  });
+});
+
+test("saves completion metrics only once per completion transition", () => {
+  const saveLevelResult = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      saveLevelResult,
+    })
+  );
+
+  const completedLevel = buildLevel();
+  const completionMetrics = {
+    moves: 7,
+    timeMs: 1234,
+  };
+
+  mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
+  const { rerender } = render(<Game />);
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics });
+  rerender(<Game />);
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics });
+  rerender(<Game />);
+
+  expect(saveLevelResult).toHaveBeenCalledTimes(1);
+});
+
+test("does not save completion metrics when they are unavailable", () => {
+  const saveLevelResult = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      saveLevelResult,
+    })
+  );
+
+  const completedLevel = buildLevel();
+
+  mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
+  const { rerender } = render(<Game />);
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics: null });
+  rerender(<Game />);
+
+  expect(saveLevelResult).not.toHaveBeenCalled();
 });
 
 test("restart confirmation opens with Escape when progress exists", () => {

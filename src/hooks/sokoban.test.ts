@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, expect, test, vi } from "vitest";
-import { useSokoban, Direction, type MoveOutcome } from "./sokoban";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { useSokoban, Direction, State, type MoveOutcome } from "./sokoban";
 import { Block, useLevels, type Level } from "./levels";
 
 vi.mock("./levels", async () => {
@@ -29,6 +29,10 @@ function createLevel(shape: Block[][]): Level {
 beforeEach(() => {
     mockedUseLevels.mockReset();
     localStorage.clear();
+});
+
+afterEach(() => {
+    vi.useRealTimers();
 });
 
 test("blocked movement updates player orientation without moving or adding progress", () => {
@@ -72,4 +76,101 @@ test("blocked movement updates player orientation without moving or adding progr
     expect(result.current.level.playerPosition).toEqual({ row: 1, column: 1 });
     expect(result.current.level.shape[1][1]).toBe(Block.player);
     expect(result.current.hasProgress).toBe(false);
+});
+
+test("captures completion metrics when level is solved", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+
+    const level = createLevel([
+        [Block.wall, Block.wall, Block.wall, Block.wall],
+        [Block.wall, Block.player, Block.empty, Block.wall],
+        [Block.wall, Block.wall, Block.wall, Block.wall],
+    ]);
+
+    mockedUseLevels.mockReturnValue({
+        index: 0,
+        level,
+        levelPacks: [
+            {
+                packId: "test-pack",
+                title: "Test Pack",
+                description: "",
+                email: "",
+                levels: [level],
+            },
+        ],
+        loadNext: vi.fn(),
+        loadPrevious: vi.fn(),
+        loadLevel: vi.fn(),
+        totalLevels: 1,
+    });
+
+    const { result } = renderHook(() => useSokoban());
+
+    vi.setSystemTime(4_600);
+
+    let outcome: MoveOutcome = "blocked";
+    act(() => {
+        outcome = result.current.move(Direction.Right);
+    });
+
+    expect(outcome).toBe("step");
+    expect(result.current.state).toBe(State.completed);
+    expect(result.current.completionMetrics).toEqual({
+        moves: 1,
+        timeMs: 3600,
+    });
+});
+
+test("resets completion metrics after advancing from completed state", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(2_000);
+
+    const loadNext = vi.fn();
+    const level = createLevel([
+        [Block.wall, Block.wall, Block.wall, Block.wall],
+        [Block.wall, Block.player, Block.empty, Block.wall],
+        [Block.wall, Block.wall, Block.wall, Block.wall],
+    ]);
+
+    mockedUseLevels.mockReturnValue({
+        index: 0,
+        level,
+        levelPacks: [
+            {
+                packId: "test-pack",
+                title: "Test Pack",
+                description: "",
+                email: "",
+                levels: [level],
+            },
+        ],
+        loadNext,
+        loadPrevious: vi.fn(),
+        loadLevel: vi.fn(),
+        totalLevels: 1,
+    });
+
+    const { result } = renderHook(() => useSokoban());
+
+    vi.setSystemTime(3_500);
+
+    act(() => {
+        result.current.move(Direction.Right);
+    });
+
+    expect(result.current.state).toBe(State.completed);
+    expect(result.current.completionMetrics).toEqual({
+        moves: 1,
+        timeMs: 1500,
+    });
+
+    act(() => {
+        result.current.next();
+    });
+
+    expect(loadNext).toHaveBeenCalledTimes(1);
+    expect(result.current.state).toBe(State.playing);
+    expect(result.current.completionMetrics).toBeNull();
 });
