@@ -12,6 +12,7 @@ import style from "./components/sokoban.module.css";
 import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
 import { Modal } from "./components/modal";
+import { LevelSelectorModal } from "./components/level-selector-modal";
 
 function useHoldToRepeat(
   action: () => void,
@@ -96,7 +97,21 @@ function useHoldToRepeat(
 }
 
 function Game() {
-  const { index, level, state, move, next, nextLevel, previousLevel, undo, restart, hasProgress, totalLevels } = useSokoban();
+  const {
+    index,
+    level,
+    levelPacks,
+    state,
+    move,
+    next,
+    nextLevel,
+    previousLevel,
+    loadLevel,
+    undo,
+    restart,
+    hasProgress,
+    totalLevels,
+  } = useSokoban();
   const {
     playCratePush,
     playCrateDocked,
@@ -116,15 +131,21 @@ function Game() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
-  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen;
+  const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
+  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen || isLevelSelectorOpen;
 
-  type PendingAction = "restart" | "previous" | "next" | null;
+  type PendingAction =
+    | { type: "restart" }
+    | { type: "previous" }
+    | { type: "next" }
+    | { type: "select-level"; levelId: string }
+    | null;
   const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
   const isConfirmationDialogOpen = pendingAction !== null;
 
   const executePendingAction = React.useCallback(
     (action: Exclude<PendingAction, null>) => {
-      switch (action) {
+      switch (action.type) {
         case "restart":
           restart();
           break;
@@ -134,39 +155,65 @@ function Game() {
         case "next":
           nextLevel();
           break;
+        case "select-level":
+          loadLevel(action.levelId);
+          break;
       }
     },
-    [nextLevel, previousLevel, restart]
+    [loadLevel, nextLevel, previousLevel, restart]
   );
 
   const onRequestRestart = React.useCallback(() => {
     if (state !== State.playing) return;
 
     if (!hasProgress) {
-      executePendingAction("restart");
+      executePendingAction({ type: "restart" });
       return;
     }
 
-    setPendingAction("restart");
+    setPendingAction({ type: "restart" });
   }, [executePendingAction, hasProgress, state]);
 
   const onRequestPreviousLevel = React.useCallback(() => {
     if (state !== State.playing || !hasProgress) {
-      executePendingAction("previous");
+      executePendingAction({ type: "previous" });
       return;
     }
 
-    setPendingAction("previous");
+    setPendingAction({ type: "previous" });
   }, [executePendingAction, hasProgress, state]);
 
   const onRequestNextLevel = React.useCallback(() => {
     if (state !== State.playing || !hasProgress) {
-      executePendingAction("next");
+      executePendingAction({ type: "next" });
       return;
     }
 
-    setPendingAction("next");
+    setPendingAction({ type: "next" });
   }, [executePendingAction, hasProgress, state]);
+
+  const onRequestLoadLevel = React.useCallback(
+    (levelId: string) => {
+      setIsLevelSelectorOpen(false);
+
+      if (level.levelId === levelId) {
+        return;
+      }
+
+      const pendingSelectionAction: Exclude<PendingAction, null> = {
+        type: "select-level",
+        levelId,
+      };
+
+      if (state !== State.playing || !hasProgress) {
+        executePendingAction(pendingSelectionAction);
+        return;
+      }
+
+      setPendingAction(pendingSelectionAction);
+    },
+    [executePendingAction, hasProgress, level.levelId, state]
+  );
 
   const shouldUseHoldRepeat = React.useCallback(
     () => !(state === State.playing && hasProgress),
@@ -199,6 +246,10 @@ function Game() {
 
   const onToggleMenu = React.useCallback(() => {
     setIsMenuOpen((current) => !current);
+  }, []);
+
+  const onOpenLevelSelector = React.useCallback(() => {
+    setIsLevelSelectorOpen(true);
   }, []);
 
   const onCloseMenu = React.useCallback(() => {
@@ -271,7 +322,7 @@ function Game() {
   }, [playLevelComplete, state]);
 
   const confirmationDialog = React.useMemo(() => {
-    switch (pendingAction) {
+    switch (pendingAction?.type) {
       case "restart":
         return {
           title: "Restart level?",
@@ -292,6 +343,13 @@ function Game() {
           ariaLabel: "Switch to next level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
           confirmLabel: "Go to Next Level",
+        };
+      case "select-level":
+        return {
+          title: "Switch level?",
+          ariaLabel: "Switch to selected level confirmation",
+          warningText: "Switching levels now will erase your progress on this level.",
+          confirmLabel: "Go to Selected Level",
         };
       default:
         return null;
@@ -358,6 +416,33 @@ function Game() {
     "--tile-radius": `${tileRadius}px`,
   } as React.CSSProperties;
   const levelCount = totalLevels ?? index + 1;
+  const currentPack = React.useMemo(
+    () => levelPacks.find((pack) => pack.packId === level.packId),
+    [level.packId, levelPacks]
+  );
+  const currentPackLevelIndex = React.useMemo(() => {
+    if (!currentPack) {
+      return -1;
+    }
+
+    return currentPack.levels.findIndex((packLevel) => packLevel.levelId === level.levelId);
+  }, [currentPack, level.levelId]);
+  const isLastLevelInCurrentPack = React.useMemo(() => {
+    if (!currentPack || currentPack.levels.length === 0 || currentPackLevelIndex < 0) {
+      return false;
+    }
+
+    return currentPackLevelIndex === currentPack.levels.length - 1;
+  }, [currentPack, currentPackLevelIndex]);
+  const levelPickerPackName = currentPack?.title ?? "Levels";
+  const levelPickerNumbers = React.useMemo(() => {
+    if (!currentPack || currentPack.levels.length === 0) {
+      return `${index + 1} / ${levelCount}`;
+    }
+
+    const currentPackLevelNumber = currentPackLevelIndex >= 0 ? currentPackLevelIndex + 1 : 1;
+    return `${currentPackLevelNumber} / ${currentPack.levels.length}`;
+  }, [currentPack, currentPackLevelIndex, index, levelCount]);
 
   useKeyBoard(
     (event) => {
@@ -392,6 +477,15 @@ function Game() {
       if (isMenuOpen) {
         if (event.code === "Escape") {
           onCloseMenu();
+        }
+
+        event.preventDefault();
+        return;
+      }
+
+      if (isLevelSelectorOpen) {
+        if (event.code === "Escape") {
+          setIsLevelSelectorOpen(false);
         }
 
         event.preventDefault();
@@ -478,7 +572,16 @@ function Game() {
               <span className={style.levelPickerChevron} aria-hidden="true">&lsaquo;</span>
             </button>
 
-            <div className={style.levelNumber}>Level {index + 1} / {levelCount}</div>
+            <button
+              type="button"
+              className={style.levelPickerLevelButton}
+              aria-label="Open level selector"
+              title="Open level selector"
+              onClick={onOpenLevelSelector}
+            >
+              <span className={style.levelPickerPackName}>{levelPickerPackName}</span>
+              <span className={style.levelPickerLevelNumbers}>{levelPickerNumbers}</span>
+            </button>
 
             <button
               type="button"
@@ -543,6 +646,13 @@ function Game() {
         onOpenChange={setIsHelpModalOpen}
       />
 
+      <LevelSelectorModal
+        open={isLevelSelectorOpen}
+        onOpenChange={setIsLevelSelectorOpen}
+        levelPacks={levelPacks}
+        onSelectLevel={onRequestLoadLevel}
+      />
+
       {isConfirmationDialogOpen && confirmationDialog && (
         <Modal
           title={confirmationDialog.title}
@@ -578,8 +688,20 @@ function Game() {
       {state === State.completed && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
           <div className={style.completionCard}>
-            <h2 className={style.completionTitle}>Congratulations!</h2>
-            <p className={style.completionText}>You completed this level.</p>
+            <h2 className={style.completionTitle}>
+              {isLastLevelInCurrentPack ? "Level Pack Complete!" : "Congratulations!"}
+            </h2>
+            <p className={style.completionText}>
+              {isLastLevelInCurrentPack
+                ? "You completed the last level in this pack."
+                : "You completed this level."}
+            </p>
+            {isLastLevelInCurrentPack && (
+              <p className={style.completionText}>
+                Switch to a different level pack from the level selector, or press Continue to
+                return to Level 1 in this pack.
+              </p>
+            )}
             <button type="button" className={style.completionButton} onClick={next}>
               Continue
             </button>

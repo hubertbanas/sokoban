@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import React from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { fireEvent, render, screen, cleanup, act } from "@testing-library/react";
+import { fireEvent, render, screen, cleanup, act, within } from "@testing-library/react";
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
 import Game from "./Game";
 import { Block } from "./hooks/levels";
@@ -122,17 +122,42 @@ function buildLevel() {
   };
 }
 
+function buildLevelPacks() {
+  const firstLevel = {
+    ...buildLevel(),
+    levelId: "test-pack:0",
+    name: "Regression Test",
+  };
+  const secondLevel = {
+    ...buildLevel(),
+    levelId: "test-pack:1",
+    name: "Target Level",
+  };
+
+  return [
+    {
+      packId: "test-pack",
+      title: "Test Pack",
+      description: "Pack description",
+      email: "",
+      levels: [firstLevel, secondLevel],
+    },
+  ];
+}
+
 function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
   const defaults = {
     index: 0,
     totalLevels: 500,
     level: buildLevel(),
+    levelPacks: buildLevelPacks(),
     state: State.playing,
     hasProgress: false,
     move: vi.fn(),
     next: vi.fn(),
     nextLevel: vi.fn(),
     previousLevel: vi.fn(),
+    loadLevel: vi.fn(),
     undo: vi.fn(),
     restart: vi.fn(),
   };
@@ -499,6 +524,21 @@ test("displays completion popup when level is completed", () => {
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
 });
 
+test("displays pack-complete message on the last level of the current pack", () => {
+  const levelPacks = buildLevelPacks();
+  mockSokoban({
+    state: State.completed,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  expect(screen.getByRole("heading", { name: /level pack complete!/i })).toBeInTheDocument();
+  expect(screen.getByText(/you completed the last level in this pack\./i)).toBeInTheDocument();
+  expect(screen.getByText(/switch to a different level pack/i)).toBeInTheDocument();
+});
+
 test("clicking continue on completion popup advances to the next level", () => {
   const next = vi.fn();
   mockSokoban({ state: State.completed, next });
@@ -539,7 +579,7 @@ test("completion popup appears dynamically when state changes to completed", () 
   expect(screen.getByRole("dialog", { name: /level completed/i })).toBeInTheDocument();
 });
 
-test("renders correct level number", () => {
+test("renders pack-aware level number", () => {
   mockSokoban({
     index: 4,
     level: {
@@ -550,8 +590,83 @@ test("renders correct level number", () => {
 
   render(<Game />);
 
-  expect(screen.getByText("Level 5 / 500")).toBeInTheDocument();
+  const levelSelectorButton = screen.getByRole("button", { name: /open level selector/i });
+  expect(within(levelSelectorButton).getByText("Test Pack")).toBeInTheDocument();
+  expect(within(levelSelectorButton).getByText("1 / 2")).toBeInTheDocument();
   expect(screen.queryByText("The Box Puzzle")).not.toBeInTheDocument();
+});
+
+test("renders currently selected pack and local level index", () => {
+  const levelPacks = buildLevelPacks();
+
+  mockSokoban({
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  const levelSelectorButton = screen.getByRole("button", { name: /open level selector/i });
+  expect(within(levelSelectorButton).getByText("Test Pack")).toBeInTheDocument();
+  expect(within(levelSelectorButton).getByText("2 / 2")).toBeInTheDocument();
+});
+
+test("opens level selector modal from level number button", () => {
+  mockSokoban();
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open level selector/i }));
+
+  expect(screen.getByRole("dialog", { name: /level pack selector/i })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Test Pack" })).toBeInTheDocument();
+  expect(screen.getByText("2 levels available")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /open test pack level/i })).not.toBeInTheDocument();
+});
+
+test("selecting a pack loads immediately when no progress exists", () => {
+  const loadLevel = vi.fn();
+  const levelPacks = buildLevelPacks();
+
+  mockSokoban({
+    hasProgress: false,
+    state: State.playing,
+    loadLevel,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open level selector/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Play Pack" }));
+
+  expect(loadLevel).toHaveBeenCalledWith("test-pack:0");
+  expect(screen.queryByRole("dialog", { name: /level pack selector/i })).not.toBeInTheDocument();
+});
+
+test("selecting a pack opens confirmation when progress exists", () => {
+  const loadLevel = vi.fn();
+  const levelPacks = buildLevelPacks();
+
+  mockSokoban({
+    hasProgress: true,
+    state: State.playing,
+    loadLevel,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open level selector/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Play Pack" }));
+
+  expect(screen.getByRole("dialog", { name: /switch to selected level confirmation/i })).toBeInTheDocument();
+  expect(loadLevel).not.toHaveBeenCalled();
+
+  fireEvent.click(screen.getByRole("button", { name: "Go to Selected Level" }));
+  expect(loadLevel).toHaveBeenCalledWith("test-pack:0");
 });
 
 test("renders auxiliary components", () => {
