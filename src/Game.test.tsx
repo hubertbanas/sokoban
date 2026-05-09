@@ -547,6 +547,94 @@ test("displays completion popup when level is completed", () => {
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
 });
 
+test("renders no-record placeholders when best stats are unavailable", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+  expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
+});
+
+test("renders level best from useStats", () => {
+  const level = buildLevel();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      stats: {
+        version: 1,
+        updatedAt: 1700,
+        progression: {
+          [level.levelId]: {
+            playCount: 3,
+            completionCount: 2,
+            isCompleted: true,
+            lastPlayedAt: 1500,
+            lastCompletedAt: 1600,
+            bestMovesInLevel: 9,
+            bestTimeMsInLevel: 13_000,
+          },
+        },
+        records: {
+          [level.puzzleId]: {
+            bestMoves: 8,
+            bestTimeMs: 11_000,
+            solveCount: 5,
+            firstSolvedAt: 1200,
+            lastSolvedAt: 1700,
+          },
+        },
+      },
+    })
+  );
+  mockSokoban({ state: State.playing, level });
+
+  render(<Game />);
+
+  expect(screen.getByText("Level Best: 9 moves in 0:13")).toBeInTheDocument();
+  expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
+});
+
+test("shows level best inside completion dialog", () => {
+  const level = buildLevel();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      stats: {
+        version: 1,
+        updatedAt: 1700,
+        progression: {
+          [level.levelId]: {
+            playCount: 1,
+            completionCount: 1,
+            isCompleted: true,
+            lastPlayedAt: 1600,
+            lastCompletedAt: 1700,
+            bestMovesInLevel: 1,
+            bestTimeMsInLevel: 2_000,
+          },
+        },
+        records: {
+          [level.puzzleId]: {
+            bestMoves: 1,
+            bestTimeMs: 2_000,
+            solveCount: 1,
+            firstSolvedAt: 1700,
+            lastSolvedAt: 1700,
+          },
+        },
+      },
+    })
+  );
+  mockSokoban({ state: State.completed, level });
+
+  render(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText("Level Best: 1 move in 0:02")).toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
+});
+
 test("displays pack-complete message on the last level of the current pack", () => {
   const levelPacks = buildLevelPacks();
   mockSokoban({

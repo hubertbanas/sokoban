@@ -15,6 +15,17 @@ import { styleFrom, styleDirection } from "./utils/block-styles";
 import { Modal } from "./components/modal";
 import { LevelSelectorModal } from "./components/level-selector-modal";
 
+function formatElapsedTime(timeMs: number): string {
+  const totalSeconds = Math.max(0, Math.floor(timeMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatMoveLabel(moves: number): string {
+  return `${moves} ${moves === 1 ? "move" : "moves"}`;
+}
+
 function useHoldToRepeat(
   action: () => void,
   delay = 320,
@@ -114,7 +125,7 @@ function Game() {
     hasProgress,
     totalLevels,
   } = useSokoban();
-  const { saveLevelResult } = useStats();
+  const { stats, saveLevelResult } = useStats();
   const {
     playCratePush,
     playCrateDocked,
@@ -323,6 +334,9 @@ function Game() {
       playLevelComplete();
 
       if (completionMetrics) {
+        // Keep dual-key persistence even though the UI currently shows only Level Best.
+        // `levelId` powers player-facing per-level stats, while `puzzleId` keeps
+        // cross-level puzzle records for future packs that may reuse layouts.
         saveLevelResult({
           levelId: level.levelId,
           puzzleId: level.puzzleId,
@@ -457,6 +471,14 @@ function Game() {
     const currentPackLevelNumber = currentPackLevelIndex >= 0 ? currentPackLevelIndex + 1 : 1;
     return `${currentPackLevelNumber} / ${currentPack.levels.length}`;
   }, [currentPack, currentPackLevelIndex, index, levelCount]);
+  const levelBest = stats.progression[level.levelId];
+  const levelBestText = React.useMemo(() => {
+    if (!levelBest || levelBest.bestMovesInLevel === null || levelBest.bestTimeMsInLevel === null) {
+      return "Level Best: No record yet";
+    }
+
+    return `Level Best: ${formatMoveLabel(levelBest.bestMovesInLevel)} in ${formatElapsedTime(levelBest.bestTimeMsInLevel)}`;
+  }, [levelBest]);
 
   useKeyBoard(
     (event) => {
@@ -612,6 +634,10 @@ function Game() {
         <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
+      <section className={style.bestStatsBar} aria-label="Best statistics">
+        <p className={style.bestStatsChip}>{levelBestText}</p>
+      </section>
+
       <section className={style.mapArea} aria-label="Sokoban board">
         <div className={style.boardViewport} ref={boardViewportRef}>
           <div className={style.board} style={boardVars}>
@@ -716,6 +742,9 @@ function Game() {
                 return to Level 1 in this pack.
               </p>
             )}
+            <div className={style.completionStats} aria-label="Best records">
+              <p className={style.completionStatsLine}>{levelBestText}</p>
+            </div>
             <button type="button" className={style.completionButton} onClick={next}>
               Continue
             </button>
