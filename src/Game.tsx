@@ -22,27 +22,38 @@ function formatElapsedTime(timeMs: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-type StatsRowProps = {
-  className: string;
-  label: string;
-  moves: number | null;
-  timeMs: number | null;
+type StatsTableProps = {
+  rowClassName: string;
+  currentMoves: number;
+  currentTimeMs: number;
+  bestMoves: number | null;
+  bestTimeMs: number | null;
 };
 
-function StatsRow({ className, label, moves, timeMs }: StatsRowProps) {
-  const moveValue = moves === null ? "--" : String(moves);
-  const timeValue = timeMs === null ? "--:--" : formatElapsedTime(timeMs);
+function StatsTable({ rowClassName, currentMoves, currentTimeMs, bestMoves, bestTimeMs }: StatsTableProps) {
+  const currentMoveValue = String(currentMoves);
+  const currentTimeValue = formatElapsedTime(currentTimeMs);
+  const bestMoveValue = bestMoves === null ? "--" : String(bestMoves);
+  const bestTimeValue = bestTimeMs === null ? "--:--" : formatElapsedTime(bestTimeMs);
 
   return (
-    <p className={className} aria-label={`${label}: Moves ${moveValue} Time ${timeValue}`}>
-      <span className={style.statsLabel}>{label}:</span>
-      <span className={style.statsMetric}>
-        <span className={style.statsMetricLabel}>Moves</span>
-        <span className={style.statsMoveCount}>{moveValue}</span>
-        <span className={style.statsMetricLabel}>Time</span>
-        <span className={style.statsTimeValue}>{timeValue}</span>
-      </span>
-    </p>
+    <>
+      <p className={rowClassName} aria-hidden="true">
+        <span className={style.statsHeaderCell}>Run</span>
+        <span className={style.statsHeaderCell}>Moves</span>
+        <span className={style.statsHeaderCell}>Time</span>
+      </p>
+      <p className={rowClassName} aria-label={`Current: Moves ${currentMoveValue} Time ${currentTimeValue}`}>
+        <span className={style.statsRunCell}>Current</span>
+        <span className={style.statsValueCell}>{currentMoveValue}</span>
+        <span className={style.statsValueCell}>{currentTimeValue}</span>
+      </p>
+      <p className={rowClassName} aria-label={`Best: Moves ${bestMoveValue} Time ${bestTimeValue}`}>
+        <span className={style.statsRunCell}>Best</span>
+        <span className={style.statsValueCell}>{bestMoveValue}</span>
+        <span className={style.statsValueCell}>{bestTimeValue}</span>
+      </p>
+    </>
   );
 }
 
@@ -358,7 +369,7 @@ function Game() {
       playLevelComplete();
 
       if (completionMetrics) {
-        // Keep dual-key persistence even though the UI currently shows only Level Best.
+        // Keep dual-key persistence even though the UI surfaces per-level Best values.
         // `levelId` powers player-facing per-level stats, while `puzzleId` keeps
         // cross-level puzzle records for future packs that may reuse layouts.
         saveLevelResult({
@@ -659,8 +670,13 @@ function Game() {
 
       {showPlayStats && (
         <section className={style.bestStatsBar} aria-label="Play statistics">
-          <StatsRow className={style.bestStatsChip} label="Current Run" moves={moveCount} timeMs={elapsedTimeMs} />
-          <StatsRow className={style.bestStatsChip} label="Level Best" moves={levelBestMoves} timeMs={levelBestTimeMs} />
+          <StatsTable
+            rowClassName={style.bestStatsRow}
+            currentMoves={moveCount}
+            currentTimeMs={elapsedTimeMs}
+            bestMoves={levelBestMoves}
+            bestTimeMs={levelBestTimeMs}
+          />
         </section>
       )}
 
@@ -772,8 +788,13 @@ function Game() {
             )}
             {showPlayStats && (
               <div className={style.completionStats} aria-label="Run and best records">
-                <StatsRow className={style.completionStatsLine} label="Current Run" moves={moveCount} timeMs={elapsedTimeMs} />
-                <StatsRow className={style.completionStatsLine} label="Level Best" moves={levelBestMoves} timeMs={levelBestTimeMs} />
+                <StatsTable
+                  rowClassName={style.completionStatsRow}
+                  currentMoves={moveCount}
+                  currentTimeMs={elapsedTimeMs}
+                  bestMoves={levelBestMoves}
+                  bestTimeMs={levelBestTimeMs}
+                />
               </div>
             )}
             <button type="button" className={style.completionButton} onClick={next}>

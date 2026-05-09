@@ -570,8 +570,7 @@ test("hides play stats UI when toggle is off by default", () => {
 
   render(<Game />);
 
-  expect(screen.queryByText(/^Current Run:/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/^Level Best:/)).not.toBeInTheDocument();
+  expect(screen.queryByRole("region", { name: /play statistics/i })).not.toBeInTheDocument();
 });
 
 test("keeps completion dialog play stats hidden when toggle is off", () => {
@@ -584,25 +583,25 @@ test("keeps completion dialog play stats hidden when toggle is off", () => {
   rerender(<Game />);
 
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
-  expect(within(completionDialog).queryByText(/^Current Run:/)).not.toBeInTheDocument();
-  expect(within(completionDialog).queryByText(/^Level Best:/)).not.toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Current$/)).not.toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Best$/)).not.toBeInTheDocument();
 });
 
-test("renders current run and level best placeholders when play stats toggle is enabled", () => {
+test("renders current and best placeholders when play stats toggle is enabled", () => {
   mockSokoban({ state: State.playing });
 
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  const currentRun = screen.getByText(/^Current Run:$/).closest("p");
-  const levelBest = screen.getByText(/^Level Best:$/).closest("p");
+  const currentRun = screen.getByText(/^Current$/).closest("p");
+  const levelBest = screen.getByText(/^Best$/).closest("p");
 
   if (!currentRun || !levelBest) {
     throw new Error("Expected stats rows to be paragraph elements");
   }
 
-  expect(currentRun).toHaveTextContent(/Moves\s*0\s*Time\s*0:00/);
-  expect(levelBest).toHaveTextContent(/Moves\s*--\s*Time\s*--:--/);
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Time 0:00");
+  expect(levelBest).toHaveAttribute("aria-label", "Best: Moves -- Time --:--");
 });
 
 test("hides both play stats lines after disabling the toggle", () => {
@@ -610,12 +609,12 @@ test("hides both play stats lines after disabling the toggle", () => {
 
   render(<Game />);
   setPlayStatsVisibility(true);
-  expect(screen.getByText(/^Current Run:/)).toBeInTheDocument();
-  expect(screen.getByText(/^Level Best:/)).toBeInTheDocument();
+  expect(screen.getByText(/^Current$/)).toBeInTheDocument();
+  expect(screen.getByText(/^Best$/)).toBeInTheDocument();
 
   setPlayStatsVisibility(false);
-  expect(screen.queryByText(/^Current Run:/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/^Level Best:/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Current$/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Best$/)).not.toBeInTheDocument();
 });
 
 test("renders realtime current run status from useSokoban", () => {
@@ -628,15 +627,15 @@ test("renders realtime current run status from useSokoban", () => {
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  const currentRun = screen.getByText(/^Current Run:$/).closest("p");
+  const currentRun = screen.getByText(/^Current$/).closest("p");
   if (!currentRun) {
     throw new Error("Expected current run row to be a paragraph element");
   }
 
-  expect(currentRun).toHaveTextContent(/Moves\s*12\s*Time\s*1:14/);
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 12 Time 1:14");
 });
 
-test("renders level best from useStats", () => {
+test("renders best row from useStats", () => {
   const level = buildLevel();
 
   mockedUseStats.mockReturnValue(
@@ -672,16 +671,16 @@ test("renders level best from useStats", () => {
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  const levelBestLine = screen.getByText(/^Level Best:$/).closest("p");
+  const levelBestLine = screen.getByText(/^Best$/).closest("p");
   if (!levelBestLine) {
-    throw new Error("Expected level best row to be a paragraph element");
+    throw new Error("Expected best row to be a paragraph element");
   }
 
-  expect(levelBestLine).toHaveTextContent(/Moves\s*9\s*Time\s*0:13/);
+  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 9 Time 0:13");
   expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
-test("shows level best inside completion dialog", () => {
+test("shows best row inside completion dialog", () => {
   const level = buildLevel();
 
   mockedUseStats.mockReturnValue(
@@ -721,15 +720,15 @@ test("shows level best inside completion dialog", () => {
   rerender(<Game />);
 
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
-  const currentRun = within(completionDialog).getByText(/^Current Run:$/).closest("p");
-  const levelBestLine = within(completionDialog).getByText(/^Level Best:$/).closest("p");
+  const currentRun = within(completionDialog).getByText(/^Current$/).closest("p");
+  const levelBestLine = within(completionDialog).getByText(/^Best$/).closest("p");
 
   if (!currentRun || !levelBestLine) {
     throw new Error("Expected completion stats rows to be paragraph elements");
   }
 
-  expect(currentRun).toHaveTextContent(/Moves\s*0\s*Time\s*0:00/);
-  expect(levelBestLine).toHaveTextContent(/Moves\s*1\s*Time\s*0:02/);
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Time 0:00");
+  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 1 Time 0:02");
   expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 

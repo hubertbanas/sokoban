@@ -54,7 +54,7 @@
 }
 
 .bestStatsBar {
-    width: min(100%, 32ch);
+    width: min(100%, 30ch);
     max-width: 100%;
     box-sizing: border-box;
     display: flex;
@@ -71,63 +71,61 @@
     flex-shrink: 0;
 }
 
-.bestStatsChip {
+.bestStatsRow,
+.completionStatsRow {
     margin: 0;
     border: 0;
     background: none;
     color: inherit;
     padding: 0 0.25ch;
     display: grid;
-    grid-template-columns: 10.5ch auto;
-    column-gap: 0.6ch;
-    justify-content: center;
+    grid-template-columns: 1fr 5ch 7ch;
+    column-gap: 0.8ch;
     align-items: baseline;
-    font-size: 0.75rem;
-    font-weight: 700;
-    line-height: 1.1;
     text-align: left;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.statsLabel {
+.bestStatsRow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.completionStatsRow {
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.statsHeaderCell {
+    text-align: left;
+    font-size: 0.68em;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: color-mix(in srgb, var(--muted) 85%, var(--foreground) 15%);
+}
+
+.statsHeaderCell:nth-child(2),
+.statsHeaderCell:nth-child(3) {
     text-align: right;
-    white-space: nowrap;
 }
 
-.statsMetric {
-    display: grid;
-    grid-template-columns: 5ch 4ch 4ch 6ch;
-    column-gap: 0.35ch;
-    align-items: baseline;
-    justify-content: start;
-}
-
-.statsMetric> :nth-child(3) {
-    border-left: 1px solid color-mix(in srgb, var(--border) 70%, transparent 30%);
-    margin-left: 0.65ch;
-    padding-left: 0.7ch;
-}
-
-.statsMetric> :nth-child(4) {
-    padding-left: 0.2ch;
-}
-
-.statsMetricLabel {
+.statsRunCell {
     text-align: left;
     white-space: nowrap;
 }
 
-.statsMoveCount {
+.statsValueCell {
     text-align: right;
     white-space: nowrap;
 }
 
-.statsTimeValue {
-    text-align: right;
-    white-space: nowrap;
+.bestStatsRow,
+.completionStatsRow {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .menuToggleButton {
@@ -395,7 +393,7 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    width: min(100%, 32ch);
+    width: min(100%, 30ch);
     max-width: 100%;
     box-sizing: border-box;
     margin: 4px auto 18px;
@@ -405,27 +403,6 @@
     color: var(--muted);
     padding: 5px 6px;
     text-align: center;
-}
-
-.completionStatsLine {
-    margin: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    padding: 0 0.25ch;
-    display: grid;
-    grid-template-columns: 10.5ch auto;
-    column-gap: 0.6ch;
-    justify-content: center;
-    align-items: baseline;
-    font-size: 0.8rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-align: left;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .completionButton {
