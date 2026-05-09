@@ -17,7 +17,7 @@ afterEach(() => {
     cleanup();
 });
 
-function renderMenu(open = true) {
+function renderMenu(open = true, showPlayStats = false) {
     const onClose = vi.fn();
     const onShowPlayStatsChange = vi.fn();
     const onOpenSfx = vi.fn();
@@ -26,7 +26,7 @@ function renderMenu(open = true) {
     const view = render(
         <HamburgerMenu
             open={open}
-            showPlayStats={false}
+            showPlayStats={showPlayStats}
             onShowPlayStatsChange={onShowPlayStatsChange}
             onClose={onClose}
             onOpenSfx={onOpenSfx}
@@ -54,6 +54,12 @@ test("renders menu content and version", () => {
     expect(getByRole("button", { name: /sfx settings/i })).toBeInTheDocument();
     expect(getByRole("button", { name: /^about$/i })).toBeInTheDocument();
     expect(getByText(/version\s+1\.2\.3-test/i)).toBeInTheDocument();
+});
+
+test("shows checked play stats toggle with hide aria label when enabled", () => {
+    const { getByRole } = renderMenu(true, true);
+
+    expect(getByRole("checkbox", { name: /hide play stats/i })).toBeChecked();
 });
 
 test("applies open and hidden states based on open prop", () => {

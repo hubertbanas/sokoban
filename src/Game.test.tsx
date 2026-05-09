@@ -574,6 +574,20 @@ test("hides play stats UI when toggle is off by default", () => {
   expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
 });
 
+test("keeps completion dialog play stats hidden when toggle is off", () => {
+  const level = buildLevel();
+  mockSokoban({ state: State.playing, level });
+
+  const { rerender } = render(<Game />);
+
+  mockSokoban({ state: State.completed, level });
+  rerender(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).queryByText(/^Current Run:/)).not.toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Level Best:/)).not.toBeInTheDocument();
+});
+
 test("renders current run and level best placeholders when play stats toggle is enabled", () => {
   mockSokoban({ state: State.playing });
 
@@ -582,6 +596,19 @@ test("renders current run and level best placeholders when play stats toggle is 
 
   expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
   expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+});
+
+test("hides both play stats lines after disabling the toggle", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+  setPlayStatsVisibility(true);
+  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
+  expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+
+  setPlayStatsVisibility(false);
+  expect(screen.queryByText("Current Run: 0 moves in 0:00")).not.toBeInTheDocument();
+  expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
 });
 
 test("renders realtime current run status from useSokoban", () => {
