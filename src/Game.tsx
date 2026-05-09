@@ -145,8 +145,8 @@ function Game() {
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  // Level Best is optional HUD info; default off to keep the board area less noisy.
-  const [showLevelBest, setShowLevelBest] = React.useState(false);
+  // Play statistics are optional HUD info; default off to keep the board area less noisy.
+  const [showPlayStats, setShowPlayStats] = React.useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
@@ -642,10 +642,12 @@ function Game() {
         <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
-      <section className={style.bestStatsBar} aria-label="Play statistics">
-        <p className={style.bestStatsChip}>{currentRunText}</p>
-        {showLevelBest && <p className={style.bestStatsChip}>{levelBestText}</p>}
-      </section>
+      {showPlayStats && (
+        <section className={style.bestStatsBar} aria-label="Play statistics">
+          <p className={style.bestStatsChip}>{currentRunText}</p>
+          <p className={style.bestStatsChip}>{levelBestText}</p>
+        </section>
+      )}
 
       <section className={style.mapArea} aria-label="Sokoban board">
         <div className={style.boardViewport} ref={boardViewportRef}>
@@ -674,8 +676,8 @@ function Game() {
 
       <HamburgerMenu
         open={isMenuOpen}
-        showLevelBest={showLevelBest}
-        onShowLevelBestChange={setShowLevelBest}
+        showPlayStats={showPlayStats}
+        onShowPlayStatsChange={setShowPlayStats}
         onClose={onCloseMenu}
         onOpenSfx={onOpenSfxFromMenu}
         onOpenAbout={onOpenAboutFromMenu}
@@ -753,10 +755,12 @@ function Game() {
                 return to Level 1 in this pack.
               </p>
             )}
-            <div className={style.completionStats} aria-label="Run and best records">
-              <p className={style.completionStatsLine}>{currentRunText}</p>
-              {showLevelBest && <p className={style.completionStatsLine}>{levelBestText}</p>}
-            </div>
+            {showPlayStats && (
+              <div className={style.completionStats} aria-label="Run and best records">
+                <p className={style.completionStatsLine}>{currentRunText}</p>
+                <p className={style.completionStatsLine}>{levelBestText}</p>
+              </div>
+            )}
             <button type="button" className={style.completionButton} onClick={next}>
               Continue
             </button>

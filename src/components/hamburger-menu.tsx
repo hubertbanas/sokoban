@@ -4,8 +4,8 @@ import { ThemeSwitcher } from "./theme-switcher";
 
 type HamburgerMenuProps = {
     open: boolean;
-    showLevelBest: boolean;
-    onShowLevelBestChange: (next: boolean) => void;
+    showPlayStats: boolean;
+    onShowPlayStatsChange: (next: boolean) => void;
     onClose: () => void;
     onOpenSfx: () => void;
     onOpenAbout: () => void;
@@ -13,8 +13,8 @@ type HamburgerMenuProps = {
 
 function HamburgerMenuImpl({
     open,
-    showLevelBest,
-    onShowLevelBestChange,
+    showPlayStats,
+    onShowPlayStatsChange,
     onClose,
     onOpenSfx,
     onOpenAbout,
@@ -54,17 +54,17 @@ function HamburgerMenuImpl({
                     </div>
 
                     <div className={style.menuThemeRow}>
-                        <span className={style.menuThemeLabel}>Show Level Best</span>
+                        <span className={style.menuThemeLabel}>Show Play Stats</span>
                         <div className={style.themeSliderRow}>
                             <input
-                                id="level-best-toggle"
+                                id="play-stats-toggle"
                                 className={style.themeToggleCheckbox}
                                 type="checkbox"
-                                checked={showLevelBest}
-                                onChange={(event) => onShowLevelBestChange(event.target.checked)}
-                                aria-label={showLevelBest ? "Hide level best stats" : "Show level best stats"}
+                                checked={showPlayStats}
+                                onChange={(event) => onShowPlayStatsChange(event.target.checked)}
+                                aria-label={showPlayStats ? "Hide play stats" : "Show play stats"}
                             />
-                            <label htmlFor="level-best-toggle" className={style.themeToggleLabel}>
+                            <label htmlFor="play-stats-toggle" className={style.themeToggleLabel}>
                                 <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
                                 <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
                                 <span className={style.themeToggleBall} />
