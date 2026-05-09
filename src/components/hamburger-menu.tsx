@@ -4,12 +4,21 @@ import { ThemeSwitcher } from "./theme-switcher";
 
 type HamburgerMenuProps = {
     open: boolean;
+    showPlayStats: boolean;
+    onShowPlayStatsChange: (next: boolean) => void;
     onClose: () => void;
     onOpenSfx: () => void;
     onOpenAbout: () => void;
 };
 
-function HamburgerMenuImpl({ open, onClose, onOpenSfx, onOpenAbout }: HamburgerMenuProps) {
+function HamburgerMenuImpl({
+    open,
+    showPlayStats,
+    onShowPlayStatsChange,
+    onClose,
+    onOpenSfx,
+    onOpenAbout,
+}: HamburgerMenuProps) {
     return (
         <>
             <div
@@ -42,6 +51,25 @@ function HamburgerMenuImpl({ open, onClose, onOpenSfx, onOpenAbout }: HamburgerM
                     <div className={style.menuThemeRow}>
                         <span className={style.menuThemeLabel}>Theme</span>
                         <ThemeSwitcher />
+                    </div>
+
+                    <div className={style.menuThemeRow}>
+                        <span className={style.menuThemeLabel}>Show Play Stats</span>
+                        <div className={style.themeSliderRow}>
+                            <input
+                                id="play-stats-toggle"
+                                className={style.themeToggleCheckbox}
+                                type="checkbox"
+                                checked={showPlayStats}
+                                onChange={(event) => onShowPlayStatsChange(event.target.checked)}
+                                aria-label={showPlayStats ? "Hide play stats" : "Show play stats"}
+                            />
+                            <label htmlFor="play-stats-toggle" className={style.themeToggleLabel}>
+                                <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
+                                <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
+                                <span className={style.themeToggleBall} />
+                            </label>
+                        </div>
                     </div>
 
                     <button type="button" className={style.menuItemButton} onClick={onOpenSfx}>

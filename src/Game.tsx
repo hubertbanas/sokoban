@@ -8,11 +8,23 @@ import { useSokoban, Direction, State } from "./hooks/sokoban";
 import { useGameSounds } from "./hooks/useGameSounds";
 import { useKeyBoard } from "./hooks/keyboard";
 import { Block } from "./hooks/levels";
+import { useStats } from "./hooks/useStats";
 import style from "./components/sokoban.module.css";
 import { cn } from "./utils/classnames";
 import { styleFrom, styleDirection } from "./utils/block-styles";
 import { Modal } from "./components/modal";
 import { LevelSelectorModal } from "./components/level-selector-modal";
+
+function formatElapsedTime(timeMs: number): string {
+  const totalSeconds = Math.max(0, Math.floor(timeMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatMoveLabel(moves: number): string {
+  return `${moves} ${moves === 1 ? "move" : "moves"}`;
+}
 
 function useHoldToRepeat(
   action: () => void,
@@ -101,6 +113,9 @@ function Game() {
     index,
     level,
     levelPacks,
+    moveCount,
+    elapsedTimeMs,
+    completionMetrics,
     state,
     move,
     next,
@@ -112,6 +127,7 @@ function Game() {
     hasProgress,
     totalLevels,
   } = useSokoban();
+  const { stats, saveLevelResult } = useStats();
   const {
     playCratePush,
     playCrateDocked,
@@ -129,6 +145,8 @@ function Game() {
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  // Play statistics are optional HUD info; default off to keep the board area less noisy.
+  const [showPlayStats, setShowPlayStats] = React.useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
@@ -314,12 +332,26 @@ function Game() {
   const previousStateRef = React.useRef(state);
 
   React.useEffect(() => {
-    if (state === State.completed && previousStateRef.current !== State.completed) {
+    const didCompleteNow = state === State.completed && previousStateRef.current !== State.completed;
+
+    if (didCompleteNow) {
       playLevelComplete();
+
+      if (completionMetrics) {
+        // Keep dual-key persistence even though the UI currently shows only Level Best.
+        // `levelId` powers player-facing per-level stats, while `puzzleId` keeps
+        // cross-level puzzle records for future packs that may reuse layouts.
+        saveLevelResult({
+          levelId: level.levelId,
+          puzzleId: level.puzzleId,
+          moves: completionMetrics.moves,
+          timeMs: completionMetrics.timeMs,
+        });
+      }
     }
 
     previousStateRef.current = state;
-  }, [playLevelComplete, state]);
+  }, [completionMetrics, level.levelId, level.puzzleId, playLevelComplete, saveLevelResult, state]);
 
   const confirmationDialog = React.useMemo(() => {
     switch (pendingAction?.type) {
@@ -443,6 +475,18 @@ function Game() {
     const currentPackLevelNumber = currentPackLevelIndex >= 0 ? currentPackLevelIndex + 1 : 1;
     return `${currentPackLevelNumber} / ${currentPack.levels.length}`;
   }, [currentPack, currentPackLevelIndex, index, levelCount]);
+  const levelBest = stats.progression[level.levelId];
+  const levelBestText = React.useMemo(() => {
+    if (!levelBest || levelBest.bestMovesInLevel === null || levelBest.bestTimeMsInLevel === null) {
+      return "Level Best: No record yet";
+    }
+
+    return `Level Best: ${formatMoveLabel(levelBest.bestMovesInLevel)} in ${formatElapsedTime(levelBest.bestTimeMsInLevel)}`;
+  }, [levelBest]);
+  const currentRunText = React.useMemo(
+    () => `Current Run: ${formatMoveLabel(moveCount)} in ${formatElapsedTime(elapsedTimeMs)}`,
+    [elapsedTimeMs, moveCount]
+  );
 
   useKeyBoard(
     (event) => {
@@ -598,6 +642,13 @@ function Game() {
         <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
+      {showPlayStats && (
+        <section className={style.bestStatsBar} aria-label="Play statistics">
+          <p className={style.bestStatsChip}>{currentRunText}</p>
+          <p className={style.bestStatsChip}>{levelBestText}</p>
+        </section>
+      )}
+
       <section className={style.mapArea} aria-label="Sokoban board">
         <div className={style.boardViewport} ref={boardViewportRef}>
           <div className={style.board} style={boardVars}>
@@ -625,6 +676,8 @@ function Game() {
 
       <HamburgerMenu
         open={isMenuOpen}
+        showPlayStats={showPlayStats}
+        onShowPlayStatsChange={setShowPlayStats}
         onClose={onCloseMenu}
         onOpenSfx={onOpenSfxFromMenu}
         onOpenAbout={onOpenAboutFromMenu}
@@ -701,6 +754,12 @@ function Game() {
                 Switch to a different level pack from the level selector, or press Continue to
                 return to Level 1 in this pack.
               </p>
+            )}
+            {showPlayStats && (
+              <div className={style.completionStats} aria-label="Run and best records">
+                <p className={style.completionStatsLine}>{currentRunText}</p>
+                <p className={style.completionStatsLine}>{levelBestText}</p>
+              </div>
             )}
             <button type="button" className={style.completionButton} onClick={next}>
               Continue

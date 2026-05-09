@@ -9,6 +9,7 @@ import { Block } from "./hooks/levels";
 import { Direction, State, useSokoban, type MoveOutcome } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
 import { useGameSounds } from "./hooks/useGameSounds";
+import { useStats } from "./hooks/useStats";
 import style from "./components/sokoban.module.css";
 
 vi.mock("./hooks/keyboard", () => ({
@@ -59,6 +60,10 @@ vi.mock("./hooks/useGameSounds", () => ({
   useGameSounds: vi.fn(),
 }));
 
+vi.mock("./hooks/useStats", () => ({
+  useStats: vi.fn(),
+}));
+
 vi.mock("./hooks/sokoban", () => {
   const Direction = {
     Left: 0,
@@ -81,6 +86,7 @@ vi.mock("./hooks/sokoban", () => {
 const mockedUseSokoban = vi.mocked(useSokoban);
 const mockedUseKeyBoard = vi.mocked(useKeyBoard);
 const mockedUseGameSounds = vi.mocked(useGameSounds);
+const mockedUseStats = vi.mocked(useStats);
 const cssText = readFileSync(resolve(process.cwd(), "src/components/sokoban.module.css"), "utf-8");
 
 function hasUserSelectNone(className: string) {
@@ -151,6 +157,9 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
     totalLevels: 500,
     level: buildLevel(),
     levelPacks: buildLevelPacks(),
+    moveCount: 0,
+    elapsedTimeMs: 0,
+    completionMetrics: null,
     state: State.playing,
     hasProgress: false,
     move: vi.fn(),
@@ -165,6 +174,20 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
   const value = { ...defaults, ...overrides };
   mockedUseSokoban.mockReturnValue(value);
   return value;
+}
+
+function createMockStats(overrides: Partial<ReturnType<typeof useStats>> = {}): ReturnType<typeof useStats> {
+  return {
+    stats: {
+      version: 1,
+      updatedAt: 0,
+      progression: {},
+      records: {},
+    },
+    saveLevelResult: vi.fn(),
+    clearStats: vi.fn(),
+    ...overrides,
+  };
 }
 
 function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds>> = {}) {
@@ -185,6 +208,22 @@ function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds
   };
 }
 
+function setPlayStatsVisibility(enabled: boolean) {
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  const toggle = screen.getByRole("checkbox", { name: /play stats/i });
+
+  if (!(toggle instanceof HTMLInputElement)) {
+    throw new Error("Expected play stats toggle to be an input element");
+  }
+
+  if (toggle.checked !== enabled) {
+    fireEvent.click(toggle);
+  }
+
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /close menu/i }));
+}
+
 beforeAll(() => {
   class ResizeObserverMock {
     observe() { }
@@ -203,7 +242,9 @@ beforeEach(() => {
   mockedUseSokoban.mockReset();
   mockedUseKeyBoard.mockReset();
   mockedUseGameSounds.mockReset();
+  mockedUseStats.mockReset();
   mockedUseGameSounds.mockReturnValue(createMockGameSounds());
+  mockedUseStats.mockReturnValue(createMockStats());
 });
 
 afterEach(() => {
@@ -522,6 +563,150 @@ test("displays completion popup when level is completed", () => {
   expect(screen.getByText(/you completed this level\./i)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
+});
+
+test("hides play stats UI when toggle is off by default", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(screen.queryByText("Current Run: 0 moves in 0:00")).not.toBeInTheDocument();
+  expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
+});
+
+test("keeps completion dialog play stats hidden when toggle is off", () => {
+  const level = buildLevel();
+  mockSokoban({ state: State.playing, level });
+
+  const { rerender } = render(<Game />);
+
+  mockSokoban({ state: State.completed, level });
+  rerender(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).queryByText(/^Current Run:/)).not.toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Level Best:/)).not.toBeInTheDocument();
+});
+
+test("renders current run and level best placeholders when play stats toggle is enabled", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+  setPlayStatsVisibility(true);
+
+  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
+  expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+});
+
+test("hides both play stats lines after disabling the toggle", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+  setPlayStatsVisibility(true);
+  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
+  expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+
+  setPlayStatsVisibility(false);
+  expect(screen.queryByText("Current Run: 0 moves in 0:00")).not.toBeInTheDocument();
+  expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
+});
+
+test("renders realtime current run status from useSokoban", () => {
+  mockSokoban({
+    state: State.playing,
+    moveCount: 12,
+    elapsedTimeMs: 74_500,
+  });
+
+  render(<Game />);
+  setPlayStatsVisibility(true);
+
+  expect(screen.getByText("Current Run: 12 moves in 1:14")).toBeInTheDocument();
+});
+
+test("renders level best from useStats", () => {
+  const level = buildLevel();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      stats: {
+        version: 1,
+        updatedAt: 1700,
+        progression: {
+          [level.levelId]: {
+            playCount: 3,
+            completionCount: 2,
+            isCompleted: true,
+            lastPlayedAt: 1500,
+            lastCompletedAt: 1600,
+            bestMovesInLevel: 9,
+            bestTimeMsInLevel: 13_000,
+          },
+        },
+        records: {
+          [level.puzzleId]: {
+            bestMoves: 8,
+            bestTimeMs: 11_000,
+            solveCount: 5,
+            firstSolvedAt: 1200,
+            lastSolvedAt: 1700,
+          },
+        },
+      },
+    })
+  );
+  mockSokoban({ state: State.playing, level });
+
+  render(<Game />);
+  setPlayStatsVisibility(true);
+
+  expect(screen.getByText("Level Best: 9 moves in 0:13")).toBeInTheDocument();
+  expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
+});
+
+test("shows level best inside completion dialog", () => {
+  const level = buildLevel();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      stats: {
+        version: 1,
+        updatedAt: 1700,
+        progression: {
+          [level.levelId]: {
+            playCount: 1,
+            completionCount: 1,
+            isCompleted: true,
+            lastPlayedAt: 1600,
+            lastCompletedAt: 1700,
+            bestMovesInLevel: 1,
+            bestTimeMsInLevel: 2_000,
+          },
+        },
+        records: {
+          [level.puzzleId]: {
+            bestMoves: 1,
+            bestTimeMs: 2_000,
+            solveCount: 1,
+            firstSolvedAt: 1700,
+            lastSolvedAt: 1700,
+          },
+        },
+      },
+    })
+  );
+  mockSokoban({ state: State.playing, level });
+
+  const { rerender } = render(<Game />);
+  setPlayStatsVisibility(true);
+
+  mockSokoban({ state: State.completed, level });
+  rerender(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
+  expect(within(completionDialog).getByText("Level Best: 1 move in 0:02")).toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
 test("displays pack-complete message on the last level of the current pack", () => {
@@ -1007,6 +1192,85 @@ test("plays level complete sound when state changes to completed", () => {
   rerender(<Game />);
 
   expect(playLevelComplete).toHaveBeenCalledTimes(1);
+});
+
+test("saves completion metrics when state changes to completed", () => {
+  const saveLevelResult = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      saveLevelResult,
+    })
+  );
+
+  const completedLevel = buildLevel();
+  const completionMetrics = {
+    moves: 12,
+    timeMs: 3456,
+  };
+
+  mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
+
+  const { rerender } = render(<Game />);
+  expect(saveLevelResult).not.toHaveBeenCalled();
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics });
+  rerender(<Game />);
+
+  expect(saveLevelResult).toHaveBeenCalledTimes(1);
+  expect(saveLevelResult).toHaveBeenCalledWith({
+    levelId: completedLevel.levelId,
+    puzzleId: completedLevel.puzzleId,
+    moves: completionMetrics.moves,
+    timeMs: completionMetrics.timeMs,
+  });
+});
+
+test("saves completion metrics only once per completion transition", () => {
+  const saveLevelResult = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      saveLevelResult,
+    })
+  );
+
+  const completedLevel = buildLevel();
+  const completionMetrics = {
+    moves: 7,
+    timeMs: 1234,
+  };
+
+  mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
+  const { rerender } = render(<Game />);
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics });
+  rerender(<Game />);
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics });
+  rerender(<Game />);
+
+  expect(saveLevelResult).toHaveBeenCalledTimes(1);
+});
+
+test("does not save completion metrics when they are unavailable", () => {
+  const saveLevelResult = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      saveLevelResult,
+    })
+  );
+
+  const completedLevel = buildLevel();
+
+  mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
+  const { rerender } = render(<Game />);
+
+  mockSokoban({ state: State.completed, level: completedLevel, completionMetrics: null });
+  rerender(<Game />);
+
+  expect(saveLevelResult).not.toHaveBeenCalled();
 });
 
 test("restart confirmation opens with Escape when progress exists", () => {

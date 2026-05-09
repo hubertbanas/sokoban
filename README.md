@@ -29,6 +29,18 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 - `Escape`: Restart current level
 - `[` / `]`: Previous / Next level
 
+## Statistics
+
+- The game UI can show play statistics via a single menu toggle.
+- `Menu -> Show Play Stats` is off by default to keep the HUD minimal.
+- When enabled, the HUD shows:
+	- `Current Run` with live move count and time spent on the current level.
+	- `Level Best` (best moves/time for the current level entry).
+- Internally, the stats model stores both `levelId` and `puzzleId` records:
+	- `levelId` is used for player-facing per-level progress and bests.
+	- `puzzleId` is retained for forward compatibility in case future packs reuse the same puzzle layout across different levels.
+- In the current bundled packs, puzzle layouts are unique, so level and puzzle records are effectively identical today.
+
 ## More Information
 
 - More screenshots: [Screenshots](docs/screenshots.md)
