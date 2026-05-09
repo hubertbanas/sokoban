@@ -31,7 +31,8 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 
 ## Statistics
 
-- The game UI shows `Level Best` (best moves/time for the current level entry).
+- The game UI can show `Level Best` (best moves/time for the current level entry) via a menu toggle.
+- `Menu -> Show Level Best` is off by default to keep the HUD minimal.
 - Internally, the stats model stores both `levelId` and `puzzleId` records:
 	- `levelId` is used for player-facing per-level progress and bests.
 	- `puzzleId` is retained for forward compatibility in case future packs reuse the same puzzle layout across different levels.

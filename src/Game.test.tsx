@@ -206,6 +206,22 @@ function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds
   };
 }
 
+function setLevelBestVisibility(enabled: boolean) {
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  const toggle = screen.getByRole("checkbox", { name: /level best stats/i });
+
+  if (!(toggle instanceof HTMLInputElement)) {
+    throw new Error("Expected level best toggle to be an input element");
+  }
+
+  if (toggle.checked !== enabled) {
+    fireEvent.click(toggle);
+  }
+
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /close menu/i }));
+}
+
 beforeAll(() => {
   class ResizeObserverMock {
     observe() { }
@@ -547,13 +563,21 @@ test("displays completion popup when level is completed", () => {
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
 });
 
-test("renders no-record placeholders when best stats are unavailable", () => {
+test("hides level best UI when toggle is off by default", () => {
   mockSokoban({ state: State.playing });
 
   render(<Game />);
 
+  expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
+});
+
+test("renders no-record placeholders when level best toggle is enabled", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+  setLevelBestVisibility(true);
+
   expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
-  expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
 test("renders level best from useStats", () => {
@@ -590,6 +614,7 @@ test("renders level best from useStats", () => {
   mockSokoban({ state: State.playing, level });
 
   render(<Game />);
+  setLevelBestVisibility(true);
 
   expect(screen.getByText("Level Best: 9 moves in 0:13")).toBeInTheDocument();
   expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
@@ -626,9 +651,13 @@ test("shows level best inside completion dialog", () => {
       },
     })
   );
-  mockSokoban({ state: State.completed, level });
+  mockSokoban({ state: State.playing, level });
 
-  render(<Game />);
+  const { rerender } = render(<Game />);
+  setLevelBestVisibility(true);
+
+  mockSokoban({ state: State.completed, level });
+  rerender(<Game />);
 
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
   expect(within(completionDialog).getByText("Level Best: 1 move in 0:02")).toBeInTheDocument();

@@ -953,6 +953,17 @@
     color: var(--text);
 }
 
+.levelBestToggleOff,
+.levelBestToggleOn {
+    width: 14px;
+    text-align: center;
+    font-size: 0.56rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
 .themeToggleCheckbox:checked+.themeToggleLabel {
     background: var(--accent);
     border-color: var(--accent);

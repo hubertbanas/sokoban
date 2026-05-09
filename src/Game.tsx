@@ -143,6 +143,8 @@ function Game() {
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  // Level Best is optional HUD info; default off to keep the board area less noisy.
+  const [showLevelBest, setShowLevelBest] = React.useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
@@ -634,9 +636,11 @@ function Game() {
         <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
-      <section className={style.bestStatsBar} aria-label="Best statistics">
-        <p className={style.bestStatsChip}>{levelBestText}</p>
-      </section>
+      {showLevelBest && (
+        <section className={style.bestStatsBar} aria-label="Best statistics">
+          <p className={style.bestStatsChip}>{levelBestText}</p>
+        </section>
+      )}
 
       <section className={style.mapArea} aria-label="Sokoban board">
         <div className={style.boardViewport} ref={boardViewportRef}>
@@ -665,6 +669,8 @@ function Game() {
 
       <HamburgerMenu
         open={isMenuOpen}
+        showLevelBest={showLevelBest}
+        onShowLevelBestChange={setShowLevelBest}
         onClose={onCloseMenu}
         onOpenSfx={onOpenSfxFromMenu}
         onOpenAbout={onOpenAboutFromMenu}
@@ -742,9 +748,11 @@ function Game() {
                 return to Level 1 in this pack.
               </p>
             )}
-            <div className={style.completionStats} aria-label="Best records">
-              <p className={style.completionStatsLine}>{levelBestText}</p>
-            </div>
+            {showLevelBest && (
+              <div className={style.completionStats} aria-label="Best records">
+                <p className={style.completionStatsLine}>{levelBestText}</p>
+              </div>
+            )}
             <button type="button" className={style.completionButton} onClick={next}>
               Continue
             </button>
