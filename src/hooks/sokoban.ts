@@ -64,6 +64,7 @@ export function useSokoban() {
   const [state, setState] = useState<State>(State.playing);
   const [hasProgress, setHasProgress] = useState(false);
   const [moveCount, setMoveCount] = useState(0);
+  const [elapsedTimeMs, setElapsedTimeMs] = useState(0);
   const [completionMetrics, setCompletionMetrics] = useState<CompletionMetrics | null>(null);
   const levelStartedAtRef = useRef(Date.now());
   const initboard = useCallback(
@@ -80,6 +81,7 @@ export function useSokoban() {
 
   const resetLevelRuntime = useCallback(() => {
     setMoveCount(0);
+    setElapsedTimeMs(0);
     setCompletionMetrics(null);
     levelStartedAtRef.current = Date.now();
   }, []);
@@ -142,10 +144,12 @@ export function useSokoban() {
             )
           )
         ) {
+          const finalElapsedTimeMs = Math.max(0, Date.now() - levelStartedAtRef.current);
           setState(State.completed);
+          setElapsedTimeMs(finalElapsedTimeMs);
           setCompletionMetrics({
             moves: nextMoveCount,
-            timeMs: Math.max(0, Date.now() - levelStartedAtRef.current),
+            timeMs: finalElapsedTimeMs,
           });
         }
         if (!movingBlock) board.pop();
@@ -228,11 +232,28 @@ export function useSokoban() {
     }
   }, [board, state, level, loadNext, next, restart, initboard, move, resetLevelRuntime]);
 
+  useEffect(() => {
+    if (state !== State.playing || typeof window === "undefined") {
+      return;
+    }
+
+    const updateElapsedTime = () => {
+      setElapsedTimeMs(Math.max(0, Date.now() - levelStartedAtRef.current));
+    };
+
+    updateElapsedTime();
+
+    const timerId = window.setInterval(updateElapsedTime, 250);
+    return () => window.clearInterval(timerId);
+  }, [state]);
+
   return {
     index,
     level: board[board.length - 1],
     levelPacks,
     totalLevels,
+    moveCount,
+    elapsedTimeMs,
     completionMetrics,
     state,
     move,

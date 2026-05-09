@@ -157,6 +157,8 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
     totalLevels: 500,
     level: buildLevel(),
     levelPacks: buildLevelPacks(),
+    moveCount: 0,
+    elapsedTimeMs: 0,
     completionMetrics: null,
     state: State.playing,
     hasProgress: false,
@@ -568,6 +570,7 @@ test("hides level best UI when toggle is off by default", () => {
 
   render(<Game />);
 
+  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
   expect(screen.queryByText("Level Best: No record yet")).not.toBeInTheDocument();
 });
 
@@ -577,7 +580,20 @@ test("renders no-record placeholders when level best toggle is enabled", () => {
   render(<Game />);
   setLevelBestVisibility(true);
 
+  expect(screen.getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
   expect(screen.getByText("Level Best: No record yet")).toBeInTheDocument();
+});
+
+test("renders realtime current run status from useSokoban", () => {
+  mockSokoban({
+    state: State.playing,
+    moveCount: 12,
+    elapsedTimeMs: 74_500,
+  });
+
+  render(<Game />);
+
+  expect(screen.getByText("Current Run: 12 moves in 1:14")).toBeInTheDocument();
 });
 
 test("renders level best from useStats", () => {
@@ -660,6 +676,7 @@ test("shows level best inside completion dialog", () => {
   rerender(<Game />);
 
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText("Current Run: 0 moves in 0:00")).toBeInTheDocument();
   expect(within(completionDialog).getByText("Level Best: 1 move in 0:02")).toBeInTheDocument();
   expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });

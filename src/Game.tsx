@@ -113,6 +113,8 @@ function Game() {
     index,
     level,
     levelPacks,
+    moveCount,
+    elapsedTimeMs,
     completionMetrics,
     state,
     move,
@@ -481,6 +483,10 @@ function Game() {
 
     return `Level Best: ${formatMoveLabel(levelBest.bestMovesInLevel)} in ${formatElapsedTime(levelBest.bestTimeMsInLevel)}`;
   }, [levelBest]);
+  const currentRunText = React.useMemo(
+    () => `Current Run: ${formatMoveLabel(moveCount)} in ${formatElapsedTime(elapsedTimeMs)}`,
+    [elapsedTimeMs, moveCount]
+  );
 
   useKeyBoard(
     (event) => {
@@ -636,11 +642,10 @@ function Game() {
         <div className={style.topBarSpacer} aria-hidden="true" />
       </header>
 
-      {showLevelBest && (
-        <section className={style.bestStatsBar} aria-label="Best statistics">
-          <p className={style.bestStatsChip}>{levelBestText}</p>
-        </section>
-      )}
+      <section className={style.bestStatsBar} aria-label="Play statistics">
+        <p className={style.bestStatsChip}>{currentRunText}</p>
+        {showLevelBest && <p className={style.bestStatsChip}>{levelBestText}</p>}
+      </section>
 
       <section className={style.mapArea} aria-label="Sokoban board">
         <div className={style.boardViewport} ref={boardViewportRef}>
@@ -748,11 +753,10 @@ function Game() {
                 return to Level 1 in this pack.
               </p>
             )}
-            {showLevelBest && (
-              <div className={style.completionStats} aria-label="Best records">
-                <p className={style.completionStatsLine}>{levelBestText}</p>
-              </div>
-            )}
+            <div className={style.completionStats} aria-label="Run and best records">
+              <p className={style.completionStatsLine}>{currentRunText}</p>
+              {showLevelBest && <p className={style.completionStatsLine}>{levelBestText}</p>}
+            </div>
             <button type="button" className={style.completionButton} onClick={next}>
               Continue
             </button>
