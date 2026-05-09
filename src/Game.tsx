@@ -416,6 +416,25 @@ function Game() {
     "--tile-radius": `${tileRadius}px`,
   } as React.CSSProperties;
   const levelCount = totalLevels ?? index + 1;
+  const currentPack = React.useMemo(
+    () => levelPacks.find((pack) => pack.packId === level.packId),
+    [level.packId, levelPacks]
+  );
+  const currentPackLevelIndex = React.useMemo(() => {
+    if (!currentPack) {
+      return -1;
+    }
+
+    return currentPack.levels.findIndex((packLevel) => packLevel.levelId === level.levelId);
+  }, [currentPack, level.levelId]);
+  const levelPickerLabel = React.useMemo(() => {
+    if (!currentPack || currentPack.levels.length === 0) {
+      return `Level ${index + 1} / ${levelCount}`;
+    }
+
+    const currentPackLevelNumber = currentPackLevelIndex >= 0 ? currentPackLevelIndex + 1 : 1;
+    return `${currentPack.title}: Level ${currentPackLevelNumber} / ${currentPack.levels.length}`;
+  }, [currentPack, currentPackLevelIndex, index, levelCount]);
 
   useKeyBoard(
     (event) => {
@@ -552,7 +571,7 @@ function Game() {
               title="Open level selector"
               onClick={onOpenLevelSelector}
             >
-              Level {index + 1} / {levelCount}
+              {levelPickerLabel}
             </button>
 
             <button

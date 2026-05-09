@@ -564,7 +564,7 @@ test("completion popup appears dynamically when state changes to completed", () 
   expect(screen.getByRole("dialog", { name: /level completed/i })).toBeInTheDocument();
 });
 
-test("renders correct level number", () => {
+test("renders pack-aware level number", () => {
   mockSokoban({
     index: 4,
     level: {
@@ -575,8 +575,21 @@ test("renders correct level number", () => {
 
   render(<Game />);
 
-  expect(screen.getByText("Level 5 / 500")).toBeInTheDocument();
+  expect(screen.getByText("Test Pack: Level 1 / 2")).toBeInTheDocument();
   expect(screen.queryByText("The Box Puzzle")).not.toBeInTheDocument();
+});
+
+test("renders currently selected pack and local level index", () => {
+  const levelPacks = buildLevelPacks();
+
+  mockSokoban({
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  expect(screen.getByText("Test Pack: Level 2 / 2")).toBeInTheDocument();
 });
 
 test("opens level selector modal from level number button", () => {
