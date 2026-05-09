@@ -427,6 +427,13 @@ function Game() {
 
     return currentPack.levels.findIndex((packLevel) => packLevel.levelId === level.levelId);
   }, [currentPack, level.levelId]);
+  const isLastLevelInCurrentPack = React.useMemo(() => {
+    if (!currentPack || currentPack.levels.length === 0 || currentPackLevelIndex < 0) {
+      return false;
+    }
+
+    return currentPackLevelIndex === currentPack.levels.length - 1;
+  }, [currentPack, currentPackLevelIndex]);
   const levelPickerPackName = currentPack?.title ?? "Levels";
   const levelPickerNumbers = React.useMemo(() => {
     if (!currentPack || currentPack.levels.length === 0) {
@@ -681,8 +688,20 @@ function Game() {
       {state === State.completed && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
           <div className={style.completionCard}>
-            <h2 className={style.completionTitle}>Congratulations!</h2>
-            <p className={style.completionText}>You completed this level.</p>
+            <h2 className={style.completionTitle}>
+              {isLastLevelInCurrentPack ? "Level Pack Complete!" : "Congratulations!"}
+            </h2>
+            <p className={style.completionText}>
+              {isLastLevelInCurrentPack
+                ? "You completed the last level in this pack."
+                : "You completed this level."}
+            </p>
+            {isLastLevelInCurrentPack && (
+              <p className={style.completionText}>
+                Switch to a different level pack from the level selector, or press Continue to
+                return to Level 1 in this pack.
+              </p>
+            )}
             <button type="button" className={style.completionButton} onClick={next}>
               Continue
             </button>

@@ -524,6 +524,21 @@ test("displays completion popup when level is completed", () => {
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
 });
 
+test("displays pack-complete message on the last level of the current pack", () => {
+  const levelPacks = buildLevelPacks();
+  mockSokoban({
+    state: State.completed,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  expect(screen.getByRole("heading", { name: /level pack complete!/i })).toBeInTheDocument();
+  expect(screen.getByText(/you completed the last level in this pack\./i)).toBeInTheDocument();
+  expect(screen.getByText(/switch to a different level pack/i)).toBeInTheDocument();
+});
+
 test("clicking continue on completion popup advances to the next level", () => {
   const next = vi.fn();
   mockSokoban({ state: State.completed, next });
