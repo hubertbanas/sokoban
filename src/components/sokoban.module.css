@@ -628,6 +628,10 @@
     font-weight: 700;
 }
 
+.levelSelectorPackPlayButton {
+    align-self: center;
+}
+
 .levelSelectorPackDescription {
     margin: 10px 0 12px;
     color: var(--muted);

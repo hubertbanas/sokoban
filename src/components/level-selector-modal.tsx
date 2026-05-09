@@ -40,7 +40,7 @@ function LevelSelectorModal({
 
                                 <button
                                     type="button"
-                                    className={style.levelNavButton}
+                                    className={`${style.levelNavButton} ${style.levelSelectorPackPlayButton}`}
                                     onClick={() => {
                                         if (!pack.levels.length) {
                                             return;
