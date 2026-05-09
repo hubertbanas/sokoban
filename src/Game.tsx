@@ -22,8 +22,53 @@ function formatElapsedTime(timeMs: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function formatMoveLabel(moves: number): string {
-  return `${moves} ${moves === 1 ? "move" : "moves"}`;
+export const PLAY_STATS_STORAGE_KEY = "sokoban-play-stats-visible";
+
+function parseStoredPlayStatsVisibility(value: string | null): boolean {
+  return value === "true";
+}
+
+function getInitialPlayStatsVisibility(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return parseStoredPlayStatsVisibility(window.localStorage.getItem(PLAY_STATS_STORAGE_KEY));
+}
+
+type StatsTableProps = {
+  rowClassName: string;
+  currentMoves: number;
+  currentTimeMs: number;
+  bestMoves: number | null;
+  bestTimeMs: number | null;
+};
+
+function StatsTable({ rowClassName, currentMoves, currentTimeMs, bestMoves, bestTimeMs }: StatsTableProps) {
+  const currentMoveValue = String(currentMoves);
+  const currentTimeValue = formatElapsedTime(currentTimeMs);
+  const bestMoveValue = bestMoves === null ? "--" : String(bestMoves);
+  const bestTimeValue = bestTimeMs === null ? "--:--" : formatElapsedTime(bestTimeMs);
+
+  return (
+    <>
+      <p className={rowClassName} aria-hidden="true">
+        <span className={style.statsHeaderCell}>Run</span>
+        <span className={style.statsHeaderCell}>Moves</span>
+        <span className={style.statsHeaderCell}>Time</span>
+      </p>
+      <p className={rowClassName} aria-label={`Current: Moves ${currentMoveValue} Time ${currentTimeValue}`}>
+        <span className={style.statsRunCell}>Current</span>
+        <span className={style.statsValueCell}>{currentMoveValue}</span>
+        <span className={style.statsValueCell}>{currentTimeValue}</span>
+      </p>
+      <p className={rowClassName} aria-label={`Best: Moves ${bestMoveValue} Time ${bestTimeValue}`}>
+        <span className={style.statsRunCell}>Best</span>
+        <span className={style.statsValueCell}>{bestMoveValue}</span>
+        <span className={style.statsValueCell}>{bestTimeValue}</span>
+      </p>
+    </>
+  );
 }
 
 function useHoldToRepeat(
@@ -146,11 +191,19 @@ function Game() {
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
-  const [showPlayStats, setShowPlayStats] = React.useState(false);
+  const [showPlayStats, setShowPlayStats] = React.useState(getInitialPlayStatsVisibility);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
   const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen || isLevelSelectorOpen;
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(PLAY_STATS_STORAGE_KEY, String(showPlayStats));
+  }, [showPlayStats]);
 
   type PendingAction =
     | { type: "restart" }
@@ -338,7 +391,7 @@ function Game() {
       playLevelComplete();
 
       if (completionMetrics) {
-        // Keep dual-key persistence even though the UI currently shows only Level Best.
+        // Keep dual-key persistence even though the UI surfaces per-level Best values.
         // `levelId` powers player-facing per-level stats, while `puzzleId` keeps
         // cross-level puzzle records for future packs that may reuse layouts.
         saveLevelResult({
@@ -476,17 +529,12 @@ function Game() {
     return `${currentPackLevelNumber} / ${currentPack.levels.length}`;
   }, [currentPack, currentPackLevelIndex, index, levelCount]);
   const levelBest = stats.progression[level.levelId];
-  const levelBestText = React.useMemo(() => {
-    if (!levelBest || levelBest.bestMovesInLevel === null || levelBest.bestTimeMsInLevel === null) {
-      return "Level Best: No record yet";
-    }
-
-    return `Level Best: ${formatMoveLabel(levelBest.bestMovesInLevel)} in ${formatElapsedTime(levelBest.bestTimeMsInLevel)}`;
-  }, [levelBest]);
-  const currentRunText = React.useMemo(
-    () => `Current Run: ${formatMoveLabel(moveCount)} in ${formatElapsedTime(elapsedTimeMs)}`,
-    [elapsedTimeMs, moveCount]
-  );
+  const hasLevelBestRecord =
+    levelBest !== undefined &&
+    levelBest.bestMovesInLevel !== null &&
+    levelBest.bestTimeMsInLevel !== null;
+  const levelBestMoves = hasLevelBestRecord ? levelBest.bestMovesInLevel : null;
+  const levelBestTimeMs = hasLevelBestRecord ? levelBest.bestTimeMsInLevel : null;
 
   useKeyBoard(
     (event) => {
@@ -644,8 +692,13 @@ function Game() {
 
       {showPlayStats && (
         <section className={style.bestStatsBar} aria-label="Play statistics">
-          <p className={style.bestStatsChip}>{currentRunText}</p>
-          <p className={style.bestStatsChip}>{levelBestText}</p>
+          <StatsTable
+            rowClassName={style.bestStatsRow}
+            currentMoves={moveCount}
+            currentTimeMs={elapsedTimeMs}
+            bestMoves={levelBestMoves}
+            bestTimeMs={levelBestTimeMs}
+          />
         </section>
       )}
 
@@ -757,8 +810,13 @@ function Game() {
             )}
             {showPlayStats && (
               <div className={style.completionStats} aria-label="Run and best records">
-                <p className={style.completionStatsLine}>{currentRunText}</p>
-                <p className={style.completionStatsLine}>{levelBestText}</p>
+                <StatsTable
+                  rowClassName={style.completionStatsRow}
+                  currentMoves={moveCount}
+                  currentTimeMs={elapsedTimeMs}
+                  bestMoves={levelBestMoves}
+                  bestTimeMs={levelBestTimeMs}
+                />
               </div>
             )}
             <button type="button" className={style.completionButton} onClick={next}>

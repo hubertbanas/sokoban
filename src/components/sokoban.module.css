@@ -54,34 +54,76 @@
 }
 
 .bestStatsBar {
-    width: max-content;
+    width: min(100%, 30ch);
     max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    align-self: flex-start;
+    gap: 3px;
+    align-self: flex-end;
     margin: 0;
     border: 1px solid var(--border);
     border-radius: 12px;
     background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
     color: var(--muted);
-    padding: 6px 10px;
+    padding: 5px 6px;
     text-align: center;
     flex-shrink: 0;
 }
 
-.bestStatsChip {
+.bestStatsRow,
+.completionStatsRow {
     margin: 0;
     border: 0;
     background: none;
     color: inherit;
-    padding: 0;
+    padding: 0 0.25ch;
+    display: grid;
+    grid-template-columns: 1fr 5ch 7ch;
+    column-gap: 0.8ch;
+    align-items: baseline;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.bestStatsRow {
     font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.1;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
+}
+
+.completionStatsRow {
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.statsHeaderCell {
+    text-align: left;
+    font-size: 0.68em;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: color-mix(in srgb, var(--muted) 85%, var(--foreground) 15%);
+}
+
+.statsHeaderCell:nth-child(2),
+.statsHeaderCell:nth-child(3) {
+    text-align: right;
+}
+
+.statsRunCell {
+    text-align: left;
     white-space: nowrap;
+}
+
+.statsValueCell {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.bestStatsRow,
+.completionStatsRow {
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -350,32 +392,17 @@
 .completionStats {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    width: max-content;
+    gap: 3px;
+    width: min(100%, 30ch);
     max-width: 100%;
+    box-sizing: border-box;
     margin: 4px auto 18px;
     border: 1px solid var(--border);
     border-radius: 12px;
     background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
     color: var(--muted);
-    padding: 6px 10px;
+    padding: 5px 6px;
     text-align: center;
-}
-
-.completionStatsLine {
-    margin: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    padding: 0;
-    font-size: 0.8rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .completionButton {
