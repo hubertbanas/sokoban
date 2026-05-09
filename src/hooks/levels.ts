@@ -63,6 +63,7 @@ type LoadedLevelData = {
   levels: Level[];
   levelPacks: LevelPack[];
   levelIndexById: Map<string, number>;
+  levelPackRangeById: Map<string, { startIndex: number; endIndex: number }>;
 };
 
 function levelPackIdFromPath(path: string): string {
@@ -187,6 +188,7 @@ function loadLevelData(): LoadedLevelData {
   const levels: Level[] = [];
   const levelPacks: LevelPack[] = [];
   const levelIndexById = new Map<string, number>();
+  const levelPackRangeById = new Map<string, { startIndex: number; endIndex: number }>();
 
   loadedLevelPacks.forEach((loadedPack) => {
     const levelStartIndex = levels.length;
@@ -217,6 +219,11 @@ function loadLevelData(): LoadedLevelData {
       levelIndexById.set(packLevel.levelId, levelStartIndex + packLevelIndex);
     });
 
+    levelPackRangeById.set(loadedPack.packId, {
+      startIndex: levelStartIndex,
+      endIndex: levelStartIndex + packLevels.length - 1,
+    });
+
     levels.push(...packLevels);
     levelPacks.push({
       packId: loadedPack.packId,
@@ -231,11 +238,12 @@ function loadLevelData(): LoadedLevelData {
     levels,
     levelPacks,
     levelIndexById,
+    levelPackRangeById,
   };
 }
 
 export function useLevels() {
-  const [{ levels, levelPacks, levelIndexById }] = useState<LoadedLevelData>(loadLevelData);
+  const [{ levels, levelPacks, levelIndexById, levelPackRangeById }] = useState<LoadedLevelData>(loadLevelData);
   const [index, setIndex] = useState(() => {
     const stored = Number(localStorage.getItem(SOKOBAN_LEVEL_KEY));
     const initial = Number.isFinite(stored) ? stored : 0;
@@ -243,15 +251,39 @@ export function useLevels() {
   });
   const level = useMemo(() => levels[index], [levels, index]);
 
+  const moveIndexWithinActivePack = useCallback(
+    (currentIndex: number, delta: number) => {
+      const currentLevel = levels[currentIndex];
+      if (!currentLevel) {
+        return normalizeIndex(currentIndex + delta, levels.length);
+      }
+
+      const packRange = levelPackRangeById.get(currentLevel.packId);
+      if (!packRange) {
+        return normalizeIndex(currentIndex + delta, levels.length);
+      }
+
+      const packLength = packRange.endIndex - packRange.startIndex + 1;
+      if (packLength <= 0) {
+        return normalizeIndex(currentIndex + delta, levels.length);
+      }
+
+      const currentPackRelativeIndex = currentIndex - packRange.startIndex;
+      const nextPackRelativeIndex = normalizeIndex(currentPackRelativeIndex + delta, packLength);
+      return packRange.startIndex + nextPackRelativeIndex;
+    },
+    [levelPackRangeById, levels]
+  );
+
   const updateIndex = useCallback(
     (delta: number) => {
       setIndex((current) => {
-        const nextIndex = normalizeIndex(current + delta, levels.length);
+        const nextIndex = moveIndexWithinActivePack(current, delta);
         localStorage.setItem(SOKOBAN_LEVEL_KEY, String(nextIndex));
         return nextIndex;
       });
     },
-    [levels.length]
+    [moveIndexWithinActivePack]
   );
 
   const loadNext = useCallback(() => {
