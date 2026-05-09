@@ -108,7 +108,7 @@ UI controls:
 ### Persistence and Behavior
 
 - Board tile size adapts to viewport dimensions and level size.
-- Level index is persisted in `localStorage` (`SokobanLevel`).
+- Current level is persisted by `levelId` in `localStorage` (`sokoban.level-id.v1`).
 - Theme mode is persisted in `localStorage` (`sokoban-theme-mode`).
 - When mode is `auto`, theme follows `prefers-color-scheme` unless `VITE_DEFAULT_THEME` is set to `dark` or `light`.
 - App dialogs use a shared modal component for consistent behavior and close controls.

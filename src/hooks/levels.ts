@@ -176,7 +176,7 @@ function markExteriorVoid(grid: Block[][]): Block[][] {
   return grid;
 }
 
-const SOKOBAN_LEVEL_KEY = "SokobanLevel";
+export const SOKOBAN_LEVEL_STORAGE_KEY = "sokoban.level-id.v1";
 
 function normalizeIndex(index: number, length: number) {
   if (length === 0) return 0;
@@ -245,8 +245,9 @@ function loadLevelData(): LoadedLevelData {
 export function useLevels() {
   const [{ levels, levelPacks, levelIndexById, levelPackRangeById }] = useState<LoadedLevelData>(loadLevelData);
   const [index, setIndex] = useState(() => {
-    const stored = Number(localStorage.getItem(SOKOBAN_LEVEL_KEY));
-    const initial = Number.isFinite(stored) ? stored : 0;
+    const storedLevelId = localStorage.getItem(SOKOBAN_LEVEL_STORAGE_KEY);
+    const storedIndex = storedLevelId ? levelIndexById.get(storedLevelId) : undefined;
+    const initial = storedIndex ?? 0;
     return normalizeIndex(initial, levels.length);
   });
   const level = useMemo(() => levels[index], [levels, index]);
@@ -279,11 +280,14 @@ export function useLevels() {
     (delta: number) => {
       setIndex((current) => {
         const nextIndex = moveIndexWithinActivePack(current, delta);
-        localStorage.setItem(SOKOBAN_LEVEL_KEY, String(nextIndex));
+        const nextLevel = levels[nextIndex];
+        if (nextLevel) {
+          localStorage.setItem(SOKOBAN_LEVEL_STORAGE_KEY, nextLevel.levelId);
+        }
         return nextIndex;
       });
     },
-    [moveIndexWithinActivePack]
+    [levels, moveIndexWithinActivePack]
   );
 
   const loadNext = useCallback(() => {
@@ -302,7 +306,7 @@ export function useLevels() {
           return current;
         }
 
-        localStorage.setItem(SOKOBAN_LEVEL_KEY, String(nextIndex));
+        localStorage.setItem(SOKOBAN_LEVEL_STORAGE_KEY, levelId);
         return nextIndex;
       });
     },
