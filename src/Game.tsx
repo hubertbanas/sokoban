@@ -622,7 +622,6 @@ function Game() {
         open={isLevelSelectorOpen}
         onOpenChange={setIsLevelSelectorOpen}
         levelPacks={levelPacks}
-        currentLevelId={level.levelId}
         onSelectLevel={onRequestLoadLevel}
       />
 

@@ -588,9 +588,11 @@ test("opens level selector modal from level number button", () => {
 
   expect(screen.getByRole("dialog", { name: /level pack selector/i })).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Test Pack" })).toBeInTheDocument();
+  expect(screen.getByText("2 levels available")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /open test pack level/i })).not.toBeInTheDocument();
 });
 
-test("selecting a level loads immediately when no progress exists", () => {
+test("selecting a pack loads immediately when no progress exists", () => {
   const loadLevel = vi.fn();
   const levelPacks = buildLevelPacks();
 
@@ -598,20 +600,20 @@ test("selecting a level loads immediately when no progress exists", () => {
     hasProgress: false,
     state: State.playing,
     loadLevel,
-    level: levelPacks[0].levels[0],
+    level: levelPacks[0].levels[1],
     levelPacks,
   });
 
   render(<Game />);
 
   fireEvent.click(screen.getByRole("button", { name: /open level selector/i }));
-  fireEvent.click(screen.getByRole("button", { name: /open test pack level 2: target level/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Play Pack" }));
 
-  expect(loadLevel).toHaveBeenCalledWith("test-pack:1");
+  expect(loadLevel).toHaveBeenCalledWith("test-pack:0");
   expect(screen.queryByRole("dialog", { name: /level pack selector/i })).not.toBeInTheDocument();
 });
 
-test("selecting a level opens confirmation when progress exists", () => {
+test("selecting a pack opens confirmation when progress exists", () => {
   const loadLevel = vi.fn();
   const levelPacks = buildLevelPacks();
 
@@ -619,20 +621,20 @@ test("selecting a level opens confirmation when progress exists", () => {
     hasProgress: true,
     state: State.playing,
     loadLevel,
-    level: levelPacks[0].levels[0],
+    level: levelPacks[0].levels[1],
     levelPacks,
   });
 
   render(<Game />);
 
   fireEvent.click(screen.getByRole("button", { name: /open level selector/i }));
-  fireEvent.click(screen.getByRole("button", { name: /open test pack level 2: target level/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Play Pack" }));
 
   expect(screen.getByRole("dialog", { name: /switch to selected level confirmation/i })).toBeInTheDocument();
   expect(loadLevel).not.toHaveBeenCalled();
 
   fireEvent.click(screen.getByRole("button", { name: "Go to Selected Level" }));
-  expect(loadLevel).toHaveBeenCalledWith("test-pack:1");
+  expect(loadLevel).toHaveBeenCalledWith("test-pack:0");
 });
 
 test("renders auxiliary components", () => {
