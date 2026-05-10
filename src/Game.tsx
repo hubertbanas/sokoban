@@ -188,6 +188,8 @@ function Game() {
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const completionContinueButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const completionLevelPacksButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
@@ -593,6 +595,44 @@ function Game() {
         return;
       }
 
+      if (state === State.completed) {
+        if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
+          if (isLastLevelInCurrentPack) {
+            const activeElement = document.activeElement;
+            const targetButton =
+              activeElement === completionContinueButtonRef.current
+                ? completionLevelPacksButtonRef.current
+                : completionContinueButtonRef.current;
+
+            if (targetButton) {
+              targetButton.focus();
+            }
+          } else {
+            completionContinueButtonRef.current?.focus();
+          }
+
+          event.preventDefault();
+          return;
+        }
+
+        if (event.code === "Enter" || event.code === "Space") {
+          const activeElement = document.activeElement;
+
+          if (
+            isLastLevelInCurrentPack &&
+            activeElement instanceof HTMLButtonElement &&
+            activeElement === completionLevelPacksButtonRef.current
+          ) {
+            onOpenLevelSelectorFromCompletion();
+          } else {
+            next();
+          }
+
+          event.preventDefault();
+          return;
+        }
+      }
+
       switch (event.code) {
         case "ArrowUp":
           onMove(Direction.Top);
@@ -630,6 +670,7 @@ function Game() {
       "ArrowLeft",
       "ArrowRight",
       "Enter",
+      "Space",
       "Backspace",
       "Escape",
       "BracketLeft",
@@ -830,15 +871,22 @@ function Game() {
                   className={style.levelNavButton}
                   onClick={onOpenLevelSelectorFromCompletion}
                   autoFocus
+                  ref={completionLevelPacksButtonRef}
                 >
                   Level Packs
                 </button>
-                <button type="button" className={style.completionButton} onClick={next}>
+                <button type="button" className={style.levelNavButton} onClick={next} ref={completionContinueButtonRef}>
                   Continue
                 </button>
               </div>
             ) : (
-              <button type="button" className={style.completionButton} onClick={next}>
+              <button
+                type="button"
+                className={style.levelNavButton}
+                onClick={next}
+                ref={completionContinueButtonRef}
+                autoFocus
+              >
                 Continue
               </button>
             )}

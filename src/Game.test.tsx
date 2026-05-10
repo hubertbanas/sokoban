@@ -409,8 +409,8 @@ test("long press does not enable text selection on nav, modal, or completion but
   const completionButton = screen.getByRole("button", { name: "Continue" });
 
   fireEvent.pointerDown(completionButton, { button: 0, pointerId: 6 });
-  expect(completionButton).toHaveClass(style.completionButton);
-  expect(hasUserSelectNone("completionButton")).toBe(true);
+  expect(completionButton).toHaveClass(style.levelNavButton);
+  expect(hasUserSelectNone("levelNavButton")).toBe(true);
 });
 
 test("keyboard bracket-right opens confirmation when progress exists", () => {
@@ -564,6 +564,15 @@ test("displays completion popup when level is completed", () => {
   expect(screen.getByText(/you completed this level\./i)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
+});
+
+test("focuses Continue by default on non-pack-complete completion popup", () => {
+  mockSokoban({ state: State.completed });
+
+  render(<Game />);
+
+  expect(screen.queryByRole("button", { name: /level packs/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /continue/i })).toHaveFocus();
 });
 
 test("hides play stats UI when toggle is off by default", () => {
@@ -781,9 +790,94 @@ test("displays pack-complete message on the last level of the current pack", () 
   expect(screen.getByText(/you completed the last level in this pack\./i)).toBeInTheDocument();
   expect(screen.getByText(/switch to a different level pack/i)).toBeInTheDocument();
   const levelPacksButton = screen.getByRole("button", { name: /level packs/i });
+  const continueButton = screen.getByRole("button", { name: /continue/i });
   expect(levelPacksButton).toBeInTheDocument();
   expect(levelPacksButton).toHaveFocus();
-  expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+  expect(continueButton).toBeInTheDocument();
+  expect(continueButton).toHaveClass(style.levelNavButton);
+});
+
+test("arrow keys move focus between Level Packs and Continue on pack-complete popup", () => {
+  const levelPacks = buildLevelPacks();
+  mockSokoban({
+    state: State.completed,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  const levelPacksButton = screen.getByRole("button", { name: /level packs/i });
+  const continueButton = screen.getByRole("button", { name: /continue/i });
+  expect(levelPacksButton).toHaveFocus();
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event: rightEvent, preventDefaultSpy: rightPreventDefault } = createKeyboardEvent("ArrowRight");
+
+  act(() => {
+    onKeyboardEvent(rightEvent);
+  });
+
+  expect(continueButton).toHaveFocus();
+  expect(rightPreventDefault).toHaveBeenCalledTimes(1);
+
+  const { event: leftEvent, preventDefaultSpy: leftPreventDefault } = createKeyboardEvent("ArrowLeft");
+
+  act(() => {
+    onKeyboardEvent(leftEvent);
+  });
+
+  expect(levelPacksButton).toHaveFocus();
+  expect(leftPreventDefault).toHaveBeenCalledTimes(1);
+});
+
+test("pressing Enter on pack-complete popup opens level selector when Level Packs is focused", () => {
+  const next = vi.fn();
+  const levelPacks = buildLevelPacks();
+  mockSokoban({
+    state: State.completed,
+    next,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Enter");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(screen.getByRole("dialog", { name: /level pack selector/i })).toBeInTheDocument();
+  expect(next).not.toHaveBeenCalled();
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+});
+
+test("pressing Enter on pack-complete popup advances when Continue is focused", () => {
+  const next = vi.fn();
+  const levelPacks = buildLevelPacks();
+  mockSokoban({
+    state: State.completed,
+    next,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+  const continueButton = screen.getByRole("button", { name: /continue/i });
+  continueButton.focus();
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Enter");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(next).toHaveBeenCalledTimes(1);
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
 });
 
 test("opens level selector modal from pack-complete completion popup", () => {
@@ -821,6 +915,23 @@ test("pressing Enter on completion popup advances to next level", () => {
 
   const onKeyboardEvent = getLatestKeyboardHandler();
   const { event, preventDefaultSpy } = createKeyboardEvent("Enter");
+
+  act(() => {
+    onKeyboardEvent(event);
+  });
+
+  expect(next).toHaveBeenCalledTimes(1);
+  expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+});
+
+test("pressing Space on completion popup advances to next level", () => {
+  const next = vi.fn();
+  mockSokoban({ state: State.completed, next });
+
+  render(<Game />);
+
+  const onKeyboardEvent = getLatestKeyboardHandler();
+  const { event, preventDefaultSpy } = createKeyboardEvent("Space");
 
   act(() => {
     onKeyboardEvent(event);
