@@ -40,31 +40,46 @@ type StatsTableProps = {
   rowClassName: string;
   currentMoves: number;
   currentTimeMs: number;
+  currentUndos: number;
   bestMoves: number | null;
   bestTimeMs: number | null;
+  bestUndos: number | null;
 };
 
-function StatsTable({ rowClassName, currentMoves, currentTimeMs, bestMoves, bestTimeMs }: StatsTableProps) {
+function StatsTable({
+  rowClassName,
+  currentMoves,
+  currentTimeMs,
+  currentUndos,
+  bestMoves,
+  bestTimeMs,
+  bestUndos,
+}: StatsTableProps) {
   const currentMoveValue = String(currentMoves);
   const currentTimeValue = formatElapsedTime(currentTimeMs);
+  const currentUndoValue = String(currentUndos);
   const bestMoveValue = bestMoves === null ? "--" : String(bestMoves);
   const bestTimeValue = bestTimeMs === null ? "--:--" : formatElapsedTime(bestTimeMs);
+  const bestUndoValue = bestUndos === null ? "--" : String(bestUndos);
 
   return (
     <>
       <p className={rowClassName} aria-hidden="true">
         <span className={style.statsHeaderCell}>Run</span>
         <span className={style.statsHeaderCell}>Moves</span>
+        <span className={style.statsHeaderCell}>Undos</span>
         <span className={style.statsHeaderCell}>Time</span>
       </p>
-      <p className={rowClassName} aria-label={`Current: Moves ${currentMoveValue} Time ${currentTimeValue}`}>
+      <p className={rowClassName} aria-label={`Current: Moves ${currentMoveValue} Undos ${currentUndoValue} Time ${currentTimeValue}`}>
         <span className={style.statsRunCell}>Current</span>
         <span className={style.statsValueCell}>{currentMoveValue}</span>
+        <span className={style.statsValueCell}>{currentUndoValue}</span>
         <span className={style.statsValueCell}>{currentTimeValue}</span>
       </p>
-      <p className={rowClassName} aria-label={`Best: Moves ${bestMoveValue} Time ${bestTimeValue}`}>
+      <p className={rowClassName} aria-label={`Best: Moves ${bestMoveValue} Undos ${bestUndoValue} Time ${bestTimeValue}`}>
         <span className={style.statsRunCell}>Best</span>
         <span className={style.statsValueCell}>{bestMoveValue}</span>
+        <span className={style.statsValueCell}>{bestUndoValue}</span>
         <span className={style.statsValueCell}>{bestTimeValue}</span>
       </p>
     </>
@@ -159,6 +174,7 @@ function Game() {
     level,
     levelPacks,
     moveCount,
+    undoCount,
     elapsedTimeMs,
     completionMetrics,
     state,
@@ -410,6 +426,7 @@ function Game() {
           puzzleId: level.puzzleId,
           moves: completionMetrics.moves,
           timeMs: completionMetrics.timeMs,
+          undos: completionMetrics.undos,
         });
       }
     }
@@ -546,6 +563,7 @@ function Game() {
     levelBest.bestTimeMsInLevel !== null;
   const levelBestMoves = hasLevelBestRecord ? levelBest.bestMovesInLevel : null;
   const levelBestTimeMs = hasLevelBestRecord ? levelBest.bestTimeMsInLevel : null;
+  const levelBestUndos = levelBest?.bestUndosInLevel ?? null;
 
   useKeyBoard(
     (event) => {
@@ -801,8 +819,10 @@ function Game() {
             rowClassName={style.bestStatsRow}
             currentMoves={moveCount}
             currentTimeMs={elapsedTimeMs}
+            currentUndos={undoCount}
             bestMoves={levelBestMoves}
             bestTimeMs={levelBestTimeMs}
+            bestUndos={levelBestUndos}
           />
         </section>
       )}
@@ -920,8 +940,10 @@ function Game() {
                   rowClassName={style.completionStatsRow}
                   currentMoves={moveCount}
                   currentTimeMs={elapsedTimeMs}
+                  currentUndos={undoCount}
                   bestMoves={levelBestMoves}
                   bestTimeMs={levelBestTimeMs}
+                  bestUndos={levelBestUndos}
                 />
               </div>
             )}

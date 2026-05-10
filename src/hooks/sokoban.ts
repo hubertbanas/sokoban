@@ -19,6 +19,7 @@ export type MoveOutcome = "blocked" | "step" | "crate-push" | "crate-docked";
 export type CompletionMetrics = {
   moves: number;
   timeMs: number;
+  undos: number;
 };
 
 type Position = {
@@ -64,6 +65,7 @@ export function useSokoban() {
   const [state, setState] = useState<State>(State.playing);
   const [hasProgress, setHasProgress] = useState(false);
   const [moveCount, setMoveCount] = useState(0);
+  const [undoCount, setUndoCount] = useState(0);
   const [elapsedTimeMs, setElapsedTimeMs] = useState(0);
   const [completionMetrics, setCompletionMetrics] = useState<CompletionMetrics | null>(null);
   const levelStartedAtRef = useRef(Date.now());
@@ -81,6 +83,7 @@ export function useSokoban() {
 
   const resetLevelRuntime = useCallback(() => {
     setMoveCount(0);
+    setUndoCount(0);
     setElapsedTimeMs(0);
     setCompletionMetrics(null);
     levelStartedAtRef.current = Date.now();
@@ -150,6 +153,7 @@ export function useSokoban() {
           setCompletionMetrics({
             moves: nextMoveCount,
             timeMs: finalElapsedTimeMs,
+            undos: undoCount,
           });
         }
         if (!movingBlock) board.pop();
@@ -171,7 +175,7 @@ export function useSokoban() {
 
       return "blocked";
     },
-    [board, moveCount, state]
+    [board, moveCount, state, undoCount]
   );
 
   const next = useCallback(() => {
@@ -211,6 +215,7 @@ export function useSokoban() {
     if (state === State.playing && board.length > 1) {
       setBoard(board.slice(0, -1));
       setMoveCount((current) => Math.max(0, current - 1));
+      setUndoCount((current) => current + 1);
       return true;
     }
 
@@ -253,6 +258,7 @@ export function useSokoban() {
     levelPacks,
     totalLevels,
     moveCount,
+    undoCount,
     elapsedTimeMs,
     completionMetrics,
     state,

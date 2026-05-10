@@ -158,6 +158,7 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
     level: buildLevel(),
     levelPacks: buildLevelPacks(),
     moveCount: 0,
+    undoCount: 0,
     elapsedTimeMs: 0,
     completionMetrics: null,
     state: State.playing,
@@ -592,6 +593,7 @@ test("restores play stats UI from persisted toggle state", () => {
   expect(screen.getByRole("region", { name: /play statistics/i })).toBeInTheDocument();
   expect(screen.getByText(/^Current$/)).toBeInTheDocument();
   expect(screen.getByText(/^Best$/)).toBeInTheDocument();
+  expect(screen.getByText(/^Undos$/)).toBeInTheDocument();
 });
 
 test("defaults play stats toggle to off for invalid persisted values", () => {
@@ -629,6 +631,7 @@ test("keeps completion dialog play stats hidden when toggle is off", () => {
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
   expect(within(completionDialog).queryByText(/^Current$/)).not.toBeInTheDocument();
   expect(within(completionDialog).queryByText(/^Best$/)).not.toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Undos$/)).not.toBeInTheDocument();
 });
 
 test("renders current and best placeholders when play stats toggle is enabled", () => {
@@ -644,8 +647,8 @@ test("renders current and best placeholders when play stats toggle is enabled", 
     throw new Error("Expected stats rows to be paragraph elements");
   }
 
-  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Time 0:00");
-  expect(levelBest).toHaveAttribute("aria-label", "Best: Moves -- Time --:--");
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Undos 0 Time 0:00");
+  expect(levelBest).toHaveAttribute("aria-label", "Best: Moves -- Undos -- Time --:--");
 });
 
 test("hides both play stats lines after disabling the toggle", () => {
@@ -655,16 +658,19 @@ test("hides both play stats lines after disabling the toggle", () => {
   setPlayStatsVisibility(true);
   expect(screen.getByText(/^Current$/)).toBeInTheDocument();
   expect(screen.getByText(/^Best$/)).toBeInTheDocument();
+  expect(screen.getByText(/^Undos$/)).toBeInTheDocument();
 
   setPlayStatsVisibility(false);
   expect(screen.queryByText(/^Current$/)).not.toBeInTheDocument();
   expect(screen.queryByText(/^Best$/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Undos$/)).not.toBeInTheDocument();
 });
 
 test("renders realtime current run status from useSokoban", () => {
   mockSokoban({
     state: State.playing,
     moveCount: 12,
+    undoCount: 3,
     elapsedTimeMs: 74_500,
   });
 
@@ -676,7 +682,7 @@ test("renders realtime current run status from useSokoban", () => {
     throw new Error("Expected current run row to be a paragraph element");
   }
 
-  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 12 Time 1:14");
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 12 Undos 3 Time 1:14");
 });
 
 test("renders best row from useStats", () => {
@@ -696,6 +702,7 @@ test("renders best row from useStats", () => {
             lastCompletedAt: 1600,
             bestMovesInLevel: 9,
             bestTimeMsInLevel: 13_000,
+            bestUndosInLevel: 2,
           },
         },
         records: {
@@ -720,7 +727,7 @@ test("renders best row from useStats", () => {
     throw new Error("Expected best row to be a paragraph element");
   }
 
-  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 9 Time 0:13");
+  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 9 Undos 2 Time 0:13");
   expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
@@ -741,6 +748,7 @@ test("shows best row inside completion dialog", () => {
             lastCompletedAt: 1700,
             bestMovesInLevel: 1,
             bestTimeMsInLevel: 2_000,
+            bestUndosInLevel: 4,
           },
         },
         records: {
@@ -771,8 +779,8 @@ test("shows best row inside completion dialog", () => {
     throw new Error("Expected completion stats rows to be paragraph elements");
   }
 
-  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Time 0:00");
-  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 1 Time 0:02");
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Undos 0 Time 0:00");
+  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 1 Undos 4 Time 0:02");
   expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
@@ -1555,6 +1563,7 @@ test("saves completion metrics when state changes to completed", () => {
   const completionMetrics = {
     moves: 12,
     timeMs: 3456,
+    undos: 2,
   };
 
   mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });
@@ -1571,6 +1580,7 @@ test("saves completion metrics when state changes to completed", () => {
     puzzleId: completedLevel.puzzleId,
     moves: completionMetrics.moves,
     timeMs: completionMetrics.timeMs,
+    undos: completionMetrics.undos,
   });
 });
 
@@ -1587,6 +1597,7 @@ test("saves completion metrics only once per completion transition", () => {
   const completionMetrics = {
     moves: 7,
     timeMs: 1234,
+    undos: 1,
   };
 
   mockSokoban({ state: State.playing, level: completedLevel, completionMetrics: null });

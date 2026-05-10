@@ -11,6 +11,7 @@ export type LevelProgress = {
     lastCompletedAt: number | null;
     bestMovesInLevel: number | null;
     bestTimeMsInLevel: number | null;
+    bestUndosInLevel: number | null;
 };
 
 export type PuzzleRecord = {
@@ -33,6 +34,7 @@ export type SaveLevelResultInput = {
     puzzleId: string;
     moves: number;
     timeMs: number;
+    undos?: number;
     completedAt?: number;
 };
 
@@ -74,6 +76,7 @@ function createEmptyLevelProgress(): LevelProgress {
         lastCompletedAt: null,
         bestMovesInLevel: null,
         bestTimeMsInLevel: null,
+        bestUndosInLevel: null,
     };
 }
 
@@ -103,6 +106,7 @@ function sanitizeLevelProgress(value: unknown): LevelProgress {
         lastCompletedAt: toTimestamp(value.lastCompletedAt),
         bestMovesInLevel: toBestMetric(value.bestMovesInLevel),
         bestTimeMsInLevel: toBestMetric(value.bestTimeMsInLevel),
+        bestUndosInLevel: toBestMetric(value.bestUndosInLevel),
     };
 }
 
@@ -220,6 +224,7 @@ export function useStats() {
         const completedAt = toTimestamp(input.completedAt) ?? Date.now();
         const moves = toNonNegativeInteger(input.moves);
         const timeMs = toNonNegativeInteger(input.timeMs);
+        const undos = input.undos === undefined ? null : toNonNegativeInteger(input.undos);
 
         setStats((current) => {
             const currentProgress = current.progression[input.levelId] ?? createEmptyLevelProgress();
@@ -231,6 +236,10 @@ export function useStats() {
                 lastCompletedAt: completedAt,
                 bestMovesInLevel: nextBest(currentProgress.bestMovesInLevel, moves),
                 bestTimeMsInLevel: nextBest(currentProgress.bestTimeMsInLevel, timeMs),
+                bestUndosInLevel:
+                    undos === null
+                        ? currentProgress.bestUndosInLevel
+                        : nextBest(currentProgress.bestUndosInLevel, undos),
             };
 
             const currentRecord = current.records[input.puzzleId];
