@@ -79,7 +79,7 @@
     color: inherit;
     padding: 0 0.25ch;
     display: grid;
-    grid-template-columns: 1fr 5ch 7ch;
+    grid-template-columns: 1fr 5ch 5ch 7ch;
     column-gap: 0.8ch;
     align-items: baseline;
     text-align: left;
@@ -108,7 +108,8 @@
 }
 
 .statsHeaderCell:nth-child(2),
-.statsHeaderCell:nth-child(3) {
+.statsHeaderCell:nth-child(3),
+.statsHeaderCell:nth-child(4) {
     text-align: right;
 }
 

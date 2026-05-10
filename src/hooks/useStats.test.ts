@@ -41,6 +41,7 @@ test("loads and sanitizes partially invalid stored payload", () => {
                     isCompleted: true,
                     bestMovesInLevel: 120,
                     bestTimeMsInLevel: 9000,
+                    bestUndosInLevel: "bad",
                     lastPlayedAt: 100,
                     lastCompletedAt: 200,
                 },
@@ -67,6 +68,7 @@ test("loads and sanitizes partially invalid stored payload", () => {
         isCompleted: true,
         bestMovesInLevel: 120,
         bestTimeMsInLevel: 9000,
+        bestUndosInLevel: null,
     });
     expect(result.current.stats.records.abc12345).toBeUndefined();
 });
@@ -80,6 +82,7 @@ test("saveLevelResult creates progression and records and persists", () => {
             puzzleId: "deadbeef",
             moves: 57,
             timeMs: 12345,
+            undos: 4,
             completedAt: 1000,
         });
     });
@@ -90,6 +93,7 @@ test("saveLevelResult creates progression and records and persists", () => {
         isCompleted: true,
         bestMovesInLevel: 57,
         bestTimeMsInLevel: 12345,
+        bestUndosInLevel: 4,
         lastPlayedAt: 1000,
         lastCompletedAt: 1000,
     });
@@ -115,6 +119,7 @@ test("saveLevelResult keeps best metrics while counting plays", () => {
             puzzleId: "deadbeef",
             moves: 35,
             timeMs: 9000,
+            undos: 5,
             completedAt: 1000,
         });
     });
@@ -125,6 +130,7 @@ test("saveLevelResult keeps best metrics while counting plays", () => {
             puzzleId: "deadbeef",
             moves: 42,
             timeMs: 8500,
+            undos: 6,
             completedAt: 2000,
         });
     });
@@ -134,6 +140,7 @@ test("saveLevelResult keeps best metrics while counting plays", () => {
         completionCount: 2,
         bestMovesInLevel: 35,
         bestTimeMsInLevel: 8500,
+        bestUndosInLevel: 5,
         lastCompletedAt: 2000,
     });
     expect(result.current.stats.records.deadbeef).toMatchObject({

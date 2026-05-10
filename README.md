@@ -34,8 +34,8 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 - The game UI can show play statistics via a single menu toggle.
 - `Menu -> Show Play Stats` is off by default to keep the HUD minimal.
 - When enabled, the HUD shows:
-	- `Current Run` with live move count and time spent on the current level.
-	- `Level Best` (best moves/time for the current level entry).
+	- A compact table with `Current Run` and `Level Best` rows.
+	- Columns for `Moves`, `Undos`, and `Time`.
 - Internally, the stats model stores both `levelId` and `puzzleId` records:
 	- `levelId` is used for player-facing per-level progress and bests.
 	- `puzzleId` is retained for forward compatibility in case future packs reuse the same puzzle layout across different levels.
