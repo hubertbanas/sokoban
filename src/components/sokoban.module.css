@@ -389,6 +389,11 @@
     color: var(--muted);
 }
 
+.completionTextAccent {
+    color: var(--accent);
+    font-weight: 700;
+}
+
 .completionStats {
     display: flex;
     flex-direction: column;
@@ -403,6 +408,14 @@
     color: var(--muted);
     padding: 5px 6px;
     text-align: center;
+}
+
+.completionActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .completionButton {

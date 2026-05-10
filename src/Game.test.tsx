@@ -780,6 +780,26 @@ test("displays pack-complete message on the last level of the current pack", () 
   expect(screen.getByRole("heading", { name: /level pack complete!/i })).toBeInTheDocument();
   expect(screen.getByText(/you completed the last level in this pack\./i)).toBeInTheDocument();
   expect(screen.getByText(/switch to a different level pack/i)).toBeInTheDocument();
+  const levelPacksButton = screen.getByRole("button", { name: /level packs/i });
+  expect(levelPacksButton).toBeInTheDocument();
+  expect(levelPacksButton).toHaveFocus();
+  expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+});
+
+test("opens level selector modal from pack-complete completion popup", () => {
+  const levelPacks = buildLevelPacks();
+  mockSokoban({
+    state: State.completed,
+    level: levelPacks[0].levels[1],
+    levelPacks,
+  });
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /level packs/i }));
+
+  expect(screen.getByRole("dialog", { name: /level pack selector/i })).toBeInTheDocument();
+  expect(screen.queryByRole("dialog", { name: /level completed/i })).not.toBeInTheDocument();
 });
 
 test("clicking continue on completion popup advances to the next level", () => {

@@ -323,6 +323,10 @@ function Game() {
     setIsLevelSelectorOpen(true);
   }, []);
 
+  const onOpenLevelSelectorFromCompletion = React.useCallback(() => {
+    setIsLevelSelectorOpen(true);
+  }, []);
+
   const onCloseMenu = React.useCallback(() => {
     setIsMenuOpen(false);
   }, []);
@@ -791,7 +795,7 @@ function Game() {
         </Modal>
       )}
 
-      {state === State.completed && (
+      {state === State.completed && !isLevelSelectorOpen && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
           <div className={style.completionCard}>
             <h2 className={style.completionTitle}>
@@ -804,8 +808,8 @@ function Game() {
             </p>
             {isLastLevelInCurrentPack && (
               <p className={style.completionText}>
-                Switch to a different level pack from the level selector, or press Continue to
-                return to Level 1 in this pack.
+                Switch to a different level pack from the <span className={style.completionTextAccent}>Level Packs</span>
+                {" "}selector, or press <span className={style.completionTextAccent}>Continue</span> to return to Level 1 in this pack.
               </p>
             )}
             {showPlayStats && (
@@ -819,9 +823,25 @@ function Game() {
                 />
               </div>
             )}
-            <button type="button" className={style.completionButton} onClick={next}>
-              Continue
-            </button>
+            {isLastLevelInCurrentPack ? (
+              <div className={style.completionActions}>
+                <button
+                  type="button"
+                  className={style.levelNavButton}
+                  onClick={onOpenLevelSelectorFromCompletion}
+                  autoFocus
+                >
+                  Level Packs
+                </button>
+                <button type="button" className={style.completionButton} onClick={next}>
+                  Continue
+                </button>
+              </div>
+            ) : (
+              <button type="button" className={style.completionButton} onClick={next}>
+                Continue
+              </button>
+            )}
           </div>
         </div>
       )}
