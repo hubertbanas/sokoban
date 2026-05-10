@@ -389,6 +389,11 @@
     color: var(--muted);
 }
 
+.completionTextAccent {
+    color: var(--accent);
+    font-weight: 700;
+}
+
 .completionStats {
     display: flex;
     flex-direction: column;
@@ -405,23 +410,12 @@
     text-align: center;
 }
 
-.completionButton {
-    border: 1px solid var(--accent);
-    background: var(--accent);
-    color: var(--surface);
-    border-radius: 999px;
-    padding: 10px 18px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.completionButton:hover {
-    filter: brightness(1.05);
-}
-
-.completionButton:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+.completionActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .menuBackdrop {
@@ -580,7 +574,6 @@
 .menuDrawerCloseButton,
 .menuItemButton,
 .levelSelectorLevelButton,
-.completionButton,
 .modalCloseButton,
 .themeToggleLabel {
     user-select: none;
@@ -599,7 +592,8 @@
 
 .menuToggleButton:hover,
 .menuDrawerCloseButton:hover,
-.menuItemButton:hover {
+.menuItemButton:hover,
+.modalCloseButton:hover {
     border-color: var(--accent);
 }
 
@@ -615,7 +609,8 @@
 
 .menuToggleButton:focus-visible,
 .menuDrawerCloseButton:focus-visible,
-.menuItemButton:focus-visible {
+.menuItemButton:focus-visible,
+.modalCloseButton:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }

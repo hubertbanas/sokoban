@@ -188,6 +188,8 @@ function Game() {
   const boardViewportRef = React.useRef<HTMLDivElement | null>(null);
   const cancelButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const confirmButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const completionContinueButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const completionLevelPacksButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const [tileSize, setTileSize] = React.useState(24);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
@@ -323,6 +325,10 @@ function Game() {
     setIsLevelSelectorOpen(true);
   }, []);
 
+  const onOpenLevelSelectorFromCompletion = React.useCallback(() => {
+    setIsLevelSelectorOpen(true);
+  }, []);
+
   const onCloseMenu = React.useCallback(() => {
     setIsMenuOpen(false);
   }, []);
@@ -330,6 +336,11 @@ function Game() {
   const onOpenSfxFromMenu = React.useCallback(() => {
     setIsMenuOpen(false);
     setIsSfxModalOpen(true);
+  }, []);
+
+  const onOpenLevelSelectorFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setIsLevelSelectorOpen(true);
   }, []);
 
   const onOpenAboutFromMenu = React.useCallback(() => {
@@ -576,8 +587,53 @@ function Game() {
       }
 
       if (isLevelSelectorOpen) {
+        const selectablePackButtons = Array.from(
+          document.querySelectorAll(`.${style.levelSelectorPackPlayButton}`)
+        ).filter((button): button is HTMLButtonElement =>
+          button instanceof HTMLButtonElement && !button.disabled
+        );
+
         if (event.code === "Escape") {
           setIsLevelSelectorOpen(false);
+          event.preventDefault();
+          return;
+        }
+
+        if (
+          event.code === "ArrowUp" ||
+          event.code === "ArrowDown" ||
+          event.code === "ArrowLeft" ||
+          event.code === "ArrowRight"
+        ) {
+          if (selectablePackButtons.length > 0) {
+            const activeElement = document.activeElement;
+            const activeIndex =
+              activeElement instanceof HTMLButtonElement
+                ? selectablePackButtons.indexOf(activeElement)
+                : -1;
+            const delta = event.code === "ArrowUp" || event.code === "ArrowLeft" ? -1 : 1;
+            const nextIndex =
+              activeIndex >= 0
+                ? (activeIndex + delta + selectablePackButtons.length) % selectablePackButtons.length
+                : delta > 0
+                  ? 0
+                  : selectablePackButtons.length - 1;
+
+            selectablePackButtons[nextIndex].focus();
+          }
+
+          event.preventDefault();
+          return;
+        }
+
+        if (event.code === "Enter" || event.code === "Space") {
+          const activeElement = document.activeElement;
+
+          if (activeElement instanceof HTMLButtonElement && !activeElement.disabled) {
+            activeElement.click();
+          } else if (selectablePackButtons.length > 0) {
+            selectablePackButtons[0].click();
+          }
         }
 
         event.preventDefault();
@@ -587,6 +643,54 @@ function Game() {
       if (isAuxModalOpen) {
         event.preventDefault();
         return;
+      }
+
+      if (state === State.completed) {
+        if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
+          if (isLastLevelInCurrentPack) {
+            const activeElement = document.activeElement;
+            const levelPacksButton = completionLevelPacksButtonRef.current;
+            const continueButton = completionContinueButtonRef.current;
+            const isLevelPacksFocused = activeElement === levelPacksButton;
+            const isContinueFocused = activeElement === continueButton;
+
+            if (event.code === "ArrowRight") {
+              if (isLevelPacksFocused) {
+                continueButton?.focus();
+              } else if (!isContinueFocused) {
+                continueButton?.focus();
+              }
+            } else {
+              if (isContinueFocused) {
+                levelPacksButton?.focus();
+              } else if (!isLevelPacksFocused) {
+                levelPacksButton?.focus();
+              }
+            }
+          } else {
+            completionContinueButtonRef.current?.focus();
+          }
+
+          event.preventDefault();
+          return;
+        }
+
+        if (event.code === "Enter" || event.code === "Space") {
+          const activeElement = document.activeElement;
+
+          if (
+            isLastLevelInCurrentPack &&
+            activeElement instanceof HTMLButtonElement &&
+            activeElement === completionLevelPacksButtonRef.current
+          ) {
+            onOpenLevelSelectorFromCompletion();
+          } else {
+            next();
+          }
+
+          event.preventDefault();
+          return;
+        }
       }
 
       switch (event.code) {
@@ -626,6 +730,7 @@ function Game() {
       "ArrowLeft",
       "ArrowRight",
       "Enter",
+      "Space",
       "Backspace",
       "Escape",
       "BracketLeft",
@@ -733,6 +838,7 @@ function Game() {
         onShowPlayStatsChange={setShowPlayStats}
         onClose={onCloseMenu}
         onOpenSfx={onOpenSfxFromMenu}
+        onOpenLevelSelector={onOpenLevelSelectorFromMenu}
         onOpenAbout={onOpenAboutFromMenu}
       />
 
@@ -791,7 +897,7 @@ function Game() {
         </Modal>
       )}
 
-      {state === State.completed && (
+      {state === State.completed && !isLevelSelectorOpen && (
         <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
           <div className={style.completionCard}>
             <h2 className={style.completionTitle}>
@@ -804,8 +910,8 @@ function Game() {
             </p>
             {isLastLevelInCurrentPack && (
               <p className={style.completionText}>
-                Switch to a different level pack from the level selector, or press Continue to
-                return to Level 1 in this pack.
+                Switch to a different level pack from the <span className={style.completionTextAccent}>Level Packs</span>
+                {" "}selector, or press <span className={style.completionTextAccent}>Continue</span> to return to Level 1 in this pack.
               </p>
             )}
             {showPlayStats && (
@@ -819,9 +925,32 @@ function Game() {
                 />
               </div>
             )}
-            <button type="button" className={style.completionButton} onClick={next}>
-              Continue
-            </button>
+            {isLastLevelInCurrentPack ? (
+              <div className={style.completionActions}>
+                <button
+                  type="button"
+                  className={style.levelNavButton}
+                  onClick={onOpenLevelSelectorFromCompletion}
+                  autoFocus
+                  ref={completionLevelPacksButtonRef}
+                >
+                  Level Packs
+                </button>
+                <button type="button" className={style.levelNavButton} onClick={next} ref={completionContinueButtonRef}>
+                  Continue
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={style.levelNavButton}
+                onClick={next}
+                ref={completionContinueButtonRef}
+                autoFocus
+              >
+                Continue
+              </button>
+            )}
           </div>
         </div>
       )}

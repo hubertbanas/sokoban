@@ -19,15 +19,16 @@ function LevelSelectorModal({
         return null;
     }
 
+    const firstPlayablePackIndex = levelPacks.findIndex((pack) => pack.levels.length > 0);
+
     return (
         <Modal
             title="Level Packs"
             ariaLabel="Level pack selector"
             onClose={() => onOpenChange(false)}
-            autoFocusCloseButton
         >
             <div className={style.levelSelector}>
-                {levelPacks.map((pack) => {
+                {levelPacks.map((pack, index) => {
                     const currentPackMeta = `${pack.levels.length} levels available`;
 
                     return (
@@ -47,6 +48,7 @@ function LevelSelectorModal({
                                         }
                                         onSelectLevel(pack.levels[0].levelId);
                                     }}
+                                    autoFocus={index === firstPlayablePackIndex}
                                     disabled={!pack.levels.length}
                                 >
                                     Play Pack

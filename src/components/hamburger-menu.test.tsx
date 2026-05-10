@@ -21,6 +21,7 @@ function renderMenu(open = true, showPlayStats = false) {
     const onClose = vi.fn();
     const onShowPlayStatsChange = vi.fn();
     const onOpenSfx = vi.fn();
+    const onOpenLevelSelector = vi.fn();
     const onOpenAbout = vi.fn();
 
     const view = render(
@@ -30,6 +31,7 @@ function renderMenu(open = true, showPlayStats = false) {
             onShowPlayStatsChange={onShowPlayStatsChange}
             onClose={onClose}
             onOpenSfx={onOpenSfx}
+            onOpenLevelSelector={onOpenLevelSelector}
             onOpenAbout={onOpenAbout}
         />
     );
@@ -39,6 +41,7 @@ function renderMenu(open = true, showPlayStats = false) {
         onClose,
         onShowPlayStatsChange,
         onOpenSfx,
+        onOpenLevelSelector,
         onOpenAbout,
     };
 }
@@ -52,6 +55,7 @@ test("renders menu content and version", () => {
     expect(getByText("Show Play Stats")).toBeInTheDocument();
     expect(getByRole("checkbox", { name: /show play stats/i })).not.toBeChecked();
     expect(getByRole("button", { name: /sfx settings/i })).toBeInTheDocument();
+    expect(getByRole("button", { name: /level packs/i })).toBeInTheDocument();
     expect(getByRole("button", { name: /^about$/i })).toBeInTheDocument();
     expect(getByText(/version\s+1\.2\.3-test/i)).toBeInTheDocument();
 });
@@ -63,7 +67,7 @@ test("shows checked play stats toggle with hide aria label when enabled", () => 
 });
 
 test("applies open and hidden states based on open prop", () => {
-    const { rerender, container, onClose, onShowPlayStatsChange, onOpenAbout, onOpenSfx } = renderMenu(false);
+    const { rerender, container, onClose, onShowPlayStatsChange, onOpenAbout, onOpenSfx, onOpenLevelSelector } = renderMenu(false);
 
     let drawer = container.querySelector("#game-menu");
     if (!drawer) {
@@ -87,6 +91,7 @@ test("applies open and hidden states based on open prop", () => {
             onShowPlayStatsChange={onShowPlayStatsChange}
             onClose={onClose}
             onOpenSfx={onOpenSfx}
+            onOpenLevelSelector={onOpenLevelSelector}
             onOpenAbout={onOpenAbout}
         />
     );
@@ -107,7 +112,7 @@ test("applies open and hidden states based on open prop", () => {
 });
 
 test("menu actions call the expected callbacks", () => {
-    const { container, getByRole, onClose, onShowPlayStatsChange, onOpenSfx, onOpenAbout } = renderMenu(true);
+    const { container, getByRole, onClose, onShowPlayStatsChange, onOpenSfx, onOpenLevelSelector, onOpenAbout } = renderMenu(true);
 
     const backdrop = container.querySelector(`.${style.menuBackdrop}`);
     if (!backdrop) {
@@ -118,10 +123,12 @@ test("menu actions call the expected callbacks", () => {
     fireEvent.click(getByRole("button", { name: /close menu/i }));
     fireEvent.click(getByRole("checkbox", { name: /show play stats/i }));
     fireEvent.click(getByRole("button", { name: /sfx settings/i }));
+    fireEvent.click(getByRole("button", { name: /level packs/i }));
     fireEvent.click(getByRole("button", { name: /^about$/i }));
 
     expect(onClose).toHaveBeenCalledTimes(2);
     expect(onShowPlayStatsChange).toHaveBeenCalledWith(true);
     expect(onOpenSfx).toHaveBeenCalledTimes(1);
+    expect(onOpenLevelSelector).toHaveBeenCalledTimes(1);
     expect(onOpenAbout).toHaveBeenCalledTimes(1);
 });
