@@ -1,7 +1,6 @@
 import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
-import { SfxSettings } from "./components/sfx-settings";
 import { HamburgerMenu } from "./components/hamburger-menu";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
@@ -211,9 +210,8 @@ function Game() {
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
   const [showPlayStats, setShowPlayStats] = React.useState(getInitialPlayStatsVisibility);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
-  const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
-  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen || isLevelSelectorOpen;
+  const isAuxModalOpen = isHelpModalOpen || isMenuOpen || isLevelSelectorOpen;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -347,11 +345,6 @@ function Game() {
 
   const onCloseMenu = React.useCallback(() => {
     setIsMenuOpen(false);
-  }, []);
-
-  const onOpenSfxFromMenu = React.useCallback(() => {
-    setIsMenuOpen(false);
-    setIsSfxModalOpen(true);
   }, []);
 
   const onOpenLevelSelectorFromMenu = React.useCallback(() => {
@@ -855,21 +848,14 @@ function Game() {
       <HamburgerMenu
         open={isMenuOpen}
         showPlayStats={showPlayStats}
-        onShowPlayStatsChange={setShowPlayStats}
-        onClose={onCloseMenu}
-        onOpenSfx={onOpenSfxFromMenu}
-        onOpenLevelSelector={onOpenLevelSelectorFromMenu}
-        onOpenAbout={onOpenAboutFromMenu}
-      />
-
-      <SfxSettings
         muted={muted}
         volume={volume}
         onMutedChange={setMuted}
         onVolumeChange={setVolume}
-        open={isSfxModalOpen}
-        showTrigger={false}
-        onOpenChange={setIsSfxModalOpen}
+        onShowPlayStatsChange={setShowPlayStats}
+        onClose={onCloseMenu}
+        onOpenLevelSelector={onOpenLevelSelectorFromMenu}
+        onOpenAbout={onOpenAboutFromMenu}
       />
 
       <Help

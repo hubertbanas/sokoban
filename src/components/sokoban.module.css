@@ -524,6 +524,99 @@
     cursor: pointer;
 }
 
+.menuSfxItem {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+    padding: 8px 10px;
+    box-sizing: border-box;
+    display: grid;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.menuSfxToggleButton {
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 0.98rem;
+    font-weight: 700;
+    padding: 4px 0;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    text-align: left;
+}
+
+.menuSfxToggleState {
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+}
+
+.menuSfxControls {
+    display: grid;
+    gap: 8px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.24s ease, opacity 0.18s ease;
+}
+
+.menuSfxControlsOpen {
+    max-height: 120px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.menuSfxControlHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.menuSfxMuteButton {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+    color: var(--foreground);
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 5px 9px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.menuSfxVolumeLabel {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 72px;
+    text-align: right;
+}
+
+.menuSfxSlider {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.menuSfxSlider:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 .menuVersion {
     margin-top: auto;
     padding-top: 10px;
@@ -574,6 +667,8 @@
 .menuToggleButton,
 .menuDrawerCloseButton,
 .menuItemButton,
+.menuSfxToggleButton,
+.menuSfxMuteButton,
 .levelSelectorLevelButton,
 .modalCloseButton,
 .themeToggleLabel {
@@ -594,8 +689,13 @@
 .menuToggleButton:hover,
 .menuDrawerCloseButton:hover,
 .menuItemButton:hover,
+.menuSfxMuteButton:hover,
 .modalCloseButton:hover {
     border-color: var(--accent);
+}
+
+.menuSfxToggleButton:hover .menuSfxToggleState {
+    color: var(--accent);
 }
 
 .aboutButton:focus-visible {
@@ -611,6 +711,8 @@
 .menuToggleButton:focus-visible,
 .menuDrawerCloseButton:focus-visible,
 .menuItemButton:focus-visible,
+.menuSfxToggleButton:focus-visible,
+.menuSfxMuteButton:focus-visible,
 .modalCloseButton:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -822,49 +924,6 @@
     outline: 2px solid var(--accent);
     outline-offset: 2px;
     border-radius: 4px;
-}
-
-.sfxPanel {
-    display: grid;
-    gap: 12px;
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
-}
-
-.sfxRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    color: var(--foreground);
-}
-
-.sfxLabel {
-    font-weight: 700;
-}
-
-.sfxValue {
-    font-variant-numeric: tabular-nums;
-    color: var(--muted);
-    font-weight: 700;
-}
-
-.sfxSlider {
-    width: 100%;
-    accent-color: var(--accent);
-}
-
-.sfxSlider:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
-.sfxRow input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--accent);
 }
 
 .helpRows {

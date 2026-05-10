@@ -5,9 +5,12 @@ import { ThemeSwitcher } from "./theme-switcher";
 type HamburgerMenuProps = {
     open: boolean;
     showPlayStats: boolean;
+    muted: boolean;
+    volume: number;
+    onMutedChange: (next: boolean) => void;
+    onVolumeChange: (next: number) => void;
     onShowPlayStatsChange: (next: boolean) => void;
     onClose: () => void;
-    onOpenSfx: () => void;
     onOpenLevelSelector: () => void;
     onOpenAbout: () => void;
 };
@@ -15,12 +18,26 @@ type HamburgerMenuProps = {
 function HamburgerMenuImpl({
     open,
     showPlayStats,
+    muted,
+    volume,
+    onMutedChange,
+    onVolumeChange,
     onShowPlayStatsChange,
     onClose,
-    onOpenSfx,
     onOpenLevelSelector,
     onOpenAbout,
 }: HamburgerMenuProps) {
+    const [isSfxExpanded, setIsSfxExpanded] = React.useState(false);
+    const controlsId = React.useId();
+    const sliderId = React.useId();
+    const volumePercent = Math.round(volume * 100);
+
+    React.useEffect(() => {
+        if (!open) {
+            setIsSfxExpanded(false);
+        }
+    }, [open]);
+
     return (
         <>
             <div
@@ -74,9 +91,55 @@ function HamburgerMenuImpl({
                         </div>
                     </div>
 
-                    <button type="button" className={style.menuItemButton} onClick={onOpenSfx}>
-                        SFX Settings
-                    </button>
+                    <div className={style.menuSfxItem}>
+                        <button
+                            type="button"
+                            className={style.menuSfxToggleButton}
+                            onClick={() => setIsSfxExpanded((current) => !current)}
+                            aria-expanded={isSfxExpanded}
+                            aria-controls={controlsId}
+                        >
+                            <span>SFX Settings</span>
+                            <span className={style.menuSfxToggleState} aria-hidden="true">
+                                {isSfxExpanded ? "Hide" : "Show"}
+                            </span>
+                        </button>
+
+                        <div
+                            id={controlsId}
+                            className={`${style.menuSfxControls} ${isSfxExpanded ? style.menuSfxControlsOpen : ""}`}
+                            aria-hidden={!isSfxExpanded}
+                        >
+                            <div className={style.menuSfxControlHeader}>
+                                <button
+                                    type="button"
+                                    className={style.menuSfxMuteButton}
+                                    onClick={() => onMutedChange(!muted)}
+                                    aria-label={muted ? "Unmute sound effects" : "Mute sound effects"}
+                                    aria-pressed={muted}
+                                >
+                                    {muted ? "Muted" : "Mute"}
+                                </button>
+
+                                <label htmlFor={sliderId} className={style.menuSfxVolumeLabel}>
+                                    Volume {volumePercent}%
+                                </label>
+                            </div>
+
+                            <input
+                                id={sliderId}
+                                type="range"
+                                className={style.menuSfxSlider}
+                                min={0}
+                                max={100}
+                                step={5}
+                                value={volumePercent}
+                                aria-label="SFX volume"
+                                onChange={(event) => onVolumeChange(Number(event.target.value) / 100)}
+                                disabled={muted}
+                            />
+                        </div>
+                    </div>
 
                     <button type="button" className={style.menuItemButton} onClick={onOpenLevelSelector}>
                         Level Packs

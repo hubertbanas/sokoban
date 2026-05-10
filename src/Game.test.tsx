@@ -43,19 +43,6 @@ vi.mock("./components/mobile-controls", () => ({
   ),
 }));
 
-vi.mock("./components/sfx-settings", () => ({
-  SfxSettings: ({ open = false, onOpenChange }: { open?: boolean; onOpenChange?: (open: boolean) => void }) => (
-    <div data-testid="sfx-settings" data-open={open ? "true" : "false"}>
-      <button type="button" data-testid="sfx-open" onClick={() => onOpenChange?.(true)}>
-        Open SFX
-      </button>
-      <button type="button" data-testid="sfx-close" onClick={() => onOpenChange?.(false)}>
-        Close SFX
-      </button>
-    </div>
-  ),
-}));
-
 vi.mock("./hooks/useGameSounds", () => ({
   useGameSounds: vi.fn(),
 }));
@@ -1208,7 +1195,6 @@ test("renders auxiliary components", () => {
 
   expect(screen.getByTestId("help")).toBeInTheDocument();
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
-  expect(screen.getByTestId("sfx-settings")).toBeInTheDocument();
   expect(screen.getByTestId("theme-switcher")).toBeInTheDocument();
 });
 
@@ -1260,7 +1246,7 @@ test("menu blocks movement keys and escape closes the menu", () => {
   expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
 });
 
-test("menu actions open sfx, level selector, and about dialogs", () => {
+test("menu actions toggle inline sfx controls, and open level selector and about dialogs", () => {
   mockSokoban();
 
   render(<Game />);
@@ -1268,10 +1254,10 @@ test("menu actions open sfx, level selector, and about dialogs", () => {
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   fireEvent.click(screen.getByRole("button", { name: /sfx settings/i }));
 
-  expect(screen.getByTestId("sfx-settings")).toHaveAttribute("data-open", "true");
-  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /mute sound effects/i })).toBeInTheDocument();
+  expect(screen.getByRole("slider", { name: /sfx volume/i })).toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: /game menu/i })).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   fireEvent.click(screen.getByRole("button", { name: /level packs/i }));
 
   const levelSelectorDialog = screen.getByRole("dialog", { name: /level pack selector/i });
@@ -1402,13 +1388,14 @@ test("arrow keys are ignored while help modal is open", () => {
   expect(move).toHaveBeenCalledWith(Direction.Top);
 });
 
-test("arrow keys are ignored while sfx modal is open", () => {
+test("arrow keys are ignored while menu is open with sfx controls expanded", () => {
   const move = vi.fn();
   mockSokoban({ state: State.playing, move });
 
   render(<Game />);
 
-  fireEvent.click(screen.getByTestId("sfx-open"));
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  fireEvent.click(screen.getByRole("button", { name: /sfx settings/i }));
 
   const onKeyboardEvent = getLatestKeyboardHandler();
   const { event, preventDefaultSpy } = createKeyboardEvent("ArrowRight");
@@ -1420,7 +1407,8 @@ test("arrow keys are ignored while sfx modal is open", () => {
   expect(move).not.toHaveBeenCalled();
   expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
 
-  fireEvent.click(screen.getByTestId("sfx-close"));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /close menu/i }));
 
   const onKeyboardEventAfterClose = getLatestKeyboardHandler();
 
