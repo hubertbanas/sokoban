@@ -1254,7 +1254,9 @@ test("menu actions toggle inline sfx controls, and open level selector and about
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   fireEvent.click(screen.getByRole("button", { name: /sfx settings/i }));
 
-  expect(screen.getByRole("button", { name: /mute sound effects/i })).toBeInTheDocument();
+  expect(screen.getByText("Mute SFX")).toBeInTheDocument();
+  expect(screen.getByText("Volume")).toBeInTheDocument();
+  expect(screen.getByRole("checkbox", { name: /mute sfx/i })).toBeInTheDocument();
   expect(screen.getByRole("slider", { name: /sfx volume/i })).toBeInTheDocument();
   expect(screen.getByRole("dialog", { name: /game menu/i })).toBeInTheDocument();
 

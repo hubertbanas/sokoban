@@ -571,38 +571,30 @@
 }
 
 .menuSfxControlsOpen {
-    max-height: 120px;
+    max-height: 180px;
     opacity: 1;
     pointer-events: auto;
 }
 
-.menuSfxControlHeader {
+.menuSfxRow {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
 }
 
-.menuSfxMuteButton {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+.menuSfxRowLabel {
     color: var(--foreground);
-    font-size: 0.76rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 5px 9px;
-    white-space: nowrap;
-    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
 }
 
 .menuSfxVolumeLabel {
     font-variant-numeric: tabular-nums;
-    font-size: 0.76rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--muted);
-    min-width: 72px;
+    min-width: 52px;
     text-align: right;
 }
 
@@ -668,7 +660,6 @@
 .menuDrawerCloseButton,
 .menuItemButton,
 .menuSfxToggleButton,
-.menuSfxMuteButton,
 .levelSelectorLevelButton,
 .modalCloseButton,
 .themeToggleLabel {
@@ -689,7 +680,6 @@
 .menuToggleButton:hover,
 .menuDrawerCloseButton:hover,
 .menuItemButton:hover,
-.menuSfxMuteButton:hover,
 .modalCloseButton:hover {
     border-color: var(--accent);
 }
@@ -712,7 +702,6 @@
 .menuDrawerCloseButton:focus-visible,
 .menuItemButton:focus-visible,
 .menuSfxToggleButton:focus-visible,
-.menuSfxMuteButton:focus-visible,
 .modalCloseButton:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;

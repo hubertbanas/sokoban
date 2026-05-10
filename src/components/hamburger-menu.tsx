@@ -29,6 +29,7 @@ function HamburgerMenuImpl({
 }: HamburgerMenuProps) {
     const [isSfxExpanded, setIsSfxExpanded] = React.useState(false);
     const controlsId = React.useId();
+    const toggleId = React.useId();
     const sliderId = React.useId();
     const volumePercent = Math.round(volume * 100);
 
@@ -110,19 +111,29 @@ function HamburgerMenuImpl({
                             className={`${style.menuSfxControls} ${isSfxExpanded ? style.menuSfxControlsOpen : ""}`}
                             aria-hidden={!isSfxExpanded}
                         >
-                            <div className={style.menuSfxControlHeader}>
-                                <button
-                                    type="button"
-                                    className={style.menuSfxMuteButton}
-                                    onClick={() => onMutedChange(!muted)}
-                                    aria-label={muted ? "Unmute sound effects" : "Mute sound effects"}
-                                    aria-pressed={muted}
-                                >
-                                    {muted ? "Muted" : "Mute"}
-                                </button>
+                            <div className={style.menuSfxRow}>
+                                <span className={style.menuSfxRowLabel}>Mute SFX</span>
+                                <div className={style.themeSliderRow}>
+                                    <input
+                                        id={toggleId}
+                                        className={style.themeToggleCheckbox}
+                                        type="checkbox"
+                                        checked={muted}
+                                        onChange={(event) => onMutedChange(event.target.checked)}
+                                        aria-label="Mute SFX"
+                                    />
+                                    <label htmlFor={toggleId} className={style.themeToggleLabel}>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
+                                        <span className={style.themeToggleBall} />
+                                    </label>
+                                </div>
+                            </div>
 
+                            <div className={style.menuSfxRow}>
+                                <span className={style.menuSfxRowLabel}>Volume</span>
                                 <label htmlFor={sliderId} className={style.menuSfxVolumeLabel}>
-                                    Volume {volumePercent}%
+                                    {volumePercent}%
                                 </label>
                             </div>
 

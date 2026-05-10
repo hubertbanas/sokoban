@@ -61,6 +61,7 @@ test("renders menu content and version", () => {
     expect(getByRole("checkbox", { name: /show play stats/i })).not.toBeChecked();
     expect(getByRole("button", { name: /sfx settings/i })).toBeInTheDocument();
     expect(() => getByRole("slider", { name: /sfx volume/i })).toThrow();
+    expect(() => getByRole("checkbox", { name: /mute sfx/i })).toThrow();
     expect(getByRole("button", { name: /level packs/i })).toBeInTheDocument();
     expect(getByRole("button", { name: /^about$/i })).toBeInTheDocument();
     expect(getByText(/version\s+1\.2\.3-test/i)).toBeInTheDocument();
@@ -133,6 +134,7 @@ test("menu actions call the expected callbacks", () => {
     const {
         container,
         getByRole,
+        getByText,
         onClose,
         onMutedChange,
         onVolumeChange,
@@ -150,7 +152,9 @@ test("menu actions call the expected callbacks", () => {
     fireEvent.click(getByRole("button", { name: /close menu/i }));
     fireEvent.click(getByRole("checkbox", { name: /show play stats/i }));
     fireEvent.click(getByRole("button", { name: /sfx settings/i }));
-    fireEvent.click(getByRole("button", { name: /mute sound effects/i }));
+    expect(getByRole("checkbox", { name: /mute sfx/i })).toBeInTheDocument();
+    expect(getByText("Volume")).toBeInTheDocument();
+    fireEvent.click(getByRole("checkbox", { name: /mute sfx/i }));
     fireEvent.change(getByRole("slider", { name: /sfx volume/i }), { target: { value: "65" } });
     fireEvent.click(getByRole("button", { name: /level packs/i }));
     fireEvent.click(getByRole("button", { name: /^about$/i }));
