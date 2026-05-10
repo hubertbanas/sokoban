@@ -338,6 +338,11 @@ function Game() {
     setIsSfxModalOpen(true);
   }, []);
 
+  const onOpenLevelSelectorFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setIsLevelSelectorOpen(true);
+  }, []);
+
   const onOpenAboutFromMenu = React.useCallback(() => {
     setIsMenuOpen(false);
     setIsHelpModalOpen(true);
@@ -833,6 +838,7 @@ function Game() {
         onShowPlayStatsChange={setShowPlayStats}
         onClose={onCloseMenu}
         onOpenSfx={onOpenSfxFromMenu}
+        onOpenLevelSelector={onOpenLevelSelectorFromMenu}
         onOpenAbout={onOpenAboutFromMenu}
       />
 

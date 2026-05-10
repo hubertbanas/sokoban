@@ -1252,7 +1252,7 @@ test("menu blocks movement keys and escape closes the menu", () => {
   expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
 });
 
-test("menu actions open sfx and about dialogs", () => {
+test("menu actions open sfx, level selector, and about dialogs", () => {
   mockSokoban();
 
   render(<Game />);
@@ -1262,6 +1262,15 @@ test("menu actions open sfx and about dialogs", () => {
 
   expect(screen.getByTestId("sfx-settings")).toHaveAttribute("data-open", "true");
   expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  fireEvent.click(screen.getByRole("button", { name: /level packs/i }));
+
+  const levelSelectorDialog = screen.getByRole("dialog", { name: /level pack selector/i });
+  expect(levelSelectorDialog).toBeInTheDocument();
+  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+
+  fireEvent.click(within(levelSelectorDialog).getByRole("button", { name: /^close$/i }));
 
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   fireEvent.click(screen.getByRole("button", { name: /^about$/i }));

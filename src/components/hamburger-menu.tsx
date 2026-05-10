@@ -8,6 +8,7 @@ type HamburgerMenuProps = {
     onShowPlayStatsChange: (next: boolean) => void;
     onClose: () => void;
     onOpenSfx: () => void;
+    onOpenLevelSelector: () => void;
     onOpenAbout: () => void;
 };
 
@@ -17,6 +18,7 @@ function HamburgerMenuImpl({
     onShowPlayStatsChange,
     onClose,
     onOpenSfx,
+    onOpenLevelSelector,
     onOpenAbout,
 }: HamburgerMenuProps) {
     return (
@@ -74,6 +76,10 @@ function HamburgerMenuImpl({
 
                     <button type="button" className={style.menuItemButton} onClick={onOpenSfx}>
                         SFX Settings
+                    </button>
+
+                    <button type="button" className={style.menuItemButton} onClick={onOpenLevelSelector}>
+                        Level Packs
                     </button>
 
                     <button type="button" className={style.menuItemButton} onClick={onOpenAbout}>
