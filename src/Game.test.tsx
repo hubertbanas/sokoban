@@ -43,19 +43,6 @@ vi.mock("./components/mobile-controls", () => ({
   ),
 }));
 
-vi.mock("./components/sfx-settings", () => ({
-  SfxSettings: ({ open = false, onOpenChange }: { open?: boolean; onOpenChange?: (open: boolean) => void }) => (
-    <div data-testid="sfx-settings" data-open={open ? "true" : "false"}>
-      <button type="button" data-testid="sfx-open" onClick={() => onOpenChange?.(true)}>
-        Open SFX
-      </button>
-      <button type="button" data-testid="sfx-close" onClick={() => onOpenChange?.(false)}>
-        Close SFX
-      </button>
-    </div>
-  ),
-}));
-
 vi.mock("./hooks/useGameSounds", () => ({
   useGameSounds: vi.fn(),
 }));
@@ -212,7 +199,8 @@ function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds
 function setPlayStatsVisibility(enabled: boolean) {
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
-  const toggle = screen.getByRole("checkbox", { name: /play stats/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
+  const toggle = within(menuDialog).getByRole("checkbox", { name: /play stats/i });
 
   if (!(toggle instanceof HTMLInputElement)) {
     throw new Error("Expected play stats toggle to be an input element");
@@ -1208,7 +1196,6 @@ test("renders auxiliary components", () => {
 
   expect(screen.getByTestId("help")).toBeInTheDocument();
   expect(screen.getByTestId("mobile-controls")).toBeInTheDocument();
-  expect(screen.getByTestId("sfx-settings")).toBeInTheDocument();
   expect(screen.getByTestId("theme-switcher")).toBeInTheDocument();
 });
 
@@ -1260,7 +1247,7 @@ test("menu blocks movement keys and escape closes the menu", () => {
   expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
 });
 
-test("menu actions open sfx, level selector, and about dialogs", () => {
+test("menu actions toggle inline sfx controls, and open level selector and about dialogs", () => {
   mockSokoban();
 
   render(<Game />);
@@ -1268,10 +1255,12 @@ test("menu actions open sfx, level selector, and about dialogs", () => {
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   fireEvent.click(screen.getByRole("button", { name: /sfx settings/i }));
 
-  expect(screen.getByTestId("sfx-settings")).toHaveAttribute("data-open", "true");
-  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+  expect(screen.getByText("Mute SFX")).toBeInTheDocument();
+  expect(screen.getByText("Volume")).toBeInTheDocument();
+  expect(screen.getByRole("checkbox", { name: /mute sfx/i })).toBeInTheDocument();
+  expect(screen.getByRole("slider", { name: /sfx volume/i })).toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: /game menu/i })).toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   fireEvent.click(screen.getByRole("button", { name: /level packs/i }));
 
   const levelSelectorDialog = screen.getByRole("dialog", { name: /level pack selector/i });
@@ -1284,6 +1273,57 @@ test("menu actions open sfx, level selector, and about dialogs", () => {
   fireEvent.click(screen.getByRole("button", { name: /^about$/i }));
 
   expect(screen.getByTestId("help")).toHaveAttribute("data-open", "true");
+});
+
+test("menu reset stats action opens confirmation and confirms clearStats", () => {
+  const clearStats = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      clearStats,
+    })
+  );
+  mockSokoban();
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /reset stats/i }));
+
+  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: /reset stats confirmation/i })).toBeInTheDocument();
+  expect(clearStats).not.toHaveBeenCalled();
+
+  fireEvent.click(screen.getByRole("button", { name: /reset stats/i }));
+
+  expect(screen.queryByRole("dialog", { name: /reset stats confirmation/i })).not.toBeInTheDocument();
+  expect(clearStats).toHaveBeenCalledTimes(1);
+});
+
+test("menu reset stats confirmation cancel keeps stats untouched", () => {
+  const clearStats = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      clearStats,
+    })
+  );
+  mockSokoban();
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /reset stats/i }));
+
+  const resetConfirmationDialog = screen.getByRole("dialog", { name: /reset stats confirmation/i });
+  fireEvent.click(within(resetConfirmationDialog).getByRole("button", { name: /cancel/i }));
+
+  expect(screen.queryByRole("dialog", { name: /reset stats confirmation/i })).not.toBeInTheDocument();
+  expect(clearStats).not.toHaveBeenCalled();
 });
 
 test("keyboard Backspace triggers undo", () => {
@@ -1402,13 +1442,14 @@ test("arrow keys are ignored while help modal is open", () => {
   expect(move).toHaveBeenCalledWith(Direction.Top);
 });
 
-test("arrow keys are ignored while sfx modal is open", () => {
+test("arrow keys are ignored while menu is open with sfx controls expanded", () => {
   const move = vi.fn();
   mockSokoban({ state: State.playing, move });
 
   render(<Game />);
 
-  fireEvent.click(screen.getByTestId("sfx-open"));
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  fireEvent.click(screen.getByRole("button", { name: /sfx settings/i }));
 
   const onKeyboardEvent = getLatestKeyboardHandler();
   const { event, preventDefaultSpy } = createKeyboardEvent("ArrowRight");
@@ -1420,7 +1461,8 @@ test("arrow keys are ignored while sfx modal is open", () => {
   expect(move).not.toHaveBeenCalled();
   expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
 
-  fireEvent.click(screen.getByTestId("sfx-close"));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /close menu/i }));
 
   const onKeyboardEventAfterClose = getLatestKeyboardHandler();
 

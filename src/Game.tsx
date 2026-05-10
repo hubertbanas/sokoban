@@ -1,7 +1,6 @@
 import React from "react";
 import "./Game.css";
 import { Help } from "./components/help";
-import { SfxSettings } from "./components/sfx-settings";
 import { HamburgerMenu } from "./components/hamburger-menu";
 import { MobileControls } from "./components/mobile-controls";
 import { useSokoban, Direction, State } from "./hooks/sokoban";
@@ -188,7 +187,7 @@ function Game() {
     hasProgress,
     totalLevels,
   } = useSokoban();
-  const { stats, saveLevelResult } = useStats();
+  const { stats, saveLevelResult, clearStats } = useStats();
   const {
     playCratePush,
     playCrateDocked,
@@ -211,9 +210,8 @@ function Game() {
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
   const [showPlayStats, setShowPlayStats] = React.useState(getInitialPlayStatsVisibility);
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
-  const [isSfxModalOpen, setIsSfxModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
-  const isAuxModalOpen = isHelpModalOpen || isSfxModalOpen || isMenuOpen || isLevelSelectorOpen;
+  const isAuxModalOpen = isHelpModalOpen || isMenuOpen || isLevelSelectorOpen;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -227,6 +225,7 @@ function Game() {
     | { type: "restart" }
     | { type: "previous" }
     | { type: "next" }
+    | { type: "reset-stats" }
     | { type: "select-level"; levelId: string }
     | null;
   const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
@@ -244,12 +243,15 @@ function Game() {
         case "next":
           nextLevel();
           break;
+        case "reset-stats":
+          clearStats();
+          break;
         case "select-level":
           loadLevel(action.levelId);
           break;
       }
     },
-    [loadLevel, nextLevel, previousLevel, restart]
+    [clearStats, loadLevel, nextLevel, previousLevel, restart]
   );
 
   const onRequestRestart = React.useCallback(() => {
@@ -349,11 +351,6 @@ function Game() {
     setIsMenuOpen(false);
   }, []);
 
-  const onOpenSfxFromMenu = React.useCallback(() => {
-    setIsMenuOpen(false);
-    setIsSfxModalOpen(true);
-  }, []);
-
   const onOpenLevelSelectorFromMenu = React.useCallback(() => {
     setIsMenuOpen(false);
     setIsLevelSelectorOpen(true);
@@ -362,6 +359,11 @@ function Game() {
   const onOpenAboutFromMenu = React.useCallback(() => {
     setIsMenuOpen(false);
     setIsHelpModalOpen(true);
+  }, []);
+
+  const onRequestResetStatsFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setPendingAction({ type: "reset-stats" });
   }, []);
 
   const onUndoAction = React.useCallback(() => {
@@ -463,6 +465,13 @@ function Game() {
           ariaLabel: "Switch to selected level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
           confirmLabel: "Go to Selected Level",
+        };
+      case "reset-stats":
+        return {
+          title: "Reset stats?",
+          ariaLabel: "Reset stats confirmation",
+          warningText: "Resetting stats will permanently remove your saved moves, undos, and times.",
+          confirmLabel: "Reset Stats",
         };
       default:
         return null;
@@ -855,21 +864,15 @@ function Game() {
       <HamburgerMenu
         open={isMenuOpen}
         showPlayStats={showPlayStats}
-        onShowPlayStatsChange={setShowPlayStats}
-        onClose={onCloseMenu}
-        onOpenSfx={onOpenSfxFromMenu}
-        onOpenLevelSelector={onOpenLevelSelectorFromMenu}
-        onOpenAbout={onOpenAboutFromMenu}
-      />
-
-      <SfxSettings
         muted={muted}
         volume={volume}
         onMutedChange={setMuted}
         onVolumeChange={setVolume}
-        open={isSfxModalOpen}
-        showTrigger={false}
-        onOpenChange={setIsSfxModalOpen}
+        onShowPlayStatsChange={setShowPlayStats}
+        onResetStats={onRequestResetStatsFromMenu}
+        onClose={onCloseMenu}
+        onOpenLevelSelector={onOpenLevelSelectorFromMenu}
+        onOpenAbout={onOpenAboutFromMenu}
       />
 
       <Help
