@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.18.0-rc.1] - 2026-05-10
+
+### Added
+- Level Pack System: Introduced dynamic level loading via Vite, replacing the flat list of 490 levels with a segmented, pack-aware structure.
+- Tutorial Pack: Added a dedicated, interactive 3-level Tutorial pack designed to onboard new players, set as the default starting sequence.
+- Level Selector Modal: Implemented a scrollable UI to browse and select specific level packs, accessible from the main header, the end-of-pack completion popup, and the hamburger menu.
+- Persistent Statistics Engine: Created a local storage architecture using a "Dual-ID" system (`levelId` for linear progression and a hashed `puzzleId` for cross-pack puzzle recognition).
+- Performance Tracking: The game now actively tracks move count, elapsed time, and undo usage, saving high scores to local storage upon puzzle completion.
+- In-Game Stats UI: Added an interactive, persistable toggle to display current run metrics alongside all-time best records during gameplay.
+- Data Management: Added a "Reset Stats" option within the hamburger menu, protected by a confirmation dialog to prevent accidental data loss.
+
+### Changed
+- Architectural Data Refactor: Overhauled level identifiers, shifting from manual JSON titles to stable file-based `packId`s and composite `levelId`s.
+- Deterministic Sorting: Hardcoded sorting locales to ensure level packs load in the exact same sequence across all operating systems and devices.
+- State Persistence Migration: Updated the local storage key for active levels to `sokoban.level-id.v1` to accommodate the new pack structure.
+- Menu Consolidation: Refactored standalone sound effect controls (mute and volume) into the primary hamburger menu for centralized settings management.
+- Accessibility: Enhanced keyboard navigation, adding comprehensive support for Arrow keys, Enter, Space, and Escape within the level selector and completion modals.
+
+### Fixed
+- UI Polish: Removed lingering focus outlines and box shadows from level navigation buttons and the menu drawer to provide a flatter, cleaner aesthetic.
+- Navigation Boundaries: Enforced strict boundaries on "Previous" and "Next" level actions to prevent accidental bleed-over into different level packs.
+
 ## [1.17.0] - 2026-05-03
 
 ### Added
