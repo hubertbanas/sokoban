@@ -33,10 +33,11 @@ function HamburgerMenuImpl({
     const [isSfxExpanded, setIsSfxExpanded] = React.useState(false);
     const statsControlsId = React.useId();
     const statsToggleId = React.useId();
-    const controlsId = React.useId();
-    const toggleId = React.useId();
-    const sliderId = React.useId();
+    const sfxControlsId = React.useId();
+    const sfxToggleId = React.useId();
+    const sfxSliderId = React.useId();
     const volumePercent = Math.round(volume * 100);
+    const playStatsToggleLabel = showPlayStats ? "Disable play stats" : "Enable play stats";
 
     React.useEffect(() => {
         if (!open) {
@@ -87,7 +88,7 @@ function HamburgerMenuImpl({
                             aria-expanded={isStatsExpanded}
                             aria-controls={statsControlsId}
                         >
-                            <span>Show Play Stats</span>
+                            <span>Play Stats</span>
                             <span className={style.menuSfxToggleState} aria-hidden="true">
                                 {isStatsExpanded ? "Hide" : "Show"}
                             </span>
@@ -99,7 +100,7 @@ function HamburgerMenuImpl({
                             aria-hidden={!isStatsExpanded}
                         >
                             <div className={style.menuSfxRow}>
-                                <span className={style.menuSfxRowLabel}>Show Play Stats</span>
+                                <span className={style.menuSfxRowLabel}>Visible</span>
                                 <div className={style.themeSliderRow}>
                                     <input
                                         id={statsToggleId}
@@ -107,7 +108,7 @@ function HamburgerMenuImpl({
                                         type="checkbox"
                                         checked={showPlayStats}
                                         onChange={(event) => onShowPlayStatsChange(event.target.checked)}
-                                        aria-label={showPlayStats ? "Hide play stats" : "Show play stats"}
+                                        aria-label={playStatsToggleLabel}
                                     />
                                     <label htmlFor={statsToggleId} className={style.themeToggleLabel}>
                                         <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
@@ -129,7 +130,7 @@ function HamburgerMenuImpl({
                             className={style.menuSfxToggleButton}
                             onClick={() => setIsSfxExpanded((current) => !current)}
                             aria-expanded={isSfxExpanded}
-                            aria-controls={controlsId}
+                            aria-controls={sfxControlsId}
                         >
                             <span>SFX Settings</span>
                             <span className={style.menuSfxToggleState} aria-hidden="true">
@@ -138,7 +139,7 @@ function HamburgerMenuImpl({
                         </button>
 
                         <div
-                            id={controlsId}
+                            id={sfxControlsId}
                             className={`${style.menuSfxControls} ${isSfxExpanded ? style.menuSfxControlsOpen : ""}`}
                             aria-hidden={!isSfxExpanded}
                         >
@@ -146,14 +147,14 @@ function HamburgerMenuImpl({
                                 <span className={style.menuSfxRowLabel}>Mute SFX</span>
                                 <div className={style.themeSliderRow}>
                                     <input
-                                        id={toggleId}
+                                        id={sfxToggleId}
                                         className={style.themeToggleCheckbox}
                                         type="checkbox"
                                         checked={muted}
                                         onChange={(event) => onMutedChange(event.target.checked)}
                                         aria-label="Mute SFX"
                                     />
-                                    <label htmlFor={toggleId} className={style.themeToggleLabel}>
+                                    <label htmlFor={sfxToggleId} className={style.themeToggleLabel}>
                                         <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
                                         <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
                                         <span className={style.themeToggleBall} />
@@ -163,13 +164,13 @@ function HamburgerMenuImpl({
 
                             <div className={style.menuSfxRow}>
                                 <span className={style.menuSfxRowLabel}>Volume</span>
-                                <label htmlFor={sliderId} className={style.menuSfxVolumeLabel}>
+                                <label htmlFor={sfxSliderId} className={style.menuSfxVolumeLabel}>
                                     {volumePercent}%
                                 </label>
                             </div>
 
                             <input
-                                id={sliderId}
+                                id={sfxSliderId}
                                 type="range"
                                 className={style.menuSfxSlider}
                                 min={0}

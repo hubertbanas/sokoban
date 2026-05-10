@@ -199,7 +199,7 @@ function createMockGameSounds(overrides: Partial<ReturnType<typeof useGameSounds
 function setPlayStatsVisibility(enabled: boolean) {
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
-  fireEvent.click(within(menuDialog).getByRole("button", { name: /show play stats/i }));
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
   const toggle = within(menuDialog).getByRole("checkbox", { name: /play stats/i });
 
   if (!(toggle instanceof HTMLInputElement)) {
@@ -1275,7 +1275,7 @@ test("menu actions toggle inline sfx controls, and open level selector and about
   expect(screen.getByTestId("help")).toHaveAttribute("data-open", "true");
 });
 
-test("menu reset stats action calls clearStats", () => {
+test("menu reset stats action opens confirmation and confirms clearStats", () => {
   const clearStats = vi.fn();
 
   mockedUseStats.mockReturnValue(
@@ -1289,10 +1289,41 @@ test("menu reset stats action calls clearStats", () => {
 
   fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
   const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
-  fireEvent.click(within(menuDialog).getByRole("button", { name: /show play stats/i }));
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
   fireEvent.click(within(menuDialog).getByRole("button", { name: /reset stats/i }));
 
+  expect(screen.queryByRole("dialog", { name: /game menu/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: /reset stats confirmation/i })).toBeInTheDocument();
+  expect(clearStats).not.toHaveBeenCalled();
+
+  fireEvent.click(screen.getByRole("button", { name: /reset stats/i }));
+
+  expect(screen.queryByRole("dialog", { name: /reset stats confirmation/i })).not.toBeInTheDocument();
   expect(clearStats).toHaveBeenCalledTimes(1);
+});
+
+test("menu reset stats confirmation cancel keeps stats untouched", () => {
+  const clearStats = vi.fn();
+
+  mockedUseStats.mockReturnValue(
+    createMockStats({
+      clearStats,
+    })
+  );
+  mockSokoban();
+
+  render(<Game />);
+
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /reset stats/i }));
+
+  const resetConfirmationDialog = screen.getByRole("dialog", { name: /reset stats confirmation/i });
+  fireEvent.click(within(resetConfirmationDialog).getByRole("button", { name: /cancel/i }));
+
+  expect(screen.queryByRole("dialog", { name: /reset stats confirmation/i })).not.toBeInTheDocument();
+  expect(clearStats).not.toHaveBeenCalled();
 });
 
 test("keyboard Backspace triggers undo", () => {

@@ -225,6 +225,7 @@ function Game() {
     | { type: "restart" }
     | { type: "previous" }
     | { type: "next" }
+    | { type: "reset-stats" }
     | { type: "select-level"; levelId: string }
     | null;
   const [pendingAction, setPendingAction] = React.useState<PendingAction>(null);
@@ -242,12 +243,15 @@ function Game() {
         case "next":
           nextLevel();
           break;
+        case "reset-stats":
+          clearStats();
+          break;
         case "select-level":
           loadLevel(action.levelId);
           break;
       }
     },
-    [loadLevel, nextLevel, previousLevel, restart]
+    [clearStats, loadLevel, nextLevel, previousLevel, restart]
   );
 
   const onRequestRestart = React.useCallback(() => {
@@ -357,6 +361,11 @@ function Game() {
     setIsHelpModalOpen(true);
   }, []);
 
+  const onRequestResetStatsFromMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+    setPendingAction({ type: "reset-stats" });
+  }, []);
+
   const onUndoAction = React.useCallback(() => {
     if (state !== State.playing || isAuxModalOpen || isConfirmationDialogOpen) {
       return;
@@ -456,6 +465,13 @@ function Game() {
           ariaLabel: "Switch to selected level confirmation",
           warningText: "Switching levels now will erase your progress on this level.",
           confirmLabel: "Go to Selected Level",
+        };
+      case "reset-stats":
+        return {
+          title: "Reset stats?",
+          ariaLabel: "Reset stats confirmation",
+          warningText: "Resetting stats will permanently remove your saved moves, undos, and times.",
+          confirmLabel: "Reset Stats",
         };
       default:
         return null;
@@ -853,7 +869,7 @@ function Game() {
         onMutedChange={setMuted}
         onVolumeChange={setVolume}
         onShowPlayStatsChange={setShowPlayStats}
-        onResetStats={clearStats}
+        onResetStats={onRequestResetStatsFromMenu}
         onClose={onCloseMenu}
         onOpenLevelSelector={onOpenLevelSelectorFromMenu}
         onOpenAbout={onOpenAboutFromMenu}
