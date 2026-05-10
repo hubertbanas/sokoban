@@ -524,6 +524,10 @@
     cursor: pointer;
 }
 
+.menuResetStatsButton {
+    text-align: center;
+}
+
 .menuSfxItem {
     width: 100%;
     border: 1px solid var(--border);
@@ -604,6 +608,14 @@
     width: 100%;
     margin: 0;
     accent-color: var(--accent);
+}
+
+.menuSfxSlider::-webkit-slider-thumb {
+    box-shadow: none;
+}
+
+.menuSfxSlider::-moz-range-thumb {
+    box-shadow: none;
 }
 
 .menuSfxSlider:disabled {

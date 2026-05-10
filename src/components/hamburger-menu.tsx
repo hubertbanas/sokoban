@@ -118,7 +118,11 @@ function HamburgerMenuImpl({
                                 </div>
                             </div>
 
-                            <button type="button" className={style.menuItemButton} onClick={onResetStats}>
+                            <button
+                                type="button"
+                                className={`${style.menuItemButton} ${style.menuResetStatsButton}`}
+                                onClick={onResetStats}
+                            >
                                 Reset Stats
                             </button>
                         </div>
