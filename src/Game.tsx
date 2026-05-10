@@ -582,8 +582,53 @@ function Game() {
       }
 
       if (isLevelSelectorOpen) {
+        const selectablePackButtons = Array.from(
+          document.querySelectorAll(`.${style.levelSelectorPackPlayButton}`)
+        ).filter((button): button is HTMLButtonElement =>
+          button instanceof HTMLButtonElement && !button.disabled
+        );
+
         if (event.code === "Escape") {
           setIsLevelSelectorOpen(false);
+          event.preventDefault();
+          return;
+        }
+
+        if (
+          event.code === "ArrowUp" ||
+          event.code === "ArrowDown" ||
+          event.code === "ArrowLeft" ||
+          event.code === "ArrowRight"
+        ) {
+          if (selectablePackButtons.length > 0) {
+            const activeElement = document.activeElement;
+            const activeIndex =
+              activeElement instanceof HTMLButtonElement
+                ? selectablePackButtons.indexOf(activeElement)
+                : -1;
+            const delta = event.code === "ArrowUp" || event.code === "ArrowLeft" ? -1 : 1;
+            const nextIndex =
+              activeIndex >= 0
+                ? (activeIndex + delta + selectablePackButtons.length) % selectablePackButtons.length
+                : delta > 0
+                  ? 0
+                  : selectablePackButtons.length - 1;
+
+            selectablePackButtons[nextIndex].focus();
+          }
+
+          event.preventDefault();
+          return;
+        }
+
+        if (event.code === "Enter" || event.code === "Space") {
+          const activeElement = document.activeElement;
+
+          if (activeElement instanceof HTMLButtonElement && !activeElement.disabled) {
+            activeElement.click();
+          } else if (selectablePackButtons.length > 0) {
+            selectablePackButtons[0].click();
+          }
         }
 
         event.preventDefault();
@@ -599,13 +644,23 @@ function Game() {
         if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
           if (isLastLevelInCurrentPack) {
             const activeElement = document.activeElement;
-            const targetButton =
-              activeElement === completionContinueButtonRef.current
-                ? completionLevelPacksButtonRef.current
-                : completionContinueButtonRef.current;
+            const levelPacksButton = completionLevelPacksButtonRef.current;
+            const continueButton = completionContinueButtonRef.current;
+            const isLevelPacksFocused = activeElement === levelPacksButton;
+            const isContinueFocused = activeElement === continueButton;
 
-            if (targetButton) {
-              targetButton.focus();
+            if (event.code === "ArrowRight") {
+              if (isLevelPacksFocused) {
+                continueButton?.focus();
+              } else if (!isContinueFocused) {
+                continueButton?.focus();
+              }
+            } else {
+              if (isContinueFocused) {
+                levelPacksButton?.focus();
+              } else if (!isLevelPacksFocused) {
+                levelPacksButton?.focus();
+              }
             }
           } else {
             completionContinueButtonRef.current?.focus();
