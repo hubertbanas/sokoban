@@ -419,6 +419,13 @@
     flex-wrap: wrap;
 }
 
+.completionOverlay .levelNavButton:focus,
+.completionOverlay .levelNavButton:focus-visible {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--accent);
+}
+
 .menuBackdrop {
     position: fixed;
     inset: 0;
@@ -826,6 +833,13 @@
 
 .levelSelectorPackPlayButton {
     align-self: center;
+}
+
+.levelSelectorPackPlayButton:focus,
+.levelSelectorPackPlayButton:focus-visible {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--accent);
 }
 
 .levelSelectorPackDescription {
