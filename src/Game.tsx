@@ -187,7 +187,7 @@ function Game() {
     hasProgress,
     totalLevels,
   } = useSokoban();
-  const { stats, saveLevelResult } = useStats();
+  const { stats, saveLevelResult, clearStats } = useStats();
   const {
     playCratePush,
     playCrateDocked,
@@ -853,6 +853,7 @@ function Game() {
         onMutedChange={setMuted}
         onVolumeChange={setVolume}
         onShowPlayStatsChange={setShowPlayStats}
+        onResetStats={clearStats}
         onClose={onCloseMenu}
         onOpenLevelSelector={onOpenLevelSelectorFromMenu}
         onOpenAbout={onOpenAboutFromMenu}

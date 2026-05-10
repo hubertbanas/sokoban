@@ -10,6 +10,7 @@ type HamburgerMenuProps = {
     onMutedChange: (next: boolean) => void;
     onVolumeChange: (next: number) => void;
     onShowPlayStatsChange: (next: boolean) => void;
+    onResetStats: () => void;
     onClose: () => void;
     onOpenLevelSelector: () => void;
     onOpenAbout: () => void;
@@ -23,11 +24,15 @@ function HamburgerMenuImpl({
     onMutedChange,
     onVolumeChange,
     onShowPlayStatsChange,
+    onResetStats,
     onClose,
     onOpenLevelSelector,
     onOpenAbout,
 }: HamburgerMenuProps) {
+    const [isStatsExpanded, setIsStatsExpanded] = React.useState(false);
     const [isSfxExpanded, setIsSfxExpanded] = React.useState(false);
+    const statsControlsId = React.useId();
+    const statsToggleId = React.useId();
     const controlsId = React.useId();
     const toggleId = React.useId();
     const sliderId = React.useId();
@@ -35,6 +40,7 @@ function HamburgerMenuImpl({
 
     React.useEffect(() => {
         if (!open) {
+            setIsStatsExpanded(false);
             setIsSfxExpanded(false);
         }
     }, [open]);
@@ -73,22 +79,47 @@ function HamburgerMenuImpl({
                         <ThemeSwitcher />
                     </div>
 
-                    <div className={style.menuThemeRow}>
-                        <span className={style.menuThemeLabel}>Show Play Stats</span>
-                        <div className={style.themeSliderRow}>
-                            <input
-                                id="play-stats-toggle"
-                                className={style.themeToggleCheckbox}
-                                type="checkbox"
-                                checked={showPlayStats}
-                                onChange={(event) => onShowPlayStatsChange(event.target.checked)}
-                                aria-label={showPlayStats ? "Hide play stats" : "Show play stats"}
-                            />
-                            <label htmlFor="play-stats-toggle" className={style.themeToggleLabel}>
-                                <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
-                                <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
-                                <span className={style.themeToggleBall} />
-                            </label>
+                    <div className={style.menuSfxItem}>
+                        <button
+                            type="button"
+                            className={style.menuSfxToggleButton}
+                            onClick={() => setIsStatsExpanded((current) => !current)}
+                            aria-expanded={isStatsExpanded}
+                            aria-controls={statsControlsId}
+                        >
+                            <span>Show Play Stats</span>
+                            <span className={style.menuSfxToggleState} aria-hidden="true">
+                                {isStatsExpanded ? "Hide" : "Show"}
+                            </span>
+                        </button>
+
+                        <div
+                            id={statsControlsId}
+                            className={`${style.menuSfxControls} ${isStatsExpanded ? style.menuSfxControlsOpen : ""}`}
+                            aria-hidden={!isStatsExpanded}
+                        >
+                            <div className={style.menuSfxRow}>
+                                <span className={style.menuSfxRowLabel}>Show Play Stats</span>
+                                <div className={style.themeSliderRow}>
+                                    <input
+                                        id={statsToggleId}
+                                        className={style.themeToggleCheckbox}
+                                        type="checkbox"
+                                        checked={showPlayStats}
+                                        onChange={(event) => onShowPlayStatsChange(event.target.checked)}
+                                        aria-label={showPlayStats ? "Hide play stats" : "Show play stats"}
+                                    />
+                                    <label htmlFor={statsToggleId} className={style.themeToggleLabel}>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
+                                        <span className={style.themeToggleBall} />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="button" className={style.menuItemButton} onClick={onResetStats}>
+                                Reset Stats
+                            </button>
                         </div>
                     </div>
 

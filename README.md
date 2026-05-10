@@ -33,6 +33,7 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 
 - The game UI can show play statistics via a single menu toggle.
 - `Menu -> Show Play Stats` is off by default to keep the HUD minimal.
+- `Menu -> Show Play Stats -> Reset Stats` clears saved play statistics.
 - When enabled, the HUD shows:
 	- A compact table with `Current Run` and `Level Best` rows.
 	- Columns for `Moves`, `Undos`, and `Time`.
