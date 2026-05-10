@@ -532,7 +532,7 @@
     padding: 8px 10px;
     box-sizing: border-box;
     display: grid;
-    gap: 6px;
+    gap: 0;
     overflow: hidden;
 }
 
@@ -563,14 +563,16 @@
 .menuSfxControls {
     display: grid;
     gap: 8px;
+    margin-top: 0;
     max-height: 0;
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.24s ease, opacity 0.18s ease;
+    transition: max-height 0.24s ease, margin-top 0.24s ease, opacity 0.18s ease;
 }
 
 .menuSfxControlsOpen {
+    margin-top: 6px;
     max-height: 180px;
     opacity: 1;
     pointer-events: auto;
