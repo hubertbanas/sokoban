@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import style from "./sokoban.module.css";
 import { ThemeSwitcher } from "./theme-switcher";
 
+const BASE_SELECTABLE_LANGUAGES = ["en", "pl", "es", "fr"] as const;
+const SELECTABLE_LANGUAGES = import.meta.env.DEV
+    ? ([...BASE_SELECTABLE_LANGUAGES, "en-xa"] as const)
+    : BASE_SELECTABLE_LANGUAGES;
+
 type HamburgerMenuProps = {
     open: boolean;
     showPlayStats: boolean;
@@ -40,19 +45,12 @@ function HamburgerMenuImpl({
     const sfxSliderId = React.useId();
     const volumePercent = Math.round(volume * 100);
     const playStatsToggleLabel = showPlayStats ? t("menu.playStats.disable") : t("menu.playStats.enable");
-    const selectableLanguages = React.useMemo(
-        () => ["en", "pl", "es", "fr", "en-xa"] as const,
-        []
-    );
     const currentLanguage = (i18n.resolvedLanguage ?? i18n.language ?? "en").toLowerCase();
-    const selectedLanguage = React.useMemo(() => {
-        const matchedLanguage = selectableLanguages.find(
-            (languageCode) =>
-                currentLanguage === languageCode || currentLanguage.startsWith(`${languageCode}-`)
-        );
-
-        return matchedLanguage ?? "en";
-    }, [currentLanguage, selectableLanguages]);
+    const matchedLanguage = SELECTABLE_LANGUAGES.find(
+        (languageCode) =>
+            currentLanguage === languageCode || currentLanguage.startsWith(`${languageCode}-`)
+    );
+    const selectedLanguage = matchedLanguage ?? "en";
 
     React.useEffect(() => {
         if (!open) {
@@ -60,6 +58,12 @@ function HamburgerMenuImpl({
             setIsSfxExpanded(false);
         }
     }, [open]);
+
+    React.useEffect(() => {
+        if (!import.meta.env.DEV && currentLanguage.startsWith("en-xa")) {
+            void i18n.changeLanguage("en");
+        }
+    }, [currentLanguage, i18n]);
 
     return (
         <>
@@ -105,7 +109,7 @@ function HamburgerMenuImpl({
                             }}
                             aria-label={t("menu.language.label")}
                         >
-                            {selectableLanguages.map((languageCode) => (
+                            {SELECTABLE_LANGUAGES.map((languageCode) => (
                                 <option key={languageCode} value={languageCode}>
                                     {t(`menu.language.options.${languageCode}`)}
                                 </option>
