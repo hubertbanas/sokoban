@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Direction } from "../hooks/sokoban";
 import style from "./sokoban.module.css";
 
@@ -126,6 +127,7 @@ function parseStoredPosition(raw: string | null): Position | null {
 }
 
 function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
+    const { t } = useTranslation();
     const controlsRef = React.useRef<HTMLDivElement | null>(null);
     const dragRef = React.useRef<{
         pointerId: number;
@@ -272,66 +274,66 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
             ref={controlsRef}
             className={`${style.mobileControlsShell} ${isDragging ? style.mobileControlsShellDragging : ""}`}
             style={{ left: `${position.x}px`, top: `${position.y}px` }}
-            aria-label="Touch controls"
+            aria-label={t("mobileControls.groupLabel")}
             role="group"
         >
             <div className={style.mobileControlActions}>
                 <button
                     type="button"
-                    aria-label="Undo move"
+                    aria-label={t("mobileControls.undo.aria")}
                     className={style.mobileControlActionButton}
                     {...undoHandlers}
                 >
-                    Undo
+                    {t("mobileControls.undo.label")}
                 </button>
                 <button
                     type="button"
-                    aria-label="Restart level"
+                    aria-label={t("mobileControls.restart.aria")}
                     className={style.mobileControlActionButton}
                     onClick={onRestart}
                     onContextMenu={onRestartContextMenu}
                 >
-                    Restart
+                    {t("mobileControls.restart.label")}
                 </button>
             </div>
 
             <div className={style.mobileControls}>
                 <button
                     type="button"
-                    aria-label="Move up"
+                    aria-label={t("mobileControls.move.up")}
                     className={`${style.mobileControlButton} ${style.mobileControlUp}`}
                     {...upHandlers}
                 >
-                    U
+                    {t("mobileControls.buttonGlyphs.up")}
                 </button>
                 <button
                     type="button"
-                    aria-label="Move left"
+                    aria-label={t("mobileControls.move.left")}
                     className={`${style.mobileControlButton} ${style.mobileControlLeft}`}
                     {...leftHandlers}
                 >
-                    L
+                    {t("mobileControls.buttonGlyphs.left")}
                 </button>
                 <button
                     type="button"
-                    aria-label="Move right"
+                    aria-label={t("mobileControls.move.right")}
                     className={`${style.mobileControlButton} ${style.mobileControlRight}`}
                     {...rightHandlers}
                 >
-                    R
+                    {t("mobileControls.buttonGlyphs.right")}
                 </button>
                 <button
                     type="button"
-                    aria-label="Move down"
+                    aria-label={t("mobileControls.move.down")}
                     className={`${style.mobileControlButton} ${style.mobileControlDown}`}
                     {...downHandlers}
                 >
-                    D
+                    {t("mobileControls.buttonGlyphs.down")}
                 </button>
                 <button
                     type="button"
-                    aria-label="Drag to move controls"
-                    title="Drag to reposition. Double tap to reset."
+                    aria-label={t("mobileControls.handle.aria")}
+                    title={t("mobileControls.handle.title")}
                     className={style.mobileControlHandle}
                     onPointerDown={onDragPointerDown}
                     onPointerMove={onDragPointerMove}
@@ -340,7 +342,7 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
                     onDoubleClick={onResetPosition}
                     onContextMenu={onHandleContextMenu}
                 >
-                    <span className={style.screenReaderOnly}>Reposition controls</span>
+                    <span className={style.screenReaderOnly}>{t("mobileControls.handle.screenReader")}</span>
                 </button>
             </div>
         </div>

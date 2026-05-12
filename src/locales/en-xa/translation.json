@@ -1,0 +1,171 @@
+{
+    "common": {
+        "close": "[!! Close !!]",
+        "cancel": "[!! Cancel !!]",
+        "continue": "[!! Continue !!]",
+        "about": "[!! About !!]",
+        "levelPacks": "[!! Level Packs !!]",
+        "playPack": "[!! Play Pack !!]",
+        "on": "[!! On !!]",
+        "off": "[!! Off !!]",
+        "show": "[!! Show !!]",
+        "hide": "[!! Hide !!]",
+        "version": "[!! Version {{version}} !!]",
+        "language": "[!! Language !!]"
+    },
+    "game": {
+        "menu": {
+            "open": "[!! Open menu !!]",
+            "close": "[!! Close menu !!]"
+        },
+        "levelPicker": {
+            "label": "[!! Level picker !!]",
+            "previous": "[!! Previous Level !!]",
+            "next": "[!! Next Level !!]",
+            "openSelector": "[!! Open level selector !!]",
+            "fallbackPackName": "[!! Levels !!]"
+        },
+        "playStats": {
+            "regionLabel": "[!! Play statistics !!]",
+            "runAndBestLabel": "[!! Run and best records !!]"
+        },
+        "board": {
+            "label": "[!! Sokoban board !!]"
+        },
+        "stats": {
+            "header": {
+                "run": "[!! Run !!]",
+                "moves": "[!! Moves !!]",
+                "undos": "[!! Undos !!]",
+                "time": "[!! Time !!]"
+            },
+            "run": {
+                "current": "[!! Current !!]",
+                "best": "[!! Best !!]"
+            },
+            "aria": {
+                "current": "[!! Current: Moves {{moves}} Undos {{undos}} Time {{time}} !!]",
+                "best": "[!! Best: Moves {{moves}} Undos {{undos}} Time {{time}} !!]"
+            }
+        },
+        "confirmation": {
+            "restart": {
+                "title": "[!! Restart level? !!]",
+                "ariaLabel": "[!! Restart level confirmation !!]",
+                "warning": "[!! Restarting now will erase your progress on this level. !!]",
+                "confirm": "[!! Restart Level !!]"
+            },
+            "switch": {
+                "title": "[!! Switch level? !!]",
+                "warning": "[!! Switching levels now will erase your progress on this level. !!]",
+                "previousAriaLabel": "[!! Switch to previous level confirmation !!]",
+                "previousConfirm": "[!! Go to Previous Level !!]",
+                "nextAriaLabel": "[!! Switch to next level confirmation !!]",
+                "nextConfirm": "[!! Go to Next Level !!]",
+                "selectedAriaLabel": "[!! Switch to selected level confirmation !!]",
+                "selectedConfirm": "[!! Go to Selected Level !!]"
+            },
+            "resetStats": {
+                "title": "[!! Reset stats? !!]",
+                "ariaLabel": "[!! Reset stats confirmation !!]",
+                "warning": "[!! Resetting stats will permanently remove your saved moves, undos, and times. !!]",
+                "confirm": "[!! Reset Stats !!]"
+            }
+        },
+        "completion": {
+            "ariaLabel": "[!! Level completed !!]",
+            "title": {
+                "congratulations": "[!! Congratulations! !!]",
+                "packComplete": "[!! Level Pack Complete! !!]"
+            },
+            "message": {
+                "levelComplete": "[!! You completed this level. !!]",
+                "packComplete": "[!! You completed the last level in this pack. !!]",
+                "packSwitch": "[!! Switch to a different level pack from the <levelPacks>Level Packs</levelPacks> selector, or press <continue>Continue</continue> to return to Level 1 in this pack. !!]"
+            }
+        }
+    },
+    "menu": {
+        "ariaLabel": "[!! Game menu !!]",
+        "title": "[!! Menu !!]",
+        "theme": "[!! Theme !!]",
+        "language": {
+            "label": "[!! Language !!]",
+            "options": {
+                "en": "[!! English !!]",
+                "en-xa": "[!! Pseudo (Test) !!]"
+            }
+        },
+        "playStats": {
+            "title": "[!! Play Stats !!]",
+            "visible": "[!! Visible !!]",
+            "enable": "[!! Enable play stats !!]",
+            "disable": "[!! Disable play stats !!]",
+            "reset": "[!! Reset Stats !!]"
+        },
+        "sfx": {
+            "title": "[!! SFX Settings !!]",
+            "mute": "[!! Mute SFX !!]",
+            "volume": "[!! Volume !!]",
+            "volumeAria": "[!! SFX volume !!]"
+        }
+    },
+    "help": {
+        "title": "[!! About !!]",
+        "ariaLabel": "[!! About Sokoban !!]",
+        "sections": {
+            "projectLinks": "[!! Project links !!]",
+            "controls": "[!! Controls !!]"
+        },
+        "builtWithTitle": "[!! Built with !!]",
+        "builtWithText": "[!! React, TypeScript, and Vite. !!]",
+        "projectTitle": "[!! Project !!]",
+        "controlsTitle": "[!! Controls !!]",
+        "controlLabels": {
+            "moveUp": "[!! Move Up !!]",
+            "moveLeftRight": "[!! Move Left / Right !!]",
+            "moveDown": "[!! Move Down !!]",
+            "undo": "[!! Undo !!]",
+            "restartLevel": "[!! Restart Level !!]",
+            "previousNextLevel": "[!! Previous / Next Level !!]"
+        }
+    },
+    "levelSelector": {
+        "title": "[!! Level Packs !!]",
+        "ariaLabel": "[!! Level pack selector !!]",
+        "meta": "[!! {{count}} levels available !!]",
+        "playPack": "[!! Play Pack !!]"
+    },
+    "mobileControls": {
+        "groupLabel": "[!! Touch controls !!]",
+        "undo": {
+            "aria": "[!! Undo move !!]",
+            "label": "[!! Undo !!]"
+        },
+        "restart": {
+            "aria": "[!! Restart level !!]",
+            "label": "[!! Restart !!]"
+        },
+        "move": {
+            "up": "[!! Move up !!]",
+            "left": "[!! Move left !!]",
+            "right": "[!! Move right !!]",
+            "down": "[!! Move down !!]"
+        },
+        "handle": {
+            "aria": "[!! Drag to move controls !!]",
+            "title": "[!! Drag to reposition. Double tap to reset. !!]",
+            "screenReader": "[!! Reposition controls !!]"
+        },
+        "buttonGlyphs": {
+            "up": "[!! U !!]",
+            "left": "[!! L !!]",
+            "right": "[!! R !!]",
+            "down": "[!! D !!]"
+        }
+    },
+    "theme": {
+        "switchToLight": "[!! Switch to light mode !!]",
+        "switchToDark": "[!! Switch to dark mode !!]"
+    }
+}

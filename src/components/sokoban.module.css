@@ -518,6 +518,16 @@
     font-weight: 700;
 }
 
+.menuLanguageSelect {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+    color: var(--foreground);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
 .menuItemButton {
     width: 100%;
     text-align: left;
@@ -704,6 +714,7 @@
 .menuToggleButton:hover,
 .menuDrawerCloseButton:hover,
 .menuItemButton:hover,
+.menuLanguageSelect:hover,
 .modalCloseButton:hover {
     border-color: var(--accent);
 }
@@ -725,6 +736,7 @@
 .menuToggleButton:focus-visible,
 .menuDrawerCloseButton:focus-visible,
 .menuItemButton:focus-visible,
+.menuLanguageSelect:focus-visible,
 .menuSfxToggleButton:focus-visible,
 .modalCloseButton:focus-visible {
     outline: 2px solid var(--accent);

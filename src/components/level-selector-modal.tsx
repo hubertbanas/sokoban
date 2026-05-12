@@ -1,4 +1,5 @@
 import type { LevelPack } from "../hooks/levels";
+import { useTranslation } from "react-i18next";
 import { Modal } from "./modal";
 import style from "./sokoban.module.css";
 
@@ -15,6 +16,8 @@ function LevelSelectorModal({
     levelPacks,
     onSelectLevel,
 }: LevelSelectorModalProps) {
+    const { t } = useTranslation();
+
     if (!open) {
         return null;
     }
@@ -23,13 +26,13 @@ function LevelSelectorModal({
 
     return (
         <Modal
-            title="Level Packs"
-            ariaLabel="Level pack selector"
+            title={t("levelSelector.title")}
+            ariaLabel={t("levelSelector.ariaLabel")}
             onClose={() => onOpenChange(false)}
         >
             <div className={style.levelSelector}>
                 {levelPacks.map((pack, index) => {
-                    const currentPackMeta = `${pack.levels.length} levels available`;
+                    const currentPackMeta = t("levelSelector.meta", { count: pack.levels.length });
 
                     return (
                         <section className={style.levelSelectorPack} key={pack.packId}>
@@ -51,7 +54,7 @@ function LevelSelectorModal({
                                     autoFocus={index === firstPlayablePackIndex}
                                     disabled={!pack.levels.length}
                                 >
-                                    Play Pack
+                                    {t("levelSelector.playPack")}
                                 </button>
                             </div>
                         </section>
