@@ -1,0 +1,174 @@
+{
+    "common": {
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "continue": "Continuer",
+        "about": "À propos",
+        "levelPacks": "Packs de niveaux",
+        "playPack": "Jouer le pack",
+        "on": "Activé",
+        "off": "Désactivé",
+        "show": "Afficher",
+        "hide": "Masquer",
+        "version": "Version {{version}}",
+        "language": "Langue"
+    },
+    "game": {
+        "menu": {
+            "open": "Ouvrir le menu",
+            "close": "Fermer le menu"
+        },
+        "levelPicker": {
+            "label": "Sélecteur de niveau",
+            "previous": "Niveau précédent",
+            "next": "Niveau suivant",
+            "openSelector": "Ouvrir le sélecteur de niveau",
+            "fallbackPackName": "Niveaux"
+        },
+        "playStats": {
+            "regionLabel": "Statistiques de jeu",
+            "runAndBestLabel": "Partie en cours et meilleurs résultats"
+        },
+        "board": {
+            "label": "Plateau Sokoban"
+        },
+        "stats": {
+            "header": {
+                "run": "Partie",
+                "moves": "Mouvements",
+                "undos": "Annulations",
+                "time": "Temps"
+            },
+            "run": {
+                "current": "Actuelle",
+                "best": "Meilleure"
+            },
+            "aria": {
+                "current": "Actuelle: Mouvements {{moves}} Annulations {{undos}} Temps {{time}}",
+                "best": "Meilleure: Mouvements {{moves}} Annulations {{undos}} Temps {{time}}"
+            }
+        },
+        "confirmation": {
+            "restart": {
+                "title": "Redémarrer le niveau ?",
+                "ariaLabel": "Confirmation de redémarrage du niveau",
+                "warning": "Redémarrer maintenant effacera votre progression sur ce niveau.",
+                "confirm": "Redémarrer le niveau"
+            },
+            "switch": {
+                "title": "Changer de niveau ?",
+                "warning": "Changer de niveau maintenant effacera votre progression sur ce niveau.",
+                "previousAriaLabel": "Confirmation de passage au niveau précédent",
+                "previousConfirm": "Aller au niveau précédent",
+                "nextAriaLabel": "Confirmation de passage au niveau suivant",
+                "nextConfirm": "Aller au niveau suivant",
+                "selectedAriaLabel": "Confirmation de passage au niveau sélectionné",
+                "selectedConfirm": "Aller au niveau sélectionné"
+            },
+            "resetStats": {
+                "title": "Réinitialiser les statistiques ?",
+                "ariaLabel": "Confirmation de réinitialisation des statistiques",
+                "warning": "Réinitialiser les statistiques supprimera définitivement vos mouvements, annulations et temps sauvegardés.",
+                "confirm": "Réinitialiser les statistiques"
+            }
+        },
+        "completion": {
+            "ariaLabel": "Niveau terminé",
+            "title": {
+                "congratulations": "Félicitations !",
+                "packComplete": "Pack de niveaux terminé !"
+            },
+            "message": {
+                "levelComplete": "Vous avez terminé ce niveau.",
+                "packComplete": "Vous avez terminé le dernier niveau de ce pack.",
+                "packSwitch": "Passez à un autre pack de niveaux depuis le sélecteur <levelPacks>Packs de niveaux</levelPacks>, ou appuyez sur <continue>Continuer</continue> pour revenir au Niveau 1 de ce pack."
+            }
+        }
+    },
+    "menu": {
+        "ariaLabel": "Menu du jeu",
+        "title": "Menu",
+        "theme": "Thème",
+        "language": {
+            "label": "Langue",
+            "options": {
+                "en": "Anglais",
+                "pl": "Polonais",
+                "es": "Espagnol",
+                "fr": "Français",
+                "en-xa": "Pseudo (Test)"
+            }
+        },
+        "playStats": {
+            "title": "Statistiques de jeu",
+            "visible": "Visible",
+            "enable": "Activer les statistiques de jeu",
+            "disable": "Désactiver les statistiques de jeu",
+            "reset": "Réinitialiser les statistiques"
+        },
+        "sfx": {
+            "title": "Paramètres SFX",
+            "mute": "Couper le son SFX",
+            "volume": "Volume",
+            "volumeAria": "Volume SFX"
+        }
+    },
+    "help": {
+        "title": "À propos",
+        "ariaLabel": "À propos de Sokoban",
+        "sections": {
+            "projectLinks": "Liens du projet",
+            "controls": "Commandes"
+        },
+        "builtWithTitle": "Construit avec",
+        "builtWithText": "React, TypeScript et Vite.",
+        "projectTitle": "Projet",
+        "controlsTitle": "Commandes",
+        "controlLabels": {
+            "moveUp": "Déplacer vers le haut",
+            "moveLeftRight": "Déplacer à gauche / droite",
+            "moveDown": "Déplacer vers le bas",
+            "undo": "Annuler",
+            "restartLevel": "Redémarrer le niveau",
+            "previousNextLevel": "Niveau précédent / suivant"
+        }
+    },
+    "levelSelector": {
+        "title": "Packs de niveaux",
+        "ariaLabel": "Sélecteur de packs de niveaux",
+        "meta": "{{count}} niveaux disponibles",
+        "playPack": "Jouer le pack"
+    },
+    "mobileControls": {
+        "groupLabel": "Commandes tactiles",
+        "undo": {
+            "aria": "Annuler le mouvement",
+            "label": "Annuler"
+        },
+        "restart": {
+            "aria": "Redémarrer le niveau",
+            "label": "Redémarrer"
+        },
+        "move": {
+            "up": "Déplacer vers le haut",
+            "left": "Déplacer à gauche",
+            "right": "Déplacer à droite",
+            "down": "Déplacer vers le bas"
+        },
+        "handle": {
+            "aria": "Glisser pour déplacer les commandes",
+            "title": "Glissez pour repositionner. Double tapez pour réinitialiser.",
+            "screenReader": "Repositionner les commandes"
+        },
+        "buttonGlyphs": {
+            "up": "U",
+            "left": "L",
+            "right": "R",
+            "down": "D"
+        }
+    },
+    "theme": {
+        "switchToLight": "Passer au mode clair",
+        "switchToDark": "Passer au mode sombre"
+    }
+}

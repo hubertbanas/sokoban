@@ -93,6 +93,9 @@
             "label": "Language",
             "options": {
                 "en": "English",
+                "pl": "Polish",
+                "es": "Spanish",
+                "fr": "French",
                 "en-xa": "Pseudo (Test)"
             }
         },

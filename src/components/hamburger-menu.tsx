@@ -40,8 +40,19 @@ function HamburgerMenuImpl({
     const sfxSliderId = React.useId();
     const volumePercent = Math.round(volume * 100);
     const playStatsToggleLabel = showPlayStats ? t("menu.playStats.disable") : t("menu.playStats.enable");
+    const selectableLanguages = React.useMemo(
+        () => ["en", "pl", "es", "fr", "en-xa"] as const,
+        []
+    );
     const currentLanguage = (i18n.resolvedLanguage ?? i18n.language ?? "en").toLowerCase();
-    const selectedLanguage = currentLanguage.startsWith("en-xa") ? "en-xa" : "en";
+    const selectedLanguage = React.useMemo(() => {
+        const matchedLanguage = selectableLanguages.find(
+            (languageCode) =>
+                currentLanguage === languageCode || currentLanguage.startsWith(`${languageCode}-`)
+        );
+
+        return matchedLanguage ?? "en";
+    }, [currentLanguage, selectableLanguages]);
 
     React.useEffect(() => {
         if (!open) {
@@ -94,8 +105,11 @@ function HamburgerMenuImpl({
                             }}
                             aria-label={t("menu.language.label")}
                         >
-                            <option value="en">{t("menu.language.options.en")}</option>
-                            <option value="en-xa">{t("menu.language.options.en-xa")}</option>
+                            {selectableLanguages.map((languageCode) => (
+                                <option key={languageCode} value={languageCode}>
+                                    {t(`menu.language.options.${languageCode}`)}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
