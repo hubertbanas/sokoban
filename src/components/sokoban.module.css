@@ -528,6 +528,18 @@
     font-weight: 700;
 }
 
+.menuLanguageSelect option,
+.menuLanguageSelect optgroup {
+    background: var(--surface);
+    color: var(--foreground);
+}
+
+/* Some Linux desktop runtimes render a light native popup even in dark mode.
+   Force a readable light popup color-scheme for this select in dark theme. */
+[data-theme="dark"] .menuLanguageSelect {
+    color-scheme: light;
+}
+
 .menuItemButton {
     width: 100%;
     text-align: left;
