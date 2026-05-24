@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.18.0-rc.2] - 2026-05-24
+
+### Added
+- Internationalization (i18n) Engine: Implemented a highly scalable translation architecture utilizing `i18next` and `react-i18next`.
+- Global Language Support: Added complete localization for 11 new languages: Polish, Spanish, French, Brazilian Portuguese, German, Italian, Simplified Chinese, Japanese, Korean, Russian, and Ukrainian.
+- Push Tracking Metric: The game now actively tracks crate "Pushes" as a distinct gameplay metric separate from general moves, saving all-time best push records to local storage.
+- Granular Stats Toggles: Segmented the statistics visibility settings into two independent toggles, allowing players to customize whether stats appear "While playing" (HUD), "After finishing a level" (Completion Modal), or both.
+
+### Changed
+- Stats UI Overhaul: Completely refactored the statistics display to utilize semantic HTML `<table>` elements. It now leverages tabular number spacing and specific column alignments to ensure the layout remains perfectly aligned regardless of how drastically translation text lengths expand.
+- Menu Settings UI: Replaced text-based "On/Off" toggle labels in the Hamburger menu with intuitive, language-agnostic SVG power symbols for improved global accessibility.
+- Settings Migration: Implemented a smooth fallback mechanism in local storage to automatically migrate older player settings to the new dual-toggle stats architecture.
+- Documentation: Updated `README.md` and `development.md` to thoroughly document the new localization standards, UI toggles, and performance tracking metrics.
+
+### Fixed
+- Dark Mode Dropdowns: Forced a light color scheme specifically on the `<select>` element to prevent a known rendering bug on certain Linux desktop environments where native popup menus become unreadable in dark mode.
+- Production Safeguards: Configured environment-aware rendering to cleanly strip the `en-xa` developer pseudo-locale from production builds, including a self-healing `useEffect` to reset the language if a development toggle accidentally bleeds into a production state.
+
+### Maintenance
+- Dependency Updates: Updated all non-major dependencies via Renovate, including updates to Vite (v8.0.14), Vitest (v4.1.7), and Capacitor.
+
 ## [1.18.0-rc.1] - 2026-05-10
 
 ### Added
