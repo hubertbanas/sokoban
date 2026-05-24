@@ -95,6 +95,11 @@
     padding-inline: 0.90ch 0;
 }
 
+.statsTable tr> :nth-child(4) {
+    padding-inline-start: 1.60ch;
+    min-width: 6ch;
+}
+
 .bestStatsRow,
 .completionStatsRow {
     margin: 0;
