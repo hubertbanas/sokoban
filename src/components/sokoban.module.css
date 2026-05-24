@@ -90,13 +90,15 @@
     padding-inline: 0 0.90ch;
 }
 
-.statsTable tr> :nth-child(n + 2) {
-    text-align: right;
-    padding-inline: 0.90ch 0;
+.statsTable tr> :nth-child(2),
+.statsTable tr> :nth-child(3) {
+    text-align: center;
+    padding-inline: 0.90ch;
 }
 
 .statsTable tr> :nth-child(4) {
-    padding-inline-start: 1.60ch;
+    text-align: right;
+    padding-inline: 1.60ch 0;
     min-width: 6ch;
 }
 
