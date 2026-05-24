@@ -11,11 +11,13 @@ const SELECTABLE_LANGUAGES = import.meta.env.DEV
 type HamburgerMenuProps = {
     open: boolean;
     showPlayStats: boolean;
+    showCompletionStats: boolean;
     muted: boolean;
     volume: number;
     onMutedChange: (next: boolean) => void;
     onVolumeChange: (next: number) => void;
     onShowPlayStatsChange: (next: boolean) => void;
+    onShowCompletionStatsChange: (next: boolean) => void;
     onResetStats: () => void;
     onClose: () => void;
     onOpenLevelSelector: () => void;
@@ -54,11 +56,13 @@ function ToggleOnSymbol() {
 function HamburgerMenuImpl({
     open,
     showPlayStats,
+    showCompletionStats,
     muted,
     volume,
     onMutedChange,
     onVolumeChange,
     onShowPlayStatsChange,
+    onShowCompletionStatsChange,
     onResetStats,
     onClose,
     onOpenLevelSelector,
@@ -69,11 +73,15 @@ function HamburgerMenuImpl({
     const [isSfxExpanded, setIsSfxExpanded] = React.useState(false);
     const statsControlsId = React.useId();
     const statsToggleId = React.useId();
+    const completionStatsToggleId = React.useId();
     const sfxControlsId = React.useId();
     const sfxToggleId = React.useId();
     const sfxSliderId = React.useId();
     const volumePercent = Math.round(volume * 100);
     const playStatsToggleLabel = showPlayStats ? t("menu.playStats.disable") : t("menu.playStats.enable");
+    const completionStatsToggleLabel = showCompletionStats
+        ? t("menu.playStats.disableCompletion")
+        : t("menu.playStats.enableCompletion");
     const currentLanguage = (i18n.resolvedLanguage ?? i18n.language ?? "en").toLowerCase();
     const matchedLanguage = SELECTABLE_LANGUAGES.find(
         (languageCode) =>
@@ -166,7 +174,7 @@ function HamburgerMenuImpl({
                             aria-hidden={!isStatsExpanded}
                         >
                             <div className={style.menuSfxRow}>
-                                <span className={style.menuSfxRowLabel}>{t("menu.playStats.visible")}</span>
+                                <span className={style.menuSfxRowLabel}>{t("menu.playStats.visibleGameUi")}</span>
                                 <div className={style.themeSliderRow}>
                                     <input
                                         id={statsToggleId}
@@ -177,6 +185,29 @@ function HamburgerMenuImpl({
                                         aria-label={playStatsToggleLabel}
                                     />
                                     <label htmlFor={statsToggleId} className={style.themeToggleLabel}>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">
+                                            <ToggleOffSymbol />
+                                        </span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">
+                                            <ToggleOnSymbol />
+                                        </span>
+                                        <span className={style.themeToggleBall} />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className={style.menuSfxRow}>
+                                <span className={style.menuSfxRowLabel}>{t("menu.playStats.visibleCompletionModal")}</span>
+                                <div className={style.themeSliderRow}>
+                                    <input
+                                        id={completionStatsToggleId}
+                                        className={style.themeToggleCheckbox}
+                                        type="checkbox"
+                                        checked={showCompletionStats}
+                                        onChange={(event) => onShowCompletionStatsChange(event.target.checked)}
+                                        aria-label={completionStatsToggleLabel}
+                                    />
+                                    <label htmlFor={completionStatsToggleId} className={style.themeToggleLabel}>
                                         <span className={style.levelBestToggleOff} aria-hidden="true">
                                             <ToggleOffSymbol />
                                         </span>

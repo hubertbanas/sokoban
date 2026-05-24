@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fireEvent, render, screen, cleanup, act, within } from "@testing-library/react";
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
-import Game, { PLAY_STATS_STORAGE_KEY } from "./Game";
+import Game, { COMPLETION_STATS_STORAGE_KEY, PLAY_STATS_STORAGE_KEY } from "./Game";
 import { Block } from "./hooks/levels";
 import { Direction, State, useSokoban, type MoveOutcome } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
@@ -205,6 +205,23 @@ function setPlayStatsVisibility(enabled: boolean) {
 
   if (!(toggle instanceof HTMLInputElement)) {
     throw new Error("Expected play stats toggle to be an input element");
+  }
+
+  if (toggle.checked !== enabled) {
+    fireEvent.click(toggle);
+  }
+
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /close menu/i }));
+}
+
+function setCompletionStatsVisibility(enabled: boolean) {
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
+  const toggle = within(menuDialog).getByRole("checkbox", { name: /completion stats/i });
+
+  if (!(toggle instanceof HTMLInputElement)) {
+    throw new Error("Expected completion stats toggle to be an input element");
   }
 
   if (toggle.checked !== enabled) {
@@ -609,6 +626,48 @@ test("persists play stats toggle state when changed", () => {
   expect(localStorage.getItem(PLAY_STATS_STORAGE_KEY)).toBe("false");
 });
 
+test("persists completion stats toggle state when changed", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(localStorage.getItem(COMPLETION_STATS_STORAGE_KEY)).toBe("false");
+
+  setCompletionStatsVisibility(true);
+  expect(localStorage.getItem(COMPLETION_STATS_STORAGE_KEY)).toBe("true");
+
+  setCompletionStatsVisibility(false);
+  expect(localStorage.getItem(COMPLETION_STATS_STORAGE_KEY)).toBe("false");
+});
+
+test("restores completion stats from persisted completion toggle state", () => {
+  localStorage.setItem(COMPLETION_STATS_STORAGE_KEY, "true");
+  mockSokoban({ state: State.completed });
+
+  render(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText(/^Current$/)).toBeInTheDocument();
+  expect(within(completionDialog).getByText(/^Best$/)).toBeInTheDocument();
+});
+
+test("shows completion stats even when main stats UI is disabled", () => {
+  const level = buildLevel();
+  mockSokoban({ state: State.playing, level });
+
+  const { rerender } = render(<Game />);
+  setCompletionStatsVisibility(true);
+
+  expect(screen.queryByRole("region", { name: /play statistics/i })).not.toBeInTheDocument();
+
+  mockSokoban({ state: State.completed, level });
+  rerender(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText(/^Current$/)).toBeInTheDocument();
+  expect(within(completionDialog).getByText(/^Best$/)).toBeInTheDocument();
+});
+
 test("keeps completion dialog play stats hidden when toggle is off", () => {
   const level = buildLevel();
   mockSokoban({ state: State.playing, level });
@@ -762,7 +821,7 @@ test("shows best row inside completion dialog", () => {
   mockSokoban({ state: State.playing, level });
 
   const { rerender } = render(<Game />);
-  setPlayStatsVisibility(true);
+  setCompletionStatsVisibility(true);
 
   mockSokoban({ state: State.completed, level });
   rerender(<Game />);

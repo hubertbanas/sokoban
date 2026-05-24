@@ -103,8 +103,12 @@
         "playStats": {
             "title": "[!! Play Stats !!]",
             "visible": "[!! Visible !!]",
-            "enable": "[!! Enable play stats !!]",
-            "disable": "[!! Disable play stats !!]",
+            "visibleGameUi": "[!! While playing !!]",
+            "visibleCompletionModal": "[!! After finishing a level !!]",
+            "enable": "[!! Show play stats !!]",
+            "disable": "[!! Hide play stats !!]",
+            "enableCompletion": "[!! Show completion stats !!]",
+            "disableCompletion": "[!! Hide completion stats !!]",
             "reset": "[!! Reset Stats !!]"
         },
         "sfx": {

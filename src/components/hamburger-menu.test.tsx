@@ -17,9 +17,10 @@ afterEach(() => {
     cleanup();
 });
 
-function renderMenu(open = true, showPlayStats = false) {
+function renderMenu(open = true, showPlayStats = false, showCompletionStats = false) {
     const onClose = vi.fn();
     const onShowPlayStatsChange = vi.fn();
+    const onShowCompletionStatsChange = vi.fn();
     const onResetStats = vi.fn();
     const onMutedChange = vi.fn();
     const onVolumeChange = vi.fn();
@@ -30,11 +31,13 @@ function renderMenu(open = true, showPlayStats = false) {
         <HamburgerMenu
             open={open}
             showPlayStats={showPlayStats}
+            showCompletionStats={showCompletionStats}
             muted={false}
             volume={1}
             onMutedChange={onMutedChange}
             onVolumeChange={onVolumeChange}
             onShowPlayStatsChange={onShowPlayStatsChange}
+            onShowCompletionStatsChange={onShowCompletionStatsChange}
             onResetStats={onResetStats}
             onClose={onClose}
             onOpenLevelSelector={onOpenLevelSelector}
@@ -46,6 +49,7 @@ function renderMenu(open = true, showPlayStats = false) {
         ...view,
         onClose,
         onShowPlayStatsChange,
+        onShowCompletionStatsChange,
         onResetStats,
         onMutedChange,
         onVolumeChange,
@@ -61,7 +65,7 @@ test("renders menu content and version", () => {
     expect(getByText("Theme")).toBeInTheDocument();
     expect(getByTestId("theme-switcher")).toBeInTheDocument();
     expect(getByRole("button", { name: /play stats/i })).toBeInTheDocument();
-    expect(() => getByRole("checkbox", { name: /enable play stats/i })).toThrow();
+    expect(() => getByRole("checkbox", { name: /show play stats/i })).toThrow();
     expect(() => getByRole("button", { name: /reset stats/i })).toThrow();
     expect(getByRole("button", { name: /sfx settings/i })).toBeInTheDocument();
     expect(() => getByRole("slider", { name: /sfx volume/i })).toThrow();
@@ -71,11 +75,18 @@ test("renders menu content and version", () => {
     expect(getByText(/version\s+1\.2\.3-test/i)).toBeInTheDocument();
 });
 
-test("shows checked play stats toggle with disable aria label when enabled", () => {
+test("shows checked play stats toggle with hide aria label when enabled", () => {
     const { getByRole } = renderMenu(true, true);
 
     fireEvent.click(getByRole("button", { name: /play stats/i }));
-    expect(getByRole("checkbox", { name: /disable play stats/i })).toBeChecked();
+    expect(getByRole("checkbox", { name: /hide play stats/i })).toBeChecked();
+});
+
+test("shows checked completion stats toggle with hide aria label when enabled", () => {
+    const { getByRole } = renderMenu(true, false, true);
+
+    fireEvent.click(getByRole("button", { name: /play stats/i }));
+    expect(getByRole("checkbox", { name: /hide completion stats/i })).toBeChecked();
 });
 
 test("applies open and hidden states based on open prop", () => {
@@ -86,6 +97,7 @@ test("applies open and hidden states based on open prop", () => {
         onMutedChange,
         onVolumeChange,
         onShowPlayStatsChange,
+        onShowCompletionStatsChange,
         onResetStats,
         onOpenAbout,
         onOpenLevelSelector,
@@ -110,11 +122,13 @@ test("applies open and hidden states based on open prop", () => {
         <HamburgerMenu
             open
             showPlayStats={false}
+            showCompletionStats={false}
             muted={false}
             volume={1}
             onMutedChange={onMutedChange}
             onVolumeChange={onVolumeChange}
             onShowPlayStatsChange={onShowPlayStatsChange}
+            onShowCompletionStatsChange={onShowCompletionStatsChange}
             onResetStats={onResetStats}
             onClose={onClose}
             onOpenLevelSelector={onOpenLevelSelector}
@@ -146,6 +160,7 @@ test("menu actions call the expected callbacks", () => {
         onMutedChange,
         onVolumeChange,
         onShowPlayStatsChange,
+        onShowCompletionStatsChange,
         onResetStats,
         onOpenLevelSelector,
         onOpenAbout,
@@ -159,7 +174,8 @@ test("menu actions call the expected callbacks", () => {
     fireEvent.click(backdrop);
     fireEvent.click(getByRole("button", { name: /close menu/i }));
     fireEvent.click(getByRole("button", { name: /play stats/i }));
-    fireEvent.click(getByRole("checkbox", { name: /enable play stats/i }));
+    fireEvent.click(getByRole("checkbox", { name: /show play stats/i }));
+    fireEvent.click(getByRole("checkbox", { name: /show completion stats/i }));
     fireEvent.click(getByRole("button", { name: /reset stats/i }));
     fireEvent.click(getByRole("button", { name: /sfx settings/i }));
     expect(getByRole("checkbox", { name: /mute sfx/i })).toBeInTheDocument();
@@ -171,6 +187,7 @@ test("menu actions call the expected callbacks", () => {
 
     expect(onClose).toHaveBeenCalledTimes(2);
     expect(onShowPlayStatsChange).toHaveBeenCalledWith(true);
+    expect(onShowCompletionStatsChange).toHaveBeenCalledWith(true);
     expect(onResetStats).toHaveBeenCalledTimes(1);
     expect(onMutedChange).toHaveBeenCalledWith(true);
     expect(onVolumeChange).toHaveBeenCalledWith(0.65);

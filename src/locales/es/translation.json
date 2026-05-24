@@ -103,8 +103,12 @@
         "playStats": {
             "title": "Estadísticas de juego",
             "visible": "Visible",
-            "enable": "Activar estadísticas de juego",
-            "disable": "Desactivar estadísticas de juego",
+            "visibleGameUi": "Durante la partida",
+            "visibleCompletionModal": "Después de completar un nivel",
+            "enable": "Mostrar estadísticas de juego",
+            "disable": "Ocultar estadísticas de juego",
+            "enableCompletion": "Mostrar estadísticas al completar",
+            "disableCompletion": "Ocultar estadísticas al completar",
             "reset": "Restablecer estadísticas"
         },
         "sfx": {

@@ -23,17 +23,36 @@ function formatElapsedTime(timeMs: number): string {
 }
 
 export const PLAY_STATS_STORAGE_KEY = "sokoban-play-stats-visible";
+export const COMPLETION_STATS_STORAGE_KEY = "sokoban-completion-stats-visible";
 
-function parseStoredPlayStatsVisibility(value: string | null): boolean {
+function parseStoredStatsVisibility(value: string | null): boolean {
   return value === "true";
 }
 
-function getInitialPlayStatsVisibility(): boolean {
+function getStoredStatsVisibility(storageKey: string, fallbackStorageKey?: string): boolean {
   if (typeof window === "undefined") {
     return false;
   }
 
-  return parseStoredPlayStatsVisibility(window.localStorage.getItem(PLAY_STATS_STORAGE_KEY));
+  const storedValue = window.localStorage.getItem(storageKey);
+  if (storedValue !== null) {
+    return parseStoredStatsVisibility(storedValue);
+  }
+
+  if (!fallbackStorageKey) {
+    return false;
+  }
+
+  return parseStoredStatsVisibility(window.localStorage.getItem(fallbackStorageKey));
+}
+
+function getInitialPlayStatsVisibility(): boolean {
+  return getStoredStatsVisibility(PLAY_STATS_STORAGE_KEY);
+}
+
+function getInitialCompletionStatsVisibility(): boolean {
+  // Migrate users from the previous single-toggle behavior.
+  return getStoredStatsVisibility(COMPLETION_STATS_STORAGE_KEY, PLAY_STATS_STORAGE_KEY);
 }
 
 type StatsTableProps = {
@@ -240,6 +259,9 @@ function Game() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
   const [showPlayStats, setShowPlayStats] = React.useState(getInitialPlayStatsVisibility);
+  const [showCompletionStats, setShowCompletionStats] = React.useState(
+    getInitialCompletionStatsVisibility
+  );
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
   const isAuxModalOpen = isHelpModalOpen || isMenuOpen || isLevelSelectorOpen;
@@ -251,6 +273,14 @@ function Game() {
 
     window.localStorage.setItem(PLAY_STATS_STORAGE_KEY, String(showPlayStats));
   }, [showPlayStats]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(COMPLETION_STATS_STORAGE_KEY, String(showCompletionStats));
+  }, [showCompletionStats]);
 
   type PendingAction =
     | { type: "restart" }
@@ -899,11 +929,13 @@ function Game() {
       <HamburgerMenu
         open={isMenuOpen}
         showPlayStats={showPlayStats}
+        showCompletionStats={showCompletionStats}
         muted={muted}
         volume={volume}
         onMutedChange={setMuted}
         onVolumeChange={setVolume}
         onShowPlayStatsChange={setShowPlayStats}
+        onShowCompletionStatsChange={setShowCompletionStats}
         onResetStats={onRequestResetStatsFromMenu}
         onClose={onCloseMenu}
         onOpenLevelSelector={onOpenLevelSelectorFromMenu}
@@ -984,7 +1016,7 @@ function Game() {
                 />
               </p>
             )}
-            {showPlayStats && (
+            {showCompletionStats && (
               <div className={style.completionStats} aria-label={t("game.playStats.runAndBestLabel")}>
                 <StatsTable
                   tableClassName={style.completionStatsRow}
