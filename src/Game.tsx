@@ -1,4 +1,5 @@
 import React from "react";
+import { Trans, useTranslation } from "react-i18next";
 import "./Game.css";
 import { Help } from "./components/help";
 import { HamburgerMenu } from "./components/hamburger-menu";
@@ -36,7 +37,7 @@ function getInitialPlayStatsVisibility(): boolean {
 }
 
 type StatsTableProps = {
-  rowClassName: string;
+  tableClassName: string;
   currentMoves: number;
   currentTimeMs: number;
   currentUndos: number;
@@ -46,7 +47,7 @@ type StatsTableProps = {
 };
 
 function StatsTable({
-  rowClassName,
+  tableClassName,
   currentMoves,
   currentTimeMs,
   currentUndos,
@@ -54,6 +55,7 @@ function StatsTable({
   bestTimeMs,
   bestUndos,
 }: StatsTableProps) {
+  const { t } = useTranslation();
   const currentMoveValue = String(currentMoves);
   const currentTimeValue = formatElapsedTime(currentTimeMs);
   const currentUndoValue = String(currentUndos);
@@ -62,26 +64,42 @@ function StatsTable({
   const bestUndoValue = bestUndos === null ? "--" : String(bestUndos);
 
   return (
-    <>
-      <p className={rowClassName} aria-hidden="true">
-        <span className={style.statsHeaderCell}>Run</span>
-        <span className={style.statsHeaderCell}>Moves</span>
-        <span className={style.statsHeaderCell}>Undos</span>
-        <span className={style.statsHeaderCell}>Time</span>
-      </p>
-      <p className={rowClassName} aria-label={`Current: Moves ${currentMoveValue} Undos ${currentUndoValue} Time ${currentTimeValue}`}>
-        <span className={style.statsRunCell}>Current</span>
-        <span className={style.statsValueCell}>{currentMoveValue}</span>
-        <span className={style.statsValueCell}>{currentUndoValue}</span>
-        <span className={style.statsValueCell}>{currentTimeValue}</span>
-      </p>
-      <p className={rowClassName} aria-label={`Best: Moves ${bestMoveValue} Undos ${bestUndoValue} Time ${bestTimeValue}`}>
-        <span className={style.statsRunCell}>Best</span>
-        <span className={style.statsValueCell}>{bestMoveValue}</span>
-        <span className={style.statsValueCell}>{bestUndoValue}</span>
-        <span className={style.statsValueCell}>{bestTimeValue}</span>
-      </p>
-    </>
+    <table className={`${style.statsTable} ${tableClassName}`}>
+      <thead>
+        <tr>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.run")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.moves")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.undos")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.time")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          aria-label={t("game.stats.aria.current", {
+            moves: currentMoveValue,
+            undos: currentUndoValue,
+            time: currentTimeValue,
+          })}
+        >
+          <th className={style.statsRunCell} scope="row">{t("game.stats.run.current")}</th>
+          <td className={style.statsValueCell}>{currentMoveValue}</td>
+          <td className={style.statsValueCell}>{currentUndoValue}</td>
+          <td className={style.statsValueCell}>{currentTimeValue}</td>
+        </tr>
+        <tr
+          aria-label={t("game.stats.aria.best", {
+            moves: bestMoveValue,
+            undos: bestUndoValue,
+            time: bestTimeValue,
+          })}
+        >
+          <th className={style.statsRunCell} scope="row">{t("game.stats.run.best")}</th>
+          <td className={style.statsValueCell}>{bestMoveValue}</td>
+          <td className={style.statsValueCell}>{bestUndoValue}</td>
+          <td className={style.statsValueCell}>{bestTimeValue}</td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -168,6 +186,7 @@ function useHoldToRepeat(
 }
 
 function Game() {
+  const { t } = useTranslation();
   const {
     index,
     level,
@@ -440,43 +459,43 @@ function Game() {
     switch (pendingAction?.type) {
       case "restart":
         return {
-          title: "Restart level?",
-          ariaLabel: "Restart level confirmation",
-          warningText: "Restarting now will erase your progress on this level.",
-          confirmLabel: "Restart Level",
+          title: t("game.confirmation.restart.title"),
+          ariaLabel: t("game.confirmation.restart.ariaLabel"),
+          warningText: t("game.confirmation.restart.warning"),
+          confirmLabel: t("game.confirmation.restart.confirm"),
         };
       case "previous":
         return {
-          title: "Switch level?",
-          ariaLabel: "Switch to previous level confirmation",
-          warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Go to Previous Level",
+          title: t("game.confirmation.switch.title"),
+          ariaLabel: t("game.confirmation.switch.previousAriaLabel"),
+          warningText: t("game.confirmation.switch.warning"),
+          confirmLabel: t("game.confirmation.switch.previousConfirm"),
         };
       case "next":
         return {
-          title: "Switch level?",
-          ariaLabel: "Switch to next level confirmation",
-          warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Go to Next Level",
+          title: t("game.confirmation.switch.title"),
+          ariaLabel: t("game.confirmation.switch.nextAriaLabel"),
+          warningText: t("game.confirmation.switch.warning"),
+          confirmLabel: t("game.confirmation.switch.nextConfirm"),
         };
       case "select-level":
         return {
-          title: "Switch level?",
-          ariaLabel: "Switch to selected level confirmation",
-          warningText: "Switching levels now will erase your progress on this level.",
-          confirmLabel: "Go to Selected Level",
+          title: t("game.confirmation.switch.title"),
+          ariaLabel: t("game.confirmation.switch.selectedAriaLabel"),
+          warningText: t("game.confirmation.switch.warning"),
+          confirmLabel: t("game.confirmation.switch.selectedConfirm"),
         };
       case "reset-stats":
         return {
-          title: "Reset stats?",
-          ariaLabel: "Reset stats confirmation",
-          warningText: "Resetting stats will permanently remove your saved moves, undos, and times.",
-          confirmLabel: "Reset Stats",
+          title: t("game.confirmation.resetStats.title"),
+          ariaLabel: t("game.confirmation.resetStats.ariaLabel"),
+          warningText: t("game.confirmation.resetStats.warning"),
+          confirmLabel: t("game.confirmation.resetStats.confirm"),
         };
       default:
         return null;
     }
-  }, [pendingAction]);
+  }, [pendingAction, t]);
 
   React.useEffect(() => {
     const viewport = boardViewportRef.current;
@@ -556,7 +575,7 @@ function Game() {
 
     return currentPackLevelIndex === currentPack.levels.length - 1;
   }, [currentPack, currentPackLevelIndex]);
-  const levelPickerPackName = currentPack?.title ?? "Levels";
+  const levelPickerPackName = currentPack?.title ?? t("game.levelPicker.fallbackPackName");
   const levelPickerNumbers = React.useMemo(() => {
     if (!currentPack || currentPack.levels.length === 0) {
       return `${index + 1} / ${levelCount}`;
@@ -771,7 +790,7 @@ function Game() {
           <button
             type="button"
             className={style.menuToggleButton}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? t("game.menu.close") : t("game.menu.open")}
             aria-controls="game-menu"
             aria-expanded={isMenuOpen}
             onClick={onToggleMenu}
@@ -785,12 +804,12 @@ function Game() {
         </div>
 
         <div className={style.levelInfo}>
-          <div className={style.levelPicker} aria-label="Level picker">
+          <div className={style.levelPicker} aria-label={t("game.levelPicker.label")}>
             <button
               type="button"
               className={`${style.levelNavButton} ${style.levelPickerButton}`}
-              aria-label="Previous Level"
-              title="Previous Level"
+              aria-label={t("game.levelPicker.previous")}
+              title={t("game.levelPicker.previous")}
               {...previousButtonHandlers}
             >
               <span className={style.levelPickerChevron} aria-hidden="true">&lsaquo;</span>
@@ -799,8 +818,8 @@ function Game() {
             <button
               type="button"
               className={style.levelPickerLevelButton}
-              aria-label="Open level selector"
-              title="Open level selector"
+              aria-label={t("game.levelPicker.openSelector")}
+              title={t("game.levelPicker.openSelector")}
               onClick={onOpenLevelSelector}
             >
               <span className={style.levelPickerPackName}>{levelPickerPackName}</span>
@@ -810,8 +829,8 @@ function Game() {
             <button
               type="button"
               className={`${style.levelNavButton} ${style.levelPickerButton}`}
-              aria-label="Next Level"
-              title="Next Level"
+              aria-label={t("game.levelPicker.next")}
+              title={t("game.levelPicker.next")}
               {...nextButtonHandlers}
             >
               <span className={style.levelPickerChevron} aria-hidden="true">&rsaquo;</span>
@@ -823,9 +842,9 @@ function Game() {
       </header>
 
       {showPlayStats && (
-        <section className={style.bestStatsBar} aria-label="Play statistics">
+        <section className={style.bestStatsBar} aria-label={t("game.playStats.regionLabel")}>
           <StatsTable
-            rowClassName={style.bestStatsRow}
+            tableClassName={style.bestStatsRow}
             currentMoves={moveCount}
             currentTimeMs={elapsedTimeMs}
             currentUndos={undoCount}
@@ -836,7 +855,7 @@ function Game() {
         </section>
       )}
 
-      <section className={style.mapArea} aria-label="Sokoban board">
+      <section className={style.mapArea} aria-label={t("game.board.label")}>
         <div className={style.boardViewport} ref={boardViewportRef}>
           <div className={style.board} style={boardVars}>
             {level.shape.map((row, rowIndex) => (
@@ -905,7 +924,7 @@ function Game() {
               autoFocus
               ref={cancelButtonRef}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="button"
@@ -921,26 +940,38 @@ function Game() {
       )}
 
       {state === State.completed && !isLevelSelectorOpen && (
-        <div className={style.completionOverlay} role="dialog" aria-modal="true" aria-label="Level completed">
+        <div
+          className={style.completionOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("game.completion.ariaLabel")}
+        >
           <div className={style.completionCard}>
             <h2 className={style.completionTitle}>
-              {isLastLevelInCurrentPack ? "Level Pack Complete!" : "Congratulations!"}
+              {isLastLevelInCurrentPack
+                ? t("game.completion.title.packComplete")
+                : t("game.completion.title.congratulations")}
             </h2>
             <p className={style.completionText}>
               {isLastLevelInCurrentPack
-                ? "You completed the last level in this pack."
-                : "You completed this level."}
+                ? t("game.completion.message.packComplete")
+                : t("game.completion.message.levelComplete")}
             </p>
             {isLastLevelInCurrentPack && (
               <p className={style.completionText}>
-                Switch to a different level pack from the <span className={style.completionTextAccent}>Level Packs</span>
-                {" "}selector, or press <span className={style.completionTextAccent}>Continue</span> to return to Level 1 in this pack.
+                <Trans
+                  i18nKey="game.completion.message.packSwitch"
+                  components={{
+                    levelPacks: <span className={style.completionTextAccent} />,
+                    continue: <span className={style.completionTextAccent} />,
+                  }}
+                />
               </p>
             )}
             {showPlayStats && (
-              <div className={style.completionStats} aria-label="Run and best records">
+              <div className={style.completionStats} aria-label={t("game.playStats.runAndBestLabel")}>
                 <StatsTable
-                  rowClassName={style.completionStatsRow}
+                  tableClassName={style.completionStatsRow}
                   currentMoves={moveCount}
                   currentTimeMs={elapsedTimeMs}
                   currentUndos={undoCount}
@@ -959,10 +990,10 @@ function Game() {
                   autoFocus
                   ref={completionLevelPacksButtonRef}
                 >
-                  Level Packs
+                  {t("common.levelPacks")}
                 </button>
                 <button type="button" className={style.levelNavButton} onClick={next} ref={completionContinueButtonRef}>
-                  Continue
+                  {t("common.continue")}
                 </button>
               </div>
             ) : (
@@ -973,7 +1004,7 @@ function Game() {
                 ref={completionContinueButtonRef}
                 autoFocus
               >
-                Continue
+                {t("common.continue")}
               </button>
             )}
           </div>

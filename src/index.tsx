@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "./i18n";
 import Game from "./Game";
 import { ThemeProvider } from "./hooks/theme";
 import { preloadGameAssets } from "./utils/preload-assets";

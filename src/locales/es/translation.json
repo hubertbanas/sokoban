@@ -1,0 +1,174 @@
+{
+    "common": {
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "continue": "Continuar",
+        "about": "Acerca de",
+        "levelPacks": "Paquetes de niveles",
+        "playPack": "Jugar paquete",
+        "on": "Activado",
+        "off": "Desactivado",
+        "show": "Mostrar",
+        "hide": "Ocultar",
+        "version": "Versión {{version}}",
+        "language": "Idioma"
+    },
+    "game": {
+        "menu": {
+            "open": "Abrir menú",
+            "close": "Cerrar menú"
+        },
+        "levelPicker": {
+            "label": "Selector de nivel",
+            "previous": "Nivel anterior",
+            "next": "Nivel siguiente",
+            "openSelector": "Abrir selector de nivel",
+            "fallbackPackName": "Niveles"
+        },
+        "playStats": {
+            "regionLabel": "Estadísticas de juego",
+            "runAndBestLabel": "Partida actual y mejores marcas"
+        },
+        "board": {
+            "label": "Tablero Sokoban"
+        },
+        "stats": {
+            "header": {
+                "run": "Partida",
+                "moves": "Movimientos",
+                "undos": "Deshacer",
+                "time": "Tiempo"
+            },
+            "run": {
+                "current": "Actual",
+                "best": "Mejor"
+            },
+            "aria": {
+                "current": "Actual: Movimientos {{moves}} Deshacer {{undos}} Tiempo {{time}}",
+                "best": "Mejor: Movimientos {{moves}} Deshacer {{undos}} Tiempo {{time}}"
+            }
+        },
+        "confirmation": {
+            "restart": {
+                "title": "¿Reiniciar nivel?",
+                "ariaLabel": "Confirmación para reiniciar nivel",
+                "warning": "Si reinicias ahora, se borrará tu progreso en este nivel.",
+                "confirm": "Reiniciar nivel"
+            },
+            "switch": {
+                "title": "¿Cambiar nivel?",
+                "warning": "Si cambias de nivel ahora, se borrará tu progreso en este nivel.",
+                "previousAriaLabel": "Confirmación para ir al nivel anterior",
+                "previousConfirm": "Ir al nivel anterior",
+                "nextAriaLabel": "Confirmación para ir al nivel siguiente",
+                "nextConfirm": "Ir al nivel siguiente",
+                "selectedAriaLabel": "Confirmación para ir al nivel seleccionado",
+                "selectedConfirm": "Ir al nivel seleccionado"
+            },
+            "resetStats": {
+                "title": "¿Restablecer estadísticas?",
+                "ariaLabel": "Confirmación para restablecer estadísticas",
+                "warning": "Al restablecer estadísticas se eliminarán de forma permanente tus movimientos, deshacer y tiempos guardados.",
+                "confirm": "Restablecer estadísticas"
+            }
+        },
+        "completion": {
+            "ariaLabel": "Nivel completado",
+            "title": {
+                "congratulations": "¡Felicidades!",
+                "packComplete": "¡Pack de niveles completado!"
+            },
+            "message": {
+                "levelComplete": "Completaste este nivel.",
+                "packComplete": "Completaste el último nivel de este pack.",
+                "packSwitch": "Cambia a otro pack de niveles desde el selector de <levelPacks>Paquetes de niveles</levelPacks>, o pulsa <continue>Continuar</continue> para volver al Nivel 1 en este pack."
+            }
+        }
+    },
+    "menu": {
+        "ariaLabel": "Menú del juego",
+        "title": "Menú",
+        "theme": "Tema",
+        "language": {
+            "label": "Idioma",
+            "options": {
+                "en": "Inglés",
+                "pl": "Polaco",
+                "es": "Español",
+                "fr": "Francés",
+                "en-xa": "Pseudo (Prueba)"
+            }
+        },
+        "playStats": {
+            "title": "Estadísticas de juego",
+            "visible": "Visible",
+            "enable": "Activar estadísticas de juego",
+            "disable": "Desactivar estadísticas de juego",
+            "reset": "Restablecer estadísticas"
+        },
+        "sfx": {
+            "title": "Opciones de SFX",
+            "mute": "Silenciar SFX",
+            "volume": "Volumen",
+            "volumeAria": "Volumen de SFX"
+        }
+    },
+    "help": {
+        "title": "Acerca de",
+        "ariaLabel": "Acerca de Sokoban",
+        "sections": {
+            "projectLinks": "Enlaces del proyecto",
+            "controls": "Controles"
+        },
+        "builtWithTitle": "Construido con",
+        "builtWithText": "React, TypeScript y Vite.",
+        "projectTitle": "Proyecto",
+        "controlsTitle": "Controles",
+        "controlLabels": {
+            "moveUp": "Mover arriba",
+            "moveLeftRight": "Mover izquierda / derecha",
+            "moveDown": "Mover abajo",
+            "undo": "Deshacer",
+            "restartLevel": "Reiniciar nivel",
+            "previousNextLevel": "Nivel anterior / siguiente"
+        }
+    },
+    "levelSelector": {
+        "title": "Paquetes de niveles",
+        "ariaLabel": "Selector de paquetes de niveles",
+        "meta": "{{count}} niveles disponibles",
+        "playPack": "Jugar paquete"
+    },
+    "mobileControls": {
+        "groupLabel": "Controles táctiles",
+        "undo": {
+            "aria": "Deshacer movimiento",
+            "label": "Deshacer"
+        },
+        "restart": {
+            "aria": "Reiniciar nivel",
+            "label": "Reiniciar"
+        },
+        "move": {
+            "up": "Mover arriba",
+            "left": "Mover izquierda",
+            "right": "Mover derecha",
+            "down": "Mover abajo"
+        },
+        "handle": {
+            "aria": "Arrastrar para mover controles",
+            "title": "Arrastra para recolocar. Doble toque para restablecer.",
+            "screenReader": "Recolocar controles"
+        },
+        "buttonGlyphs": {
+            "up": "U",
+            "left": "L",
+            "right": "R",
+            "down": "D"
+        }
+    },
+    "theme": {
+        "switchToLight": "Cambiar a modo claro",
+        "switchToDark": "Cambiar a modo oscuro"
+    }
+}

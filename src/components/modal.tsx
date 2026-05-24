@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import style from "./sokoban.module.css";
 
 type ModalProps = {
@@ -10,6 +11,8 @@ type ModalProps = {
 };
 
 function Modal({ title, ariaLabel, onClose, children, autoFocusCloseButton = false }: ModalProps) {
+    const { t } = useTranslation();
+
     return (
         <div
             className={style.modalOverlay}
@@ -25,7 +28,7 @@ function Modal({ title, ariaLabel, onClose, children, autoFocusCloseButton = fal
                         type="button"
                         className={style.modalCloseButton}
                         onClick={onClose}
-                        aria-label="Close"
+                        aria-label={t("common.close")}
                         autoFocus={autoFocusCloseButton}
                     >
                         ×

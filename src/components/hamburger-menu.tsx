@@ -1,6 +1,12 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import style from "./sokoban.module.css";
 import { ThemeSwitcher } from "./theme-switcher";
+
+const BASE_SELECTABLE_LANGUAGES = ["en", "pl", "es", "fr"] as const;
+const SELECTABLE_LANGUAGES = import.meta.env.DEV
+    ? ([...BASE_SELECTABLE_LANGUAGES, "en-xa"] as const)
+    : BASE_SELECTABLE_LANGUAGES;
 
 type HamburgerMenuProps = {
     open: boolean;
@@ -16,6 +22,35 @@ type HamburgerMenuProps = {
     onOpenAbout: () => void;
 };
 
+function ToggleOffSymbol() {
+    return (
+        <svg className={style.togglePowerSymbol} viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+        </svg>
+    );
+}
+
+function ToggleOnSymbol() {
+    return (
+        <svg className={style.togglePowerSymbol} viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M12 4.2v6.2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M8.2 7.8a6.8 6.8 0 1 0 7.6 0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+            />
+        </svg>
+    );
+}
+
 function HamburgerMenuImpl({
     open,
     showPlayStats,
@@ -29,6 +64,7 @@ function HamburgerMenuImpl({
     onOpenLevelSelector,
     onOpenAbout,
 }: HamburgerMenuProps) {
+    const { t, i18n } = useTranslation();
     const [isStatsExpanded, setIsStatsExpanded] = React.useState(false);
     const [isSfxExpanded, setIsSfxExpanded] = React.useState(false);
     const statsControlsId = React.useId();
@@ -37,7 +73,13 @@ function HamburgerMenuImpl({
     const sfxToggleId = React.useId();
     const sfxSliderId = React.useId();
     const volumePercent = Math.round(volume * 100);
-    const playStatsToggleLabel = showPlayStats ? "Disable play stats" : "Enable play stats";
+    const playStatsToggleLabel = showPlayStats ? t("menu.playStats.disable") : t("menu.playStats.enable");
+    const currentLanguage = (i18n.resolvedLanguage ?? i18n.language ?? "en").toLowerCase();
+    const matchedLanguage = SELECTABLE_LANGUAGES.find(
+        (languageCode) =>
+            currentLanguage === languageCode || currentLanguage.startsWith(`${languageCode}-`)
+    );
+    const selectedLanguage = matchedLanguage ?? "en";
 
     React.useEffect(() => {
         if (!open) {
@@ -45,6 +87,12 @@ function HamburgerMenuImpl({
             setIsSfxExpanded(false);
         }
     }, [open]);
+
+    React.useEffect(() => {
+        if (!import.meta.env.DEV && currentLanguage.startsWith("en-xa")) {
+            void i18n.changeLanguage("en");
+        }
+    }, [currentLanguage, i18n]);
 
     return (
         <>
@@ -58,17 +106,17 @@ function HamburgerMenuImpl({
                 id="game-menu"
                 role="dialog"
                 aria-modal="true"
-                aria-label="Game menu"
+                aria-label={t("menu.ariaLabel")}
                 aria-hidden={!open}
                 className={`${style.menuDrawer} ${open ? style.menuDrawerOpen : ""}`}
             >
                 <div className={style.menuDrawerHeader}>
-                    <h2 className={style.menuDrawerTitle}>Menu</h2>
+                    <h2 className={style.menuDrawerTitle}>{t("menu.title")}</h2>
                     <button
                         type="button"
                         className={style.menuDrawerCloseButton}
                         onClick={onClose}
-                        aria-label="Close menu"
+                        aria-label={t("game.menu.close")}
                     >
                         X
                     </button>
@@ -76,8 +124,26 @@ function HamburgerMenuImpl({
 
                 <div className={style.menuSection}>
                     <div className={style.menuThemeRow}>
-                        <span className={style.menuThemeLabel}>Theme</span>
+                        <span className={style.menuThemeLabel}>{t("menu.theme")}</span>
                         <ThemeSwitcher />
+                    </div>
+
+                    <div className={style.menuThemeRow}>
+                        <span className={style.menuThemeLabel}>{t("menu.language.label")}</span>
+                        <select
+                            className={style.menuLanguageSelect}
+                            value={selectedLanguage}
+                            onChange={(event) => {
+                                void i18n.changeLanguage(event.target.value);
+                            }}
+                            aria-label={t("menu.language.label")}
+                        >
+                            {SELECTABLE_LANGUAGES.map((languageCode) => (
+                                <option key={languageCode} value={languageCode}>
+                                    {t(`menu.language.options.${languageCode}`)}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className={style.menuSfxItem}>
@@ -88,9 +154,9 @@ function HamburgerMenuImpl({
                             aria-expanded={isStatsExpanded}
                             aria-controls={statsControlsId}
                         >
-                            <span>Play Stats</span>
+                            <span>{t("menu.playStats.title")}</span>
                             <span className={style.menuSfxToggleState} aria-hidden="true">
-                                {isStatsExpanded ? "Hide" : "Show"}
+                                {isStatsExpanded ? t("common.hide") : t("common.show")}
                             </span>
                         </button>
 
@@ -100,7 +166,7 @@ function HamburgerMenuImpl({
                             aria-hidden={!isStatsExpanded}
                         >
                             <div className={style.menuSfxRow}>
-                                <span className={style.menuSfxRowLabel}>Visible</span>
+                                <span className={style.menuSfxRowLabel}>{t("menu.playStats.visible")}</span>
                                 <div className={style.themeSliderRow}>
                                     <input
                                         id={statsToggleId}
@@ -111,8 +177,12 @@ function HamburgerMenuImpl({
                                         aria-label={playStatsToggleLabel}
                                     />
                                     <label htmlFor={statsToggleId} className={style.themeToggleLabel}>
-                                        <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
-                                        <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">
+                                            <ToggleOffSymbol />
+                                        </span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">
+                                            <ToggleOnSymbol />
+                                        </span>
                                         <span className={style.themeToggleBall} />
                                     </label>
                                 </div>
@@ -123,7 +193,7 @@ function HamburgerMenuImpl({
                                 className={`${style.menuItemButton} ${style.menuResetStatsButton}`}
                                 onClick={onResetStats}
                             >
-                                Reset Stats
+                                {t("menu.playStats.reset")}
                             </button>
                         </div>
                     </div>
@@ -136,9 +206,9 @@ function HamburgerMenuImpl({
                             aria-expanded={isSfxExpanded}
                             aria-controls={sfxControlsId}
                         >
-                            <span>SFX Settings</span>
+                            <span>{t("menu.sfx.title")}</span>
                             <span className={style.menuSfxToggleState} aria-hidden="true">
-                                {isSfxExpanded ? "Hide" : "Show"}
+                                {isSfxExpanded ? t("common.hide") : t("common.show")}
                             </span>
                         </button>
 
@@ -148,7 +218,7 @@ function HamburgerMenuImpl({
                             aria-hidden={!isSfxExpanded}
                         >
                             <div className={style.menuSfxRow}>
-                                <span className={style.menuSfxRowLabel}>Mute SFX</span>
+                                <span className={style.menuSfxRowLabel}>{t("menu.sfx.mute")}</span>
                                 <div className={style.themeSliderRow}>
                                     <input
                                         id={sfxToggleId}
@@ -156,18 +226,22 @@ function HamburgerMenuImpl({
                                         type="checkbox"
                                         checked={muted}
                                         onChange={(event) => onMutedChange(event.target.checked)}
-                                        aria-label="Mute SFX"
+                                        aria-label={t("menu.sfx.mute")}
                                     />
                                     <label htmlFor={sfxToggleId} className={style.themeToggleLabel}>
-                                        <span className={style.levelBestToggleOff} aria-hidden="true">Off</span>
-                                        <span className={style.levelBestToggleOn} aria-hidden="true">On</span>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">
+                                            <ToggleOffSymbol />
+                                        </span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">
+                                            <ToggleOnSymbol />
+                                        </span>
                                         <span className={style.themeToggleBall} />
                                     </label>
                                 </div>
                             </div>
 
                             <div className={style.menuSfxRow}>
-                                <span className={style.menuSfxRowLabel}>Volume</span>
+                                <span className={style.menuSfxRowLabel}>{t("menu.sfx.volume")}</span>
                                 <label htmlFor={sfxSliderId} className={style.menuSfxVolumeLabel}>
                                     {volumePercent}%
                                 </label>
@@ -181,7 +255,7 @@ function HamburgerMenuImpl({
                                 max={100}
                                 step={5}
                                 value={volumePercent}
-                                aria-label="SFX volume"
+                                aria-label={t("menu.sfx.volumeAria")}
                                 onChange={(event) => onVolumeChange(Number(event.target.value) / 100)}
                                 disabled={muted}
                             />
@@ -189,15 +263,15 @@ function HamburgerMenuImpl({
                     </div>
 
                     <button type="button" className={style.menuItemButton} onClick={onOpenLevelSelector}>
-                        Level Packs
+                        {t("common.levelPacks")}
                     </button>
 
                     <button type="button" className={style.menuItemButton} onClick={onOpenAbout}>
-                        About
+                        {t("common.about")}
                     </button>
                 </div>
 
-                <div className={style.menuVersion}>Version {__APP_VERSION__}</div>
+                <div className={style.menuVersion}>{t("common.version", { version: __APP_VERSION__ })}</div>
             </aside>
         </>
     );

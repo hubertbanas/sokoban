@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import style from "./sokoban.module.css";
 import { useTheme } from "../hooks/theme";
 
 export function ThemeSwitcher() {
+    const { t } = useTranslation();
     const { setMode, resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
 
@@ -19,7 +21,7 @@ export function ThemeSwitcher() {
                     type="checkbox"
                     checked={isDark}
                     onChange={handleToggle}
-                    aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                    aria-label={isDark ? t("theme.switchToLight") : t("theme.switchToDark")}
                 />
                 <label htmlFor="theme-toggle" className={style.themeToggleLabel}>
                     <svg className={style.themeToggleMoon} viewBox="0 0 24 24" aria-hidden="true">

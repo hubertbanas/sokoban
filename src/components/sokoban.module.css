@@ -54,7 +54,7 @@
 }
 
 .bestStatsBar {
-    width: min(100%, 30ch);
+    width: fit-content;
     max-width: 100%;
     box-sizing: border-box;
     display: flex;
@@ -71,20 +71,44 @@
     flex-shrink: 0;
 }
 
+.statsTable {
+    width: max-content;
+    max-width: 100%;
+    border-collapse: collapse;
+    color: inherit;
+    font-variant-numeric: tabular-nums;
+}
+
+.statsTable th,
+.statsTable td {
+    padding: 0;
+    vertical-align: baseline;
+}
+
+.statsTable tr> :first-child {
+    text-align: left;
+    padding-inline: 0 0.90ch;
+}
+
+.statsTable tr> :nth-child(2),
+.statsTable tr> :nth-child(3) {
+    text-align: center;
+    padding-inline: 0.90ch;
+}
+
+.statsTable tr> :nth-child(4) {
+    text-align: right;
+    padding-inline: 1.60ch 0;
+    min-width: 6ch;
+}
+
 .bestStatsRow,
 .completionStatsRow {
     margin: 0;
     border: 0;
     background: none;
     color: inherit;
-    padding: 0 0.25ch;
-    display: grid;
-    grid-template-columns: 1fr 5ch 5ch 7ch;
-    column-gap: 0.8ch;
-    align-items: baseline;
     text-align: left;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
 }
 
 .bestStatsRow {
@@ -105,28 +129,21 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: color-mix(in srgb, var(--muted) 85%, var(--foreground) 15%);
-}
-
-.statsHeaderCell:nth-child(2),
-.statsHeaderCell:nth-child(3),
-.statsHeaderCell:nth-child(4) {
-    text-align: right;
+    line-height: 1.15;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding-bottom: 2px;
 }
 
 .statsRunCell {
     text-align: left;
     white-space: nowrap;
+    font-weight: inherit;
 }
 
 .statsValueCell {
     text-align: right;
     white-space: nowrap;
-}
-
-.bestStatsRow,
-.completionStatsRow {
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .menuToggleButton {
@@ -399,7 +416,7 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    width: min(100%, 30ch);
+    width: fit-content;
     max-width: 100%;
     box-sizing: border-box;
     margin: 4px auto 18px;
@@ -516,6 +533,28 @@
     color: var(--foreground);
     font-size: 0.95rem;
     font-weight: 700;
+}
+
+.menuLanguageSelect {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 90%, var(--text) 10%);
+    color: var(--foreground);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.menuLanguageSelect option,
+.menuLanguageSelect optgroup {
+    background: var(--surface);
+    color: var(--foreground);
+}
+
+/* Some Linux desktop runtimes render a light native popup even in dark mode.
+   Force a readable light popup color-scheme for this select in dark theme. */
+[data-theme="dark"] .menuLanguageSelect {
+    color-scheme: light;
 }
 
 .menuItemButton {
@@ -704,6 +743,7 @@
 .menuToggleButton:hover,
 .menuDrawerCloseButton:hover,
 .menuItemButton:hover,
+.menuLanguageSelect:hover,
 .modalCloseButton:hover {
     border-color: var(--accent);
 }
@@ -725,6 +765,7 @@
 .menuToggleButton:focus-visible,
 .menuDrawerCloseButton:focus-visible,
 .menuItemButton:focus-visible,
+.menuLanguageSelect:focus-visible,
 .menuSfxToggleButton:focus-visible,
 .modalCloseButton:focus-visible {
     outline: 2px solid var(--accent);
@@ -1078,12 +1119,18 @@
 .levelBestToggleOff,
 .levelBestToggleOn {
     width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    font-size: 0.56rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--text);
+}
+
+.togglePowerSymbol {
+    width: 12px;
+    height: 12px;
+    display: block;
 }
 
 .themeToggleCheckbox:checked+.themeToggleLabel {

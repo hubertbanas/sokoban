@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import style from "./sokoban.module.css";
 import { Modal } from "./modal";
 
@@ -9,6 +10,7 @@ type HelpProps = {
 };
 
 function HelpImpl({ open: controlledOpen, showTrigger = true, onOpenChange }: HelpProps) {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   const suppressNextClickRef = React.useRef(false);
 
@@ -78,26 +80,26 @@ function HelpImpl({ open: controlledOpen, showTrigger = true, onOpenChange }: He
           onClick={handleClick}
           onPointerDown={handlePointerDown}
         >
-          About
+          {t("common.about")}
         </button>
       )}
 
       {open && (
         <Modal
-          title="About"
-          ariaLabel="About Sokoban"
+          title={t("help.title")}
+          ariaLabel={t("help.ariaLabel")}
           onClose={() => setOpen(false)}
           autoFocusCloseButton
         >
           {/* Version Number Injection */}
           <div style={{ textAlign: "center", marginBottom: "16px", color: "gray", fontSize: "0.9em" }}>
-            Version {__APP_VERSION__}
+            {t("common.version", { version: __APP_VERSION__ })}
           </div>
 
-          <section className={style.aboutSection} aria-label="Project links">
-            <h3 className={style.aboutSectionTitle}>Built with</h3>
-            <p className={style.aboutText}>React, TypeScript, and Vite.</p>
-            <h3 className={style.aboutSectionTitle}>Project</h3>
+          <section className={style.aboutSection} aria-label={t("help.sections.projectLinks")}>
+            <h3 className={style.aboutSectionTitle}>{t("help.builtWithTitle")}</h3>
+            <p className={style.aboutText}>{t("help.builtWithText")}</p>
+            <h3 className={style.aboutSectionTitle}>{t("help.projectTitle")}</h3>
             <div className={style.aboutLinks}>
               <a
                 className={style.aboutLink}
@@ -110,21 +112,21 @@ function HelpImpl({ open: controlledOpen, showTrigger = true, onOpenChange }: He
             </div>
           </section>
 
-          <section className={style.aboutSection} aria-label="Controls">
-            <h3 className={style.aboutSectionTitle}>Controls</h3>
+          <section className={style.aboutSection} aria-label={t("help.sections.controls")}>
+            <h3 className={style.aboutSectionTitle}>{t("help.controlsTitle")}</h3>
             <div className={style.helpRows}>
               <div>&uarr;</div>
-              <div>Move Up</div>
+              <div>{t("help.controlLabels.moveUp")}</div>
               <div>&larr;&nbsp;&rarr;</div>
-              <div>Move Left / Right</div>
+              <div>{t("help.controlLabels.moveLeftRight")}</div>
               <div>&darr;</div>
-              <div>Move Down</div>
+              <div>{t("help.controlLabels.moveDown")}</div>
               <div>Backspace</div>
-              <div>Undo</div>
+              <div>{t("help.controlLabels.undo")}</div>
               <div>Escape</div>
-              <div>Restart Level</div>
+              <div>{t("help.controlLabels.restartLevel")}</div>
               <div>[&nbsp;/&nbsp;]</div>
-              <div>Previous / Next Level</div>
+              <div>{t("help.controlLabels.previousNextLevel")}</div>
             </div>
           </section>
         </Modal>
