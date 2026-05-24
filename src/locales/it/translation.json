@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "Controlli touch",
         "undo": {
-            "aria": "Annulla mossa",
-            "label": "Annulla"
+            "aria": "Annulla mossa"
         },
         "restart": {
-            "aria": "Riavvia livello",
-            "label": "Riavvia"
+            "aria": "Riavvia livello"
         },
         "move": {
             "up": "Muovi su",

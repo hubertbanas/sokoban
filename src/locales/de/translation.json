@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "Touch-Steuerung",
         "undo": {
-            "aria": "Zug rückgängig machen",
-            "label": "Rückgängig"
+            "aria": "Zug rückgängig machen"
         },
         "restart": {
-            "aria": "Level neu starten",
-            "label": "Neustart"
+            "aria": "Level neu starten"
         },
         "move": {
             "up": "Nach oben bewegen",

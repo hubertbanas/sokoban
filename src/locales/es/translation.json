@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "Controles táctiles",
         "undo": {
-            "aria": "Deshacer movimiento",
-            "label": "Deshacer"
+            "aria": "Deshacer movimiento"
         },
         "restart": {
-            "aria": "Reiniciar nivel",
-            "label": "Reiniciar"
+            "aria": "Reiniciar nivel"
         },
         "move": {
             "up": "Mover arriba",

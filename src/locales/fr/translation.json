@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "Commandes tactiles",
         "undo": {
-            "aria": "Annuler le mouvement",
-            "label": "Annuler"
+            "aria": "Annuler le mouvement"
         },
         "restart": {
-            "aria": "Redémarrer le niveau",
-            "label": "Redémarrer"
+            "aria": "Redémarrer le niveau"
         },
         "move": {
             "up": "Déplacer vers le haut",

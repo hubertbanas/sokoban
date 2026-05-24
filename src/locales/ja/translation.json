@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "タッチ操作",
         "undo": {
-            "aria": "操作を元に戻す",
-            "label": "元に戻す"
+            "aria": "操作を元に戻す"
         },
         "restart": {
-            "aria": "レベルをやり直す",
-            "label": "やり直し"
+            "aria": "レベルをやり直す"
         },
         "move": {
             "up": "上へ移動",
