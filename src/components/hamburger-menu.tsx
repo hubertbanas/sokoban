@@ -22,6 +22,35 @@ type HamburgerMenuProps = {
     onOpenAbout: () => void;
 };
 
+function ToggleOffSymbol() {
+    return (
+        <svg className={style.togglePowerSymbol} viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+        </svg>
+    );
+}
+
+function ToggleOnSymbol() {
+    return (
+        <svg className={style.togglePowerSymbol} viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M12 4.2v6.2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M8.2 7.8a6.8 6.8 0 1 0 7.6 0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+            />
+        </svg>
+    );
+}
+
 function HamburgerMenuImpl({
     open,
     showPlayStats,
@@ -148,8 +177,12 @@ function HamburgerMenuImpl({
                                         aria-label={playStatsToggleLabel}
                                     />
                                     <label htmlFor={statsToggleId} className={style.themeToggleLabel}>
-                                        <span className={style.levelBestToggleOff} aria-hidden="true">{t("common.off")}</span>
-                                        <span className={style.levelBestToggleOn} aria-hidden="true">{t("common.on")}</span>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">
+                                            <ToggleOffSymbol />
+                                        </span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">
+                                            <ToggleOnSymbol />
+                                        </span>
                                         <span className={style.themeToggleBall} />
                                     </label>
                                 </div>
@@ -196,8 +229,12 @@ function HamburgerMenuImpl({
                                         aria-label={t("menu.sfx.mute")}
                                     />
                                     <label htmlFor={sfxToggleId} className={style.themeToggleLabel}>
-                                        <span className={style.levelBestToggleOff} aria-hidden="true">{t("common.off")}</span>
-                                        <span className={style.levelBestToggleOn} aria-hidden="true">{t("common.on")}</span>
+                                        <span className={style.levelBestToggleOff} aria-hidden="true">
+                                            <ToggleOffSymbol />
+                                        </span>
+                                        <span className={style.levelBestToggleOn} aria-hidden="true">
+                                            <ToggleOnSymbol />
+                                        </span>
                                         <span className={style.themeToggleBall} />
                                     </label>
                                 </div>

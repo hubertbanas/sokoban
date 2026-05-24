@@ -1102,12 +1102,18 @@
 .levelBestToggleOff,
 .levelBestToggleOn {
     width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    font-size: 0.56rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--text);
+}
+
+.togglePowerSymbol {
+    width: 11px;
+    height: 11px;
+    display: block;
 }
 
 .themeToggleCheckbox:checked+.themeToggleLabel {
