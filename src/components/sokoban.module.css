@@ -81,16 +81,18 @@
 
 .statsTable th,
 .statsTable td {
-    padding: 0 0.90ch;
+    padding: 0;
     vertical-align: baseline;
 }
 
 .statsTable tr> :first-child {
     text-align: left;
+    padding-inline: 0 0.90ch;
 }
 
 .statsTable tr> :nth-child(n + 2) {
     text-align: right;
+    padding-inline: 0.90ch 0;
 }
 
 .bestStatsRow,
