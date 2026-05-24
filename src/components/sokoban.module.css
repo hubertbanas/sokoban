@@ -54,7 +54,7 @@
 }
 
 .bestStatsBar {
-    width: min(100%, 30ch);
+    width: fit-content;
     max-width: 100%;
     box-sizing: border-box;
     display: flex;
@@ -71,20 +71,27 @@
     flex-shrink: 0;
 }
 
+.statsTable {
+    width: max-content;
+    max-width: 100%;
+    border-collapse: collapse;
+    color: inherit;
+    font-variant-numeric: tabular-nums;
+}
+
+.statsTable th,
+.statsTable td {
+    padding: 0 0.25ch;
+    vertical-align: baseline;
+}
+
 .bestStatsRow,
 .completionStatsRow {
     margin: 0;
     border: 0;
     background: none;
     color: inherit;
-    padding: 0 0.25ch;
-    display: grid;
-    grid-template-columns: 1fr 5ch 5ch 7ch;
-    column-gap: 0.8ch;
-    align-items: baseline;
     text-align: left;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
 }
 
 .bestStatsRow {
@@ -105,6 +112,10 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: color-mix(in srgb, var(--muted) 85%, var(--foreground) 15%);
+    line-height: 1.15;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding-bottom: 2px;
 }
 
 .statsHeaderCell:nth-child(2),
@@ -116,17 +127,12 @@
 .statsRunCell {
     text-align: left;
     white-space: nowrap;
+    font-weight: inherit;
 }
 
 .statsValueCell {
     text-align: right;
     white-space: nowrap;
-}
-
-.bestStatsRow,
-.completionStatsRow {
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .menuToggleButton {
@@ -399,7 +405,7 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    width: min(100%, 30ch);
+    width: fit-content;
     max-width: 100%;
     box-sizing: border-box;
     margin: 4px auto 18px;

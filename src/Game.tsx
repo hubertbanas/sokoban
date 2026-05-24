@@ -37,7 +37,7 @@ function getInitialPlayStatsVisibility(): boolean {
 }
 
 type StatsTableProps = {
-  rowClassName: string;
+  tableClassName: string;
   currentMoves: number;
   currentTimeMs: number;
   currentUndos: number;
@@ -47,7 +47,7 @@ type StatsTableProps = {
 };
 
 function StatsTable({
-  rowClassName,
+  tableClassName,
   currentMoves,
   currentTimeMs,
   currentUndos,
@@ -64,40 +64,42 @@ function StatsTable({
   const bestUndoValue = bestUndos === null ? "--" : String(bestUndos);
 
   return (
-    <>
-      <p className={rowClassName} aria-hidden="true">
-        <span className={style.statsHeaderCell}>{t("game.stats.header.run")}</span>
-        <span className={style.statsHeaderCell}>{t("game.stats.header.moves")}</span>
-        <span className={style.statsHeaderCell}>{t("game.stats.header.undos")}</span>
-        <span className={style.statsHeaderCell}>{t("game.stats.header.time")}</span>
-      </p>
-      <p
-        className={rowClassName}
-        aria-label={t("game.stats.aria.current", {
-          moves: currentMoveValue,
-          undos: currentUndoValue,
-          time: currentTimeValue,
-        })}
-      >
-        <span className={style.statsRunCell}>{t("game.stats.run.current")}</span>
-        <span className={style.statsValueCell}>{currentMoveValue}</span>
-        <span className={style.statsValueCell}>{currentUndoValue}</span>
-        <span className={style.statsValueCell}>{currentTimeValue}</span>
-      </p>
-      <p
-        className={rowClassName}
-        aria-label={t("game.stats.aria.best", {
-          moves: bestMoveValue,
-          undos: bestUndoValue,
-          time: bestTimeValue,
-        })}
-      >
-        <span className={style.statsRunCell}>{t("game.stats.run.best")}</span>
-        <span className={style.statsValueCell}>{bestMoveValue}</span>
-        <span className={style.statsValueCell}>{bestUndoValue}</span>
-        <span className={style.statsValueCell}>{bestTimeValue}</span>
-      </p>
-    </>
+    <table className={`${style.statsTable} ${tableClassName}`}>
+      <thead>
+        <tr>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.run")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.moves")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.undos")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.time")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          aria-label={t("game.stats.aria.current", {
+            moves: currentMoveValue,
+            undos: currentUndoValue,
+            time: currentTimeValue,
+          })}
+        >
+          <th className={style.statsRunCell} scope="row">{t("game.stats.run.current")}</th>
+          <td className={style.statsValueCell}>{currentMoveValue}</td>
+          <td className={style.statsValueCell}>{currentUndoValue}</td>
+          <td className={style.statsValueCell}>{currentTimeValue}</td>
+        </tr>
+        <tr
+          aria-label={t("game.stats.aria.best", {
+            moves: bestMoveValue,
+            undos: bestUndoValue,
+            time: bestTimeValue,
+          })}
+        >
+          <th className={style.statsRunCell} scope="row">{t("game.stats.run.best")}</th>
+          <td className={style.statsValueCell}>{bestMoveValue}</td>
+          <td className={style.statsValueCell}>{bestUndoValue}</td>
+          <td className={style.statsValueCell}>{bestTimeValue}</td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -842,7 +844,7 @@ function Game() {
       {showPlayStats && (
         <section className={style.bestStatsBar} aria-label={t("game.playStats.regionLabel")}>
           <StatsTable
-            rowClassName={style.bestStatsRow}
+            tableClassName={style.bestStatsRow}
             currentMoves={moveCount}
             currentTimeMs={elapsedTimeMs}
             currentUndos={undoCount}
@@ -969,7 +971,7 @@ function Game() {
             {showPlayStats && (
               <div className={style.completionStats} aria-label={t("game.playStats.runAndBestLabel")}>
                 <StatsTable
-                  rowClassName={style.completionStatsRow}
+                  tableClassName={style.completionStatsRow}
                   currentMoves={moveCount}
                   currentTimeMs={elapsedTimeMs}
                   currentUndos={undoCount}

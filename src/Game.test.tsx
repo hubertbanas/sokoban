@@ -628,11 +628,11 @@ test("renders current and best placeholders when play stats toggle is enabled", 
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  const currentRun = screen.getByText(/^Current$/).closest("p");
-  const levelBest = screen.getByText(/^Best$/).closest("p");
+  const currentRun = screen.getByText(/^Current$/).closest("tr");
+  const levelBest = screen.getByText(/^Best$/).closest("tr");
 
   if (!currentRun || !levelBest) {
-    throw new Error("Expected stats rows to be paragraph elements");
+    throw new Error("Expected stats rows to be table rows");
   }
 
   expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Undos 0 Time 0:00");
@@ -665,9 +665,9 @@ test("renders realtime current run status from useSokoban", () => {
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  const currentRun = screen.getByText(/^Current$/).closest("p");
+  const currentRun = screen.getByText(/^Current$/).closest("tr");
   if (!currentRun) {
-    throw new Error("Expected current run row to be a paragraph element");
+    throw new Error("Expected current run row to be a table row");
   }
 
   expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 12 Undos 3 Time 1:14");
@@ -710,9 +710,9 @@ test("renders best row from useStats", () => {
   render(<Game />);
   setPlayStatsVisibility(true);
 
-  const levelBestLine = screen.getByText(/^Best$/).closest("p");
+  const levelBestLine = screen.getByText(/^Best$/).closest("tr");
   if (!levelBestLine) {
-    throw new Error("Expected best row to be a paragraph element");
+    throw new Error("Expected best row to be a table row");
   }
 
   expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 9 Undos 2 Time 0:13");
@@ -760,11 +760,11 @@ test("shows best row inside completion dialog", () => {
   rerender(<Game />);
 
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
-  const currentRun = within(completionDialog).getByText(/^Current$/).closest("p");
-  const levelBestLine = within(completionDialog).getByText(/^Best$/).closest("p");
+  const currentRun = within(completionDialog).getByText(/^Current$/).closest("tr");
+  const levelBestLine = within(completionDialog).getByText(/^Best$/).closest("tr");
 
   if (!currentRun || !levelBestLine) {
-    throw new Error("Expected completion stats rows to be paragraph elements");
+    throw new Error("Expected completion stats rows to be table rows");
   }
 
   expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Undos 0 Time 0:00");
