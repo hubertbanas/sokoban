@@ -67,12 +67,19 @@ The pre-commit guard blocks staged files that commonly contain secrets:
 ### Included Content
 
 - 493 bundled puzzle levels across six packs (`Tutorial`, `Original`, `Atlas01` to `Atlas04`)
+- Localized UI support for `en`, `pl`, `es`, `fr`, `pt-BR`, `de`, `it`, `zh-CN`, `ja`, `ko`, `ru`, and `uk`
 - Keyboard gameplay controls (move, undo, restart, level navigation)
 - Mobile/coarse-pointer touch controls with a draggable dpad
 - Hold-to-repeat behavior for level and direction controls
 - Dedicated undo sound effect (`crate-undo.ogg`) for Backspace and touch Undo
 - Light/dark theme support with persisted user preference
 - About modal with runtime app version from `package.json`
+
+### Localization
+
+- Translation resources are in `src/locales/<locale>/translation.json`.
+- i18n setup is configured in `src/i18n.ts`.
+- Developer-only pseudo-locale testing uses `en-xa` (exposed in the language selector in dev builds).
 
 ### Mobile Touch Controls
 

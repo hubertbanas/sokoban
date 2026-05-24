@@ -97,6 +97,14 @@
                 "pl": "Polonais",
                 "es": "Espagnol",
                 "fr": "Français",
+                "pt-BR": "Portugais (Brésil)",
+                "de": "Allemand",
+                "it": "Italien",
+                "zh-CN": "Chinois (simplifié)",
+                "ja": "Japonais",
+                "ko": "Coréen",
+                "ru": "Russe",
+                "uk": "Ukrainien",
                 "en-xa": "Pseudo (Test)"
             }
         },

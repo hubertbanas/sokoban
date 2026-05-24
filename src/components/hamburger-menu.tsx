@@ -3,7 +3,20 @@ import { useTranslation } from "react-i18next";
 import style from "./sokoban.module.css";
 import { ThemeSwitcher } from "./theme-switcher";
 
-const BASE_SELECTABLE_LANGUAGES = ["en", "pl", "es", "fr"] as const;
+const BASE_SELECTABLE_LANGUAGES = [
+    "en",
+    "pl",
+    "es",
+    "fr",
+    "pt-BR",
+    "de",
+    "it",
+    "zh-CN",
+    "ja",
+    "ko",
+    "ru",
+    "uk",
+] as const;
 const SELECTABLE_LANGUAGES = import.meta.env.DEV
     ? ([...BASE_SELECTABLE_LANGUAGES, "en-xa"] as const)
     : BASE_SELECTABLE_LANGUAGES;
@@ -85,7 +98,8 @@ function HamburgerMenuImpl({
     const currentLanguage = (i18n.resolvedLanguage ?? i18n.language ?? "en").toLowerCase();
     const matchedLanguage = SELECTABLE_LANGUAGES.find(
         (languageCode) =>
-            currentLanguage === languageCode || currentLanguage.startsWith(`${languageCode}-`)
+            currentLanguage === languageCode.toLowerCase() ||
+            currentLanguage.startsWith(`${languageCode.toLowerCase()}-`)
     );
     const selectedLanguage = matchedLanguage ?? "en";
 

@@ -29,6 +29,23 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 - `Escape`: Restart current level
 - `[` / `]`: Previous / Next level
 
+## Languages
+
+The game UI is currently available in:
+
+- English (`en`)
+- Polish (`pl`)
+- Spanish (`es`)
+- French (`fr`)
+- Portuguese, Brazil (`pt-BR`)
+- German (`de`)
+- Italian (`it`)
+- Chinese, Simplified (`zh-CN`)
+- Japanese (`ja`)
+- Korean (`ko`)
+- Russian (`ru`)
+- Ukrainian (`uk`)
+
 ## Statistics
 
 - The game UI can show statistics in two places via `Menu -> Play Stats`.
