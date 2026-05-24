@@ -69,7 +69,7 @@
             "resetStats": {
                 "title": "Réinitialiser les statistiques ?",
                 "ariaLabel": "Confirmation de réinitialisation des statistiques",
-                "warning": "Réinitialiser les statistiques supprimera définitivement vos mouvements, annulations et temps sauvegardés.",
+                "warning": "Réinitialiser les statistiques supprimera définitivement vos mouvements, poussées, annulations et temps sauvegardés.",
                 "confirm": "Réinitialiser les statistiques"
             }
         },

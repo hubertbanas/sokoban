@@ -69,7 +69,7 @@
             "resetStats": {
                 "title": "¿Restablecer estadísticas?",
                 "ariaLabel": "Confirmación para restablecer estadísticas",
-                "warning": "Al restablecer estadísticas se eliminarán de forma permanente tus movimientos, deshacer y tiempos guardados.",
+                "warning": "Al restablecer estadísticas se eliminarán de forma permanente tus movimientos, empujes, deshacer y tiempos guardados.",
                 "confirm": "Restablecer estadísticas"
             }
         },

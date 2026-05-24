@@ -69,7 +69,7 @@
             "resetStats": {
                 "title": "Reset stats?",
                 "ariaLabel": "Reset stats confirmation",
-                "warning": "Resetting stats will permanently remove your saved moves, undos, and times.",
+                "warning": "Resetting stats will permanently remove your saved moves, pushes, undos, and times.",
                 "confirm": "Reset Stats"
             }
         },

@@ -66,7 +66,7 @@ The pre-commit guard blocks staged files that commonly contain secrets:
 
 ### Included Content
 
-- 490 bundled puzzle levels (`Original`, `Atlas01` to `Atlas04`)
+- 493 bundled puzzle levels across six packs (`Tutorial`, `Original`, `Atlas01` to `Atlas04`)
 - Keyboard gameplay controls (move, undo, restart, level navigation)
 - Mobile/coarse-pointer touch controls with a draggable dpad
 - Hold-to-repeat behavior for level and direction controls
@@ -102,6 +102,8 @@ UI controls:
 - `Restart level` prompts for confirmation after at least one move
 - While restart confirmation is open, gameplay/navigation keyboard input is paused
 - In restart confirmation, `Escape` cancels; `Enter` activates the focused action (default focus is `Cancel`)
+- `Play Stats` in the menu has two independent visibility toggles: `While playing` and `After finishing a level`
+- `Reset Stats` in the same section clears saved stats after confirmation
 - `About` opens controls/project info and app version
 - Theme switch toggles between light and dark mode
 
@@ -110,8 +112,20 @@ UI controls:
 - Board tile size adapts to viewport dimensions and level size.
 - Current level is persisted by `levelId` in `localStorage` (`sokoban.level-id.v1`).
 - Theme mode is persisted in `localStorage` (`sokoban-theme-mode`).
+- Stats visibility is persisted in `localStorage` using `sokoban-play-stats-visible` and `sokoban-completion-stats-visible`.
 - When mode is `auto`, theme follows `prefers-color-scheme` unless `VITE_DEFAULT_THEME` is set to `dark` or `light`.
 - App dialogs use a shared modal component for consistent behavior and close controls.
+
+### Statistics Implementation Notes
+
+- Play statistics include player-facing per-level tracking and bests for `Moves`, `Pushes`, `Undos`, and `Time`.
+- The UI renders these as `Current` and `Best` rows in both the gameplay HUD and completion overlay (when enabled).
+- Visibility is controlled by two independent menu toggles (`While playing` and `After finishing a level`).
+- The completion-overlay visibility key falls back to the play-visibility key to migrate older single-toggle installs.
+- Internally, the stats model stores both `levelId` and `puzzleId` records.
+- `levelId` is used for player-facing progress and best values.
+- `puzzleId` is retained for forward compatibility if future packs reuse the same puzzle layout across different levels.
+- In the current bundled packs, puzzle layouts are unique, so level and puzzle records are effectively identical today.
 
 ## Docker
 
