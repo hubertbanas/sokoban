@@ -36,6 +36,7 @@
             "header": {
                 "run": "Partida",
                 "moves": "Movimientos",
+                "pushes": "Empujes",
                 "undos": "Deshacer",
                 "time": "Tiempo"
             },
@@ -44,8 +45,8 @@
                 "best": "Mejor"
             },
             "aria": {
-                "current": "Actual: Movimientos {{moves}} Deshacer {{undos}} Tiempo {{time}}",
-                "best": "Mejor: Movimientos {{moves}} Deshacer {{undos}} Tiempo {{time}}"
+                "current": "Actual: Movimientos {{moves}} Empujes {{pushes}} Deshacer {{undos}} Tiempo {{time}}",
+                "best": "Mejor: Movimientos {{moves}} Empujes {{pushes}} Deshacer {{undos}} Tiempo {{time}}"
             }
         },
         "confirmation": {

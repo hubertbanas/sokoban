@@ -66,6 +66,7 @@ test("blocked movement updates player orientation without moving or adding progr
     expect(result.current.level.playerPosition).toEqual({ row: 1, column: 1 });
     expect(result.current.hasProgress).toBe(false);
     expect(result.current.moveCount).toBe(0);
+    expect(result.current.pushCount).toBe(0);
     expect(result.current.undoCount).toBe(0);
 
     let outcome: MoveOutcome = "step";
@@ -79,6 +80,7 @@ test("blocked movement updates player orientation without moving or adding progr
     expect(result.current.level.shape[1][1]).toBe(Block.player);
     expect(result.current.hasProgress).toBe(false);
     expect(result.current.moveCount).toBe(0);
+    expect(result.current.pushCount).toBe(0);
 });
 
 test("tracks realtime play status for moves and elapsed time", () => {
@@ -113,6 +115,7 @@ test("tracks realtime play status for moves and elapsed time", () => {
     const { result } = renderHook(() => useSokoban());
 
     expect(result.current.moveCount).toBe(0);
+    expect(result.current.pushCount).toBe(0);
     expect(result.current.undoCount).toBe(0);
     expect(result.current.elapsedTimeMs).toBe(0);
 
@@ -129,6 +132,7 @@ test("tracks realtime play status for moves and elapsed time", () => {
 
     expect(outcome).toBe("crate-push");
     expect(result.current.moveCount).toBe(1);
+    expect(result.current.pushCount).toBe(1);
 
     let didUndo = false;
     act(() => {
@@ -137,6 +141,7 @@ test("tracks realtime play status for moves and elapsed time", () => {
 
     expect(didUndo).toBe(true);
     expect(result.current.moveCount).toBe(0);
+    expect(result.current.pushCount).toBe(0);
     expect(result.current.undoCount).toBe(1);
 });
 
@@ -182,6 +187,7 @@ test("captures completion metrics when level is solved", () => {
     expect(result.current.elapsedTimeMs).toBe(3600);
     expect(result.current.completionMetrics).toEqual({
         moves: 1,
+        pushes: 0,
         timeMs: 3600,
         undos: 0,
     });
@@ -227,6 +233,7 @@ test("resets completion metrics after advancing from completed state", () => {
     expect(result.current.state).toBe(State.completed);
     expect(result.current.completionMetrics).toEqual({
         moves: 1,
+        pushes: 0,
         timeMs: 1500,
         undos: 0,
     });
@@ -238,6 +245,7 @@ test("resets completion metrics after advancing from completed state", () => {
     expect(loadNext).toHaveBeenCalledTimes(1);
     expect(result.current.state).toBe(State.playing);
     expect(result.current.elapsedTimeMs).toBe(0);
+    expect(result.current.pushCount).toBe(0);
     expect(result.current.undoCount).toBe(0);
     expect(result.current.completionMetrics).toBeNull();
 });

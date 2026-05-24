@@ -10,6 +10,7 @@ export type LevelProgress = {
     lastPlayedAt: number | null;
     lastCompletedAt: number | null;
     bestMovesInLevel: number | null;
+    bestPushesInLevel: number | null;
     bestTimeMsInLevel: number | null;
     bestUndosInLevel: number | null;
 };
@@ -33,6 +34,7 @@ export type SaveLevelResultInput = {
     levelId: string;
     puzzleId: string;
     moves: number;
+    pushes?: number;
     timeMs: number;
     undos?: number;
     completedAt?: number;
@@ -75,6 +77,7 @@ function createEmptyLevelProgress(): LevelProgress {
         lastPlayedAt: null,
         lastCompletedAt: null,
         bestMovesInLevel: null,
+        bestPushesInLevel: null,
         bestTimeMsInLevel: null,
         bestUndosInLevel: null,
     };
@@ -105,6 +108,7 @@ function sanitizeLevelProgress(value: unknown): LevelProgress {
         lastPlayedAt: toTimestamp(value.lastPlayedAt),
         lastCompletedAt: toTimestamp(value.lastCompletedAt),
         bestMovesInLevel: toBestMetric(value.bestMovesInLevel),
+        bestPushesInLevel: toBestMetric(value.bestPushesInLevel),
         bestTimeMsInLevel: toBestMetric(value.bestTimeMsInLevel),
         bestUndosInLevel: toBestMetric(value.bestUndosInLevel),
     };
@@ -223,6 +227,7 @@ export function useStats() {
 
         const completedAt = toTimestamp(input.completedAt) ?? Date.now();
         const moves = toNonNegativeInteger(input.moves);
+        const pushes = input.pushes === undefined ? null : toNonNegativeInteger(input.pushes);
         const timeMs = toNonNegativeInteger(input.timeMs);
         const undos = input.undos === undefined ? null : toNonNegativeInteger(input.undos);
 
@@ -235,6 +240,10 @@ export function useStats() {
                 lastPlayedAt: completedAt,
                 lastCompletedAt: completedAt,
                 bestMovesInLevel: nextBest(currentProgress.bestMovesInLevel, moves),
+                bestPushesInLevel:
+                    pushes === null
+                        ? currentProgress.bestPushesInLevel
+                        : nextBest(currentProgress.bestPushesInLevel, pushes),
                 bestTimeMsInLevel: nextBest(currentProgress.bestTimeMsInLevel, timeMs),
                 bestUndosInLevel:
                     undos === null

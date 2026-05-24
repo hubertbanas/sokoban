@@ -36,6 +36,7 @@
             "header": {
                 "run": "Partie",
                 "moves": "Mouvements",
+                "pushes": "Poussées",
                 "undos": "Annulations",
                 "time": "Temps"
             },
@@ -44,8 +45,8 @@
                 "best": "Meilleure"
             },
             "aria": {
-                "current": "Actuelle: Mouvements {{moves}} Annulations {{undos}} Temps {{time}}",
-                "best": "Meilleure: Mouvements {{moves}} Annulations {{undos}} Temps {{time}}"
+                "current": "Actuelle: Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}",
+                "best": "Meilleure: Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}"
             }
         },
         "confirmation": {

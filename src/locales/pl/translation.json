@@ -36,6 +36,7 @@
             "header": {
                 "run": "Próba",
                 "moves": "Ruchy",
+                "pushes": "Pchnięcia",
                 "undos": "Cofnięcia",
                 "time": "Czas"
             },
@@ -44,8 +45,8 @@
                 "best": "Najlepszy"
             },
             "aria": {
-                "current": "Bieżący: Ruchy {{moves}} Cofnięcia {{undos}} Czas {{time}}",
-                "best": "Najlepszy: Ruchy {{moves}} Cofnięcia {{undos}} Czas {{time}}"
+                "current": "Bieżący: Ruchy {{moves}} Pchnięcia {{pushes}} Cofnięcia {{undos}} Czas {{time}}",
+                "best": "Najlepszy: Ruchy {{moves}} Pchnięcia {{pushes}} Cofnięcia {{undos}} Czas {{time}}"
             }
         },
         "confirmation": {

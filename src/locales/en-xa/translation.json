@@ -36,6 +36,7 @@
             "header": {
                 "run": "[!! Run !!]",
                 "moves": "[!! Moves !!]",
+                "pushes": "[!! Pushes !!]",
                 "undos": "[!! Undos !!]",
                 "time": "[!! Time !!]"
             },
@@ -44,8 +45,8 @@
                 "best": "[!! Best !!]"
             },
             "aria": {
-                "current": "[!! Current: Moves {{moves}} Undos {{undos}} Time {{time}} !!]",
-                "best": "[!! Best: Moves {{moves}} Undos {{undos}} Time {{time}} !!]"
+                "current": "[!! Current: Moves {{moves}} Pushes {{pushes}} Undos {{undos}} Time {{time}} !!]",
+                "best": "[!! Best: Moves {{moves}} Pushes {{pushes}} Undos {{undos}} Time {{time}} !!]"
             }
         },
         "confirmation": {

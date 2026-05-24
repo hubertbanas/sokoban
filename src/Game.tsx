@@ -39,9 +39,11 @@ function getInitialPlayStatsVisibility(): boolean {
 type StatsTableProps = {
   tableClassName: string;
   currentMoves: number;
+  currentPushes: number;
   currentTimeMs: number;
   currentUndos: number;
   bestMoves: number | null;
+  bestPushes: number | null;
   bestTimeMs: number | null;
   bestUndos: number | null;
 };
@@ -49,17 +51,21 @@ type StatsTableProps = {
 function StatsTable({
   tableClassName,
   currentMoves,
+  currentPushes,
   currentTimeMs,
   currentUndos,
   bestMoves,
+  bestPushes,
   bestTimeMs,
   bestUndos,
 }: StatsTableProps) {
   const { t } = useTranslation();
   const currentMoveValue = String(currentMoves);
+  const currentPushValue = String(currentPushes);
   const currentTimeValue = formatElapsedTime(currentTimeMs);
   const currentUndoValue = String(currentUndos);
   const bestMoveValue = bestMoves === null ? "--" : String(bestMoves);
+  const bestPushValue = bestPushes === null ? "--" : String(bestPushes);
   const bestTimeValue = bestTimeMs === null ? "--:--" : formatElapsedTime(bestTimeMs);
   const bestUndoValue = bestUndos === null ? "--" : String(bestUndos);
 
@@ -69,6 +75,7 @@ function StatsTable({
         <tr>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.run")}</th>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.moves")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.pushes")}</th>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.undos")}</th>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.time")}</th>
         </tr>
@@ -77,24 +84,28 @@ function StatsTable({
         <tr
           aria-label={t("game.stats.aria.current", {
             moves: currentMoveValue,
+            pushes: currentPushValue,
             undos: currentUndoValue,
             time: currentTimeValue,
           })}
         >
           <th className={style.statsRunCell} scope="row">{t("game.stats.run.current")}</th>
           <td className={style.statsValueCell}>{currentMoveValue}</td>
+          <td className={style.statsValueCell}>{currentPushValue}</td>
           <td className={style.statsValueCell}>{currentUndoValue}</td>
           <td className={style.statsValueCell}>{currentTimeValue}</td>
         </tr>
         <tr
           aria-label={t("game.stats.aria.best", {
             moves: bestMoveValue,
+            pushes: bestPushValue,
             undos: bestUndoValue,
             time: bestTimeValue,
           })}
         >
           <th className={style.statsRunCell} scope="row">{t("game.stats.run.best")}</th>
           <td className={style.statsValueCell}>{bestMoveValue}</td>
+          <td className={style.statsValueCell}>{bestPushValue}</td>
           <td className={style.statsValueCell}>{bestUndoValue}</td>
           <td className={style.statsValueCell}>{bestTimeValue}</td>
         </tr>
@@ -192,6 +203,7 @@ function Game() {
     level,
     levelPacks,
     moveCount,
+    pushCount,
     undoCount,
     elapsedTimeMs,
     completionMetrics,
@@ -446,6 +458,7 @@ function Game() {
           levelId: level.levelId,
           puzzleId: level.puzzleId,
           moves: completionMetrics.moves,
+          pushes: completionMetrics.pushes,
           timeMs: completionMetrics.timeMs,
           undos: completionMetrics.undos,
         });
@@ -590,6 +603,7 @@ function Game() {
     levelBest.bestMovesInLevel !== null &&
     levelBest.bestTimeMsInLevel !== null;
   const levelBestMoves = hasLevelBestRecord ? levelBest.bestMovesInLevel : null;
+  const levelBestPushes = levelBest?.bestPushesInLevel ?? null;
   const levelBestTimeMs = hasLevelBestRecord ? levelBest.bestTimeMsInLevel : null;
   const levelBestUndos = levelBest?.bestUndosInLevel ?? null;
 
@@ -846,9 +860,11 @@ function Game() {
           <StatsTable
             tableClassName={style.bestStatsRow}
             currentMoves={moveCount}
+            currentPushes={pushCount}
             currentTimeMs={elapsedTimeMs}
             currentUndos={undoCount}
             bestMoves={levelBestMoves}
+            bestPushes={levelBestPushes}
             bestTimeMs={levelBestTimeMs}
             bestUndos={levelBestUndos}
           />
@@ -973,9 +989,11 @@ function Game() {
                 <StatsTable
                   tableClassName={style.completionStatsRow}
                   currentMoves={moveCount}
+                  currentPushes={pushCount}
                   currentTimeMs={elapsedTimeMs}
                   currentUndos={undoCount}
                   bestMoves={levelBestMoves}
+                  bestPushes={levelBestPushes}
                   bestTimeMs={levelBestTimeMs}
                   bestUndos={levelBestUndos}
                 />
