@@ -36,6 +36,7 @@
             "header": {
                 "run": "Partie",
                 "moves": "Mouvements",
+                "pushes": "Poussées",
                 "undos": "Annulations",
                 "time": "Temps"
             },
@@ -44,8 +45,8 @@
                 "best": "Meilleure"
             },
             "aria": {
-                "current": "Actuelle: Mouvements {{moves}} Annulations {{undos}} Temps {{time}}",
-                "best": "Meilleure: Mouvements {{moves}} Annulations {{undos}} Temps {{time}}"
+                "current": "Actuelle: Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}",
+                "best": "Meilleure: Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}"
             }
         },
         "confirmation": {
@@ -68,7 +69,7 @@
             "resetStats": {
                 "title": "Réinitialiser les statistiques ?",
                 "ariaLabel": "Confirmation de réinitialisation des statistiques",
-                "warning": "Réinitialiser les statistiques supprimera définitivement vos mouvements, annulations et temps sauvegardés.",
+                "warning": "Réinitialiser les statistiques supprimera définitivement vos mouvements, poussées, annulations et temps sauvegardés.",
                 "confirm": "Réinitialiser les statistiques"
             }
         },
@@ -102,8 +103,12 @@
         "playStats": {
             "title": "Statistiques de jeu",
             "visible": "Visible",
-            "enable": "Activer les statistiques de jeu",
-            "disable": "Désactiver les statistiques de jeu",
+            "visibleGameUi": "Pendant la partie",
+            "visibleCompletionModal": "Après avoir terminé un niveau",
+            "enable": "Afficher les statistiques de jeu",
+            "disable": "Masquer les statistiques de jeu",
+            "enableCompletion": "Afficher les statistiques de fin",
+            "disableCompletion": "Masquer les statistiques de fin",
             "reset": "Réinitialiser les statistiques"
         },
         "sfx": {

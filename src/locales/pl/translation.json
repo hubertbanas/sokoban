@@ -36,6 +36,7 @@
             "header": {
                 "run": "Próba",
                 "moves": "Ruchy",
+                "pushes": "Pchnięcia",
                 "undos": "Cofnięcia",
                 "time": "Czas"
             },
@@ -44,8 +45,8 @@
                 "best": "Najlepszy"
             },
             "aria": {
-                "current": "Bieżący: Ruchy {{moves}} Cofnięcia {{undos}} Czas {{time}}",
-                "best": "Najlepszy: Ruchy {{moves}} Cofnięcia {{undos}} Czas {{time}}"
+                "current": "Bieżący: Ruchy {{moves}} Pchnięcia {{pushes}} Cofnięcia {{undos}} Czas {{time}}",
+                "best": "Najlepszy: Ruchy {{moves}} Pchnięcia {{pushes}} Cofnięcia {{undos}} Czas {{time}}"
             }
         },
         "confirmation": {
@@ -68,7 +69,7 @@
             "resetStats": {
                 "title": "Zresetować statystyki?",
                 "ariaLabel": "Potwierdzenie resetu statystyk",
-                "warning": "Reset statystyk trwale usunie zapisane ruchy, cofnięcia i czasy.",
+                "warning": "Reset statystyk trwale usunie zapisane ruchy, pchnięcia, cofnięcia i czasy.",
                 "confirm": "Resetuj statystyki"
             }
         },
@@ -102,8 +103,12 @@
         "playStats": {
             "title": "Statystyki gry",
             "visible": "Widoczne",
-            "enable": "Włącz statystyki gry",
-            "disable": "Wyłącz statystyki gry",
+            "visibleGameUi": "W trakcie gry",
+            "visibleCompletionModal": "Po ukończeniu poziomu",
+            "enable": "Pokaż statystyki gry",
+            "disable": "Ukryj statystyki gry",
+            "enableCompletion": "Pokaż statystyki po ukończeniu",
+            "disableCompletion": "Ukryj statystyki po ukończeniu",
             "reset": "Resetuj statystyki"
         },
         "sfx": {

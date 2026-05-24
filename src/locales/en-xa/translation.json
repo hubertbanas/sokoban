@@ -36,6 +36,7 @@
             "header": {
                 "run": "[!! Run !!]",
                 "moves": "[!! Moves !!]",
+                "pushes": "[!! Pushes !!]",
                 "undos": "[!! Undos !!]",
                 "time": "[!! Time !!]"
             },
@@ -44,8 +45,8 @@
                 "best": "[!! Best !!]"
             },
             "aria": {
-                "current": "[!! Current: Moves {{moves}} Undos {{undos}} Time {{time}} !!]",
-                "best": "[!! Best: Moves {{moves}} Undos {{undos}} Time {{time}} !!]"
+                "current": "[!! Current: Moves {{moves}} Pushes {{pushes}} Undos {{undos}} Time {{time}} !!]",
+                "best": "[!! Best: Moves {{moves}} Pushes {{pushes}} Undos {{undos}} Time {{time}} !!]"
             }
         },
         "confirmation": {
@@ -68,7 +69,7 @@
             "resetStats": {
                 "title": "[!! Reset stats? !!]",
                 "ariaLabel": "[!! Reset stats confirmation !!]",
-                "warning": "[!! Resetting stats will permanently remove your saved moves, undos, and times. !!]",
+                "warning": "[!! Resetting stats will permanently remove your saved moves, pushes, undos, and times. !!]",
                 "confirm": "[!! Reset Stats !!]"
             }
         },
@@ -102,8 +103,12 @@
         "playStats": {
             "title": "[!! Play Stats !!]",
             "visible": "[!! Visible !!]",
-            "enable": "[!! Enable play stats !!]",
-            "disable": "[!! Disable play stats !!]",
+            "visibleGameUi": "[!! While playing !!]",
+            "visibleCompletionModal": "[!! After finishing a level !!]",
+            "enable": "[!! Show play stats !!]",
+            "disable": "[!! Hide play stats !!]",
+            "enableCompletion": "[!! Show completion stats !!]",
+            "disableCompletion": "[!! Hide completion stats !!]",
             "reset": "[!! Reset Stats !!]"
         },
         "sfx": {

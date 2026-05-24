@@ -91,12 +91,13 @@
 }
 
 .statsTable tr> :nth-child(2),
-.statsTable tr> :nth-child(3) {
+.statsTable tr> :nth-child(3),
+.statsTable tr> :nth-child(4) {
     text-align: center;
     padding-inline: 0.90ch;
 }
 
-.statsTable tr> :nth-child(4) {
+.statsTable tr> :nth-child(5) {
     text-align: right;
     padding-inline: 1.60ch 0;
     min-width: 6ch;

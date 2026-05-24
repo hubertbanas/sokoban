@@ -23,25 +23,46 @@ function formatElapsedTime(timeMs: number): string {
 }
 
 export const PLAY_STATS_STORAGE_KEY = "sokoban-play-stats-visible";
+export const COMPLETION_STATS_STORAGE_KEY = "sokoban-completion-stats-visible";
 
-function parseStoredPlayStatsVisibility(value: string | null): boolean {
+function parseStoredStatsVisibility(value: string | null): boolean {
   return value === "true";
 }
 
-function getInitialPlayStatsVisibility(): boolean {
+function getStoredStatsVisibility(storageKey: string, fallbackStorageKey?: string): boolean {
   if (typeof window === "undefined") {
     return false;
   }
 
-  return parseStoredPlayStatsVisibility(window.localStorage.getItem(PLAY_STATS_STORAGE_KEY));
+  const storedValue = window.localStorage.getItem(storageKey);
+  if (storedValue !== null) {
+    return parseStoredStatsVisibility(storedValue);
+  }
+
+  if (!fallbackStorageKey) {
+    return false;
+  }
+
+  return parseStoredStatsVisibility(window.localStorage.getItem(fallbackStorageKey));
+}
+
+function getInitialPlayStatsVisibility(): boolean {
+  return getStoredStatsVisibility(PLAY_STATS_STORAGE_KEY);
+}
+
+function getInitialCompletionStatsVisibility(): boolean {
+  // Migrate users from the previous single-toggle behavior.
+  return getStoredStatsVisibility(COMPLETION_STATS_STORAGE_KEY, PLAY_STATS_STORAGE_KEY);
 }
 
 type StatsTableProps = {
   tableClassName: string;
   currentMoves: number;
+  currentPushes: number;
   currentTimeMs: number;
   currentUndos: number;
   bestMoves: number | null;
+  bestPushes: number | null;
   bestTimeMs: number | null;
   bestUndos: number | null;
 };
@@ -49,17 +70,21 @@ type StatsTableProps = {
 function StatsTable({
   tableClassName,
   currentMoves,
+  currentPushes,
   currentTimeMs,
   currentUndos,
   bestMoves,
+  bestPushes,
   bestTimeMs,
   bestUndos,
 }: StatsTableProps) {
   const { t } = useTranslation();
   const currentMoveValue = String(currentMoves);
+  const currentPushValue = String(currentPushes);
   const currentTimeValue = formatElapsedTime(currentTimeMs);
   const currentUndoValue = String(currentUndos);
   const bestMoveValue = bestMoves === null ? "--" : String(bestMoves);
+  const bestPushValue = bestPushes === null ? "--" : String(bestPushes);
   const bestTimeValue = bestTimeMs === null ? "--:--" : formatElapsedTime(bestTimeMs);
   const bestUndoValue = bestUndos === null ? "--" : String(bestUndos);
 
@@ -69,6 +94,7 @@ function StatsTable({
         <tr>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.run")}</th>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.moves")}</th>
+          <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.pushes")}</th>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.undos")}</th>
           <th className={style.statsHeaderCell} scope="col">{t("game.stats.header.time")}</th>
         </tr>
@@ -77,24 +103,28 @@ function StatsTable({
         <tr
           aria-label={t("game.stats.aria.current", {
             moves: currentMoveValue,
+            pushes: currentPushValue,
             undos: currentUndoValue,
             time: currentTimeValue,
           })}
         >
           <th className={style.statsRunCell} scope="row">{t("game.stats.run.current")}</th>
           <td className={style.statsValueCell}>{currentMoveValue}</td>
+          <td className={style.statsValueCell}>{currentPushValue}</td>
           <td className={style.statsValueCell}>{currentUndoValue}</td>
           <td className={style.statsValueCell}>{currentTimeValue}</td>
         </tr>
         <tr
           aria-label={t("game.stats.aria.best", {
             moves: bestMoveValue,
+            pushes: bestPushValue,
             undos: bestUndoValue,
             time: bestTimeValue,
           })}
         >
           <th className={style.statsRunCell} scope="row">{t("game.stats.run.best")}</th>
           <td className={style.statsValueCell}>{bestMoveValue}</td>
+          <td className={style.statsValueCell}>{bestPushValue}</td>
           <td className={style.statsValueCell}>{bestUndoValue}</td>
           <td className={style.statsValueCell}>{bestTimeValue}</td>
         </tr>
@@ -192,6 +222,7 @@ function Game() {
     level,
     levelPacks,
     moveCount,
+    pushCount,
     undoCount,
     elapsedTimeMs,
     completionMetrics,
@@ -228,6 +259,9 @@ function Game() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // Play statistics are optional HUD info; default off to keep the board area less noisy.
   const [showPlayStats, setShowPlayStats] = React.useState(getInitialPlayStatsVisibility);
+  const [showCompletionStats, setShowCompletionStats] = React.useState(
+    getInitialCompletionStatsVisibility
+  );
   const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
   const [isLevelSelectorOpen, setIsLevelSelectorOpen] = React.useState(false);
   const isAuxModalOpen = isHelpModalOpen || isMenuOpen || isLevelSelectorOpen;
@@ -239,6 +273,14 @@ function Game() {
 
     window.localStorage.setItem(PLAY_STATS_STORAGE_KEY, String(showPlayStats));
   }, [showPlayStats]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(COMPLETION_STATS_STORAGE_KEY, String(showCompletionStats));
+  }, [showCompletionStats]);
 
   type PendingAction =
     | { type: "restart" }
@@ -446,6 +488,7 @@ function Game() {
           levelId: level.levelId,
           puzzleId: level.puzzleId,
           moves: completionMetrics.moves,
+          pushes: completionMetrics.pushes,
           timeMs: completionMetrics.timeMs,
           undos: completionMetrics.undos,
         });
@@ -590,6 +633,7 @@ function Game() {
     levelBest.bestMovesInLevel !== null &&
     levelBest.bestTimeMsInLevel !== null;
   const levelBestMoves = hasLevelBestRecord ? levelBest.bestMovesInLevel : null;
+  const levelBestPushes = levelBest?.bestPushesInLevel ?? null;
   const levelBestTimeMs = hasLevelBestRecord ? levelBest.bestTimeMsInLevel : null;
   const levelBestUndos = levelBest?.bestUndosInLevel ?? null;
 
@@ -846,9 +890,11 @@ function Game() {
           <StatsTable
             tableClassName={style.bestStatsRow}
             currentMoves={moveCount}
+            currentPushes={pushCount}
             currentTimeMs={elapsedTimeMs}
             currentUndos={undoCount}
             bestMoves={levelBestMoves}
+            bestPushes={levelBestPushes}
             bestTimeMs={levelBestTimeMs}
             bestUndos={levelBestUndos}
           />
@@ -883,11 +929,13 @@ function Game() {
       <HamburgerMenu
         open={isMenuOpen}
         showPlayStats={showPlayStats}
+        showCompletionStats={showCompletionStats}
         muted={muted}
         volume={volume}
         onMutedChange={setMuted}
         onVolumeChange={setVolume}
         onShowPlayStatsChange={setShowPlayStats}
+        onShowCompletionStatsChange={setShowCompletionStats}
         onResetStats={onRequestResetStatsFromMenu}
         onClose={onCloseMenu}
         onOpenLevelSelector={onOpenLevelSelectorFromMenu}
@@ -968,14 +1016,16 @@ function Game() {
                 />
               </p>
             )}
-            {showPlayStats && (
+            {showCompletionStats && (
               <div className={style.completionStats} aria-label={t("game.playStats.runAndBestLabel")}>
                 <StatsTable
                   tableClassName={style.completionStatsRow}
                   currentMoves={moveCount}
+                  currentPushes={pushCount}
                   currentTimeMs={elapsedTimeMs}
                   currentUndos={undoCount}
                   bestMoves={levelBestMoves}
+                  bestPushes={levelBestPushes}
                   bestTimeMs={levelBestTimeMs}
                   bestUndos={levelBestUndos}
                 />

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fireEvent, render, screen, cleanup, act, within } from "@testing-library/react";
 import { vi, expect, test, beforeAll, beforeEach, afterEach } from "vitest";
-import Game, { PLAY_STATS_STORAGE_KEY } from "./Game";
+import Game, { COMPLETION_STATS_STORAGE_KEY, PLAY_STATS_STORAGE_KEY } from "./Game";
 import { Block } from "./hooks/levels";
 import { Direction, State, useSokoban, type MoveOutcome } from "./hooks/sokoban";
 import { useKeyBoard } from "./hooks/keyboard";
@@ -145,6 +145,7 @@ function mockSokoban(overrides: Partial<ReturnType<typeof useSokoban>> = {}) {
     level: buildLevel(),
     levelPacks: buildLevelPacks(),
     moveCount: 0,
+    pushCount: 0,
     undoCount: 0,
     elapsedTimeMs: 0,
     completionMetrics: null,
@@ -204,6 +205,23 @@ function setPlayStatsVisibility(enabled: boolean) {
 
   if (!(toggle instanceof HTMLInputElement)) {
     throw new Error("Expected play stats toggle to be an input element");
+  }
+
+  if (toggle.checked !== enabled) {
+    fireEvent.click(toggle);
+  }
+
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /close menu/i }));
+}
+
+function setCompletionStatsVisibility(enabled: boolean) {
+  fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+  const menuDialog = screen.getByRole("dialog", { name: /game menu/i });
+  fireEvent.click(within(menuDialog).getByRole("button", { name: /play stats/i }));
+  const toggle = within(menuDialog).getByRole("checkbox", { name: /completion stats/i });
+
+  if (!(toggle instanceof HTMLInputElement)) {
+    throw new Error("Expected completion stats toggle to be an input element");
   }
 
   if (toggle.checked !== enabled) {
@@ -581,6 +599,7 @@ test("restores play stats UI from persisted toggle state", () => {
   expect(screen.getByRole("region", { name: /play statistics/i })).toBeInTheDocument();
   expect(screen.getByText(/^Current$/)).toBeInTheDocument();
   expect(screen.getByText(/^Best$/)).toBeInTheDocument();
+  expect(screen.getByText(/^Pushes$/)).toBeInTheDocument();
   expect(screen.getByText(/^Undos$/)).toBeInTheDocument();
 });
 
@@ -607,6 +626,48 @@ test("persists play stats toggle state when changed", () => {
   expect(localStorage.getItem(PLAY_STATS_STORAGE_KEY)).toBe("false");
 });
 
+test("persists completion stats toggle state when changed", () => {
+  mockSokoban({ state: State.playing });
+
+  render(<Game />);
+
+  expect(localStorage.getItem(COMPLETION_STATS_STORAGE_KEY)).toBe("false");
+
+  setCompletionStatsVisibility(true);
+  expect(localStorage.getItem(COMPLETION_STATS_STORAGE_KEY)).toBe("true");
+
+  setCompletionStatsVisibility(false);
+  expect(localStorage.getItem(COMPLETION_STATS_STORAGE_KEY)).toBe("false");
+});
+
+test("restores completion stats from persisted completion toggle state", () => {
+  localStorage.setItem(COMPLETION_STATS_STORAGE_KEY, "true");
+  mockSokoban({ state: State.completed });
+
+  render(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText(/^Current$/)).toBeInTheDocument();
+  expect(within(completionDialog).getByText(/^Best$/)).toBeInTheDocument();
+});
+
+test("shows completion stats even when main stats UI is disabled", () => {
+  const level = buildLevel();
+  mockSokoban({ state: State.playing, level });
+
+  const { rerender } = render(<Game />);
+  setCompletionStatsVisibility(true);
+
+  expect(screen.queryByRole("region", { name: /play statistics/i })).not.toBeInTheDocument();
+
+  mockSokoban({ state: State.completed, level });
+  rerender(<Game />);
+
+  const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
+  expect(within(completionDialog).getByText(/^Current$/)).toBeInTheDocument();
+  expect(within(completionDialog).getByText(/^Best$/)).toBeInTheDocument();
+});
+
 test("keeps completion dialog play stats hidden when toggle is off", () => {
   const level = buildLevel();
   mockSokoban({ state: State.playing, level });
@@ -619,6 +680,7 @@ test("keeps completion dialog play stats hidden when toggle is off", () => {
   const completionDialog = screen.getByRole("dialog", { name: /level completed/i });
   expect(within(completionDialog).queryByText(/^Current$/)).not.toBeInTheDocument();
   expect(within(completionDialog).queryByText(/^Best$/)).not.toBeInTheDocument();
+  expect(within(completionDialog).queryByText(/^Pushes$/)).not.toBeInTheDocument();
   expect(within(completionDialog).queryByText(/^Undos$/)).not.toBeInTheDocument();
 });
 
@@ -635,8 +697,8 @@ test("renders current and best placeholders when play stats toggle is enabled", 
     throw new Error("Expected stats rows to be table rows");
   }
 
-  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Undos 0 Time 0:00");
-  expect(levelBest).toHaveAttribute("aria-label", "Best: Moves -- Undos -- Time --:--");
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Pushes 0 Undos 0 Time 0:00");
+  expect(levelBest).toHaveAttribute("aria-label", "Best: Moves -- Pushes -- Undos -- Time --:--");
 });
 
 test("hides both play stats lines after disabling the toggle", () => {
@@ -646,11 +708,13 @@ test("hides both play stats lines after disabling the toggle", () => {
   setPlayStatsVisibility(true);
   expect(screen.getByText(/^Current$/)).toBeInTheDocument();
   expect(screen.getByText(/^Best$/)).toBeInTheDocument();
+  expect(screen.getByText(/^Pushes$/)).toBeInTheDocument();
   expect(screen.getByText(/^Undos$/)).toBeInTheDocument();
 
   setPlayStatsVisibility(false);
   expect(screen.queryByText(/^Current$/)).not.toBeInTheDocument();
   expect(screen.queryByText(/^Best$/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/^Pushes$/)).not.toBeInTheDocument();
   expect(screen.queryByText(/^Undos$/)).not.toBeInTheDocument();
 });
 
@@ -658,6 +722,7 @@ test("renders realtime current run status from useSokoban", () => {
   mockSokoban({
     state: State.playing,
     moveCount: 12,
+    pushCount: 7,
     undoCount: 3,
     elapsedTimeMs: 74_500,
   });
@@ -670,7 +735,7 @@ test("renders realtime current run status from useSokoban", () => {
     throw new Error("Expected current run row to be a table row");
   }
 
-  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 12 Undos 3 Time 1:14");
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 12 Pushes 7 Undos 3 Time 1:14");
 });
 
 test("renders best row from useStats", () => {
@@ -689,6 +754,7 @@ test("renders best row from useStats", () => {
             lastPlayedAt: 1500,
             lastCompletedAt: 1600,
             bestMovesInLevel: 9,
+            bestPushesInLevel: 4,
             bestTimeMsInLevel: 13_000,
             bestUndosInLevel: 2,
           },
@@ -715,7 +781,7 @@ test("renders best row from useStats", () => {
     throw new Error("Expected best row to be a table row");
   }
 
-  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 9 Undos 2 Time 0:13");
+  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 9 Pushes 4 Undos 2 Time 0:13");
   expect(screen.queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
@@ -735,6 +801,7 @@ test("shows best row inside completion dialog", () => {
             lastPlayedAt: 1600,
             lastCompletedAt: 1700,
             bestMovesInLevel: 1,
+            bestPushesInLevel: 1,
             bestTimeMsInLevel: 2_000,
             bestUndosInLevel: 4,
           },
@@ -754,7 +821,7 @@ test("shows best row inside completion dialog", () => {
   mockSokoban({ state: State.playing, level });
 
   const { rerender } = render(<Game />);
-  setPlayStatsVisibility(true);
+  setCompletionStatsVisibility(true);
 
   mockSokoban({ state: State.completed, level });
   rerender(<Game />);
@@ -767,8 +834,8 @@ test("shows best row inside completion dialog", () => {
     throw new Error("Expected completion stats rows to be table rows");
   }
 
-  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Undos 0 Time 0:00");
-  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 1 Undos 4 Time 0:02");
+  expect(currentRun).toHaveAttribute("aria-label", "Current: Moves 0 Pushes 0 Undos 0 Time 0:00");
+  expect(levelBestLine).toHaveAttribute("aria-label", "Best: Moves 1 Pushes 1 Undos 4 Time 0:02");
   expect(within(completionDialog).queryByText(/^Puzzle Best:/)).not.toBeInTheDocument();
 });
 
@@ -1604,6 +1671,7 @@ test("saves completion metrics when state changes to completed", () => {
   const completedLevel = buildLevel();
   const completionMetrics = {
     moves: 12,
+    pushes: 5,
     timeMs: 3456,
     undos: 2,
   };
@@ -1621,6 +1689,7 @@ test("saves completion metrics when state changes to completed", () => {
     levelId: completedLevel.levelId,
     puzzleId: completedLevel.puzzleId,
     moves: completionMetrics.moves,
+    pushes: completionMetrics.pushes,
     timeMs: completionMetrics.timeMs,
     undos: completionMetrics.undos,
   });
@@ -1638,6 +1707,7 @@ test("saves completion metrics only once per completion transition", () => {
   const completedLevel = buildLevel();
   const completionMetrics = {
     moves: 7,
+    pushes: 3,
     timeMs: 1234,
     undos: 1,
   };

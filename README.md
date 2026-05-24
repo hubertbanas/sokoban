@@ -2,7 +2,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/hubertbanas/sokoban?display_name=tag&sort=semver)](https://github.com/hubertbanas/sokoban/releases/latest)
 
-Sokoban is a classic box-pushing puzzle game with 490 built-in levels.
+Sokoban is a classic box-pushing puzzle game with 493 built-in levels across six packs.
 
 Play in your browser: https://hubertbanas.github.io/sokoban/
 
@@ -31,16 +31,14 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 
 ## Statistics
 
-- The game UI can show play statistics via a single menu toggle.
-- `Menu -> Play Stats` is off by default to keep the HUD minimal.
+- The game UI can show statistics in two places via `Menu -> Play Stats`.
+- `Menu -> Play Stats -> While playing` toggles the compact table above the board.
+- `Menu -> Play Stats -> After finishing a level` toggles stats in the completion dialog.
+- Both visibility toggles are off by default to keep the HUD minimal.
 - `Menu -> Play Stats -> Reset Stats` opens a confirmation and then clears saved play statistics.
-- When enabled, the HUD shows:
-	- A compact table with `Current Run` and `Level Best` rows.
-	- Columns for `Moves`, `Undos`, and `Time`.
-- Internally, the stats model stores both `levelId` and `puzzleId` records:
-	- `levelId` is used for player-facing per-level progress and bests.
-	- `puzzleId` is retained for forward compatibility in case future packs reuse the same puzzle layout across different levels.
-- In the current bundled packs, puzzle layouts are unique, so level and puzzle records are effectively identical today.
+- When enabled, the stats table shows:
+	- `Current` and `Best` rows.
+	- Columns for `Moves`, `Pushes`, `Undos`, and `Time`.
 
 ## More Information
 

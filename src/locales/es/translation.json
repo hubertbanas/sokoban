@@ -36,6 +36,7 @@
             "header": {
                 "run": "Partida",
                 "moves": "Movimientos",
+                "pushes": "Empujes",
                 "undos": "Deshacer",
                 "time": "Tiempo"
             },
@@ -44,8 +45,8 @@
                 "best": "Mejor"
             },
             "aria": {
-                "current": "Actual: Movimientos {{moves}} Deshacer {{undos}} Tiempo {{time}}",
-                "best": "Mejor: Movimientos {{moves}} Deshacer {{undos}} Tiempo {{time}}"
+                "current": "Actual: Movimientos {{moves}} Empujes {{pushes}} Deshacer {{undos}} Tiempo {{time}}",
+                "best": "Mejor: Movimientos {{moves}} Empujes {{pushes}} Deshacer {{undos}} Tiempo {{time}}"
             }
         },
         "confirmation": {
@@ -68,7 +69,7 @@
             "resetStats": {
                 "title": "¿Restablecer estadísticas?",
                 "ariaLabel": "Confirmación para restablecer estadísticas",
-                "warning": "Al restablecer estadísticas se eliminarán de forma permanente tus movimientos, deshacer y tiempos guardados.",
+                "warning": "Al restablecer estadísticas se eliminarán de forma permanente tus movimientos, empujes, deshacer y tiempos guardados.",
                 "confirm": "Restablecer estadísticas"
             }
         },
@@ -102,8 +103,12 @@
         "playStats": {
             "title": "Estadísticas de juego",
             "visible": "Visible",
-            "enable": "Activar estadísticas de juego",
-            "disable": "Desactivar estadísticas de juego",
+            "visibleGameUi": "Durante la partida",
+            "visibleCompletionModal": "Después de completar un nivel",
+            "enable": "Mostrar estadísticas de juego",
+            "disable": "Ocultar estadísticas de juego",
+            "enableCompletion": "Mostrar estadísticas al completar",
+            "disableCompletion": "Ocultar estadísticas al completar",
             "reset": "Restablecer estadísticas"
         },
         "sfx": {
