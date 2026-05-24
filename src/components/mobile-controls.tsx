@@ -18,6 +18,8 @@ const STORAGE_KEY = "sokoban.mobile-controls.position";
 const EDGE_PADDING = 10;
 const FALLBACK_WIDTH = 168;
 const FALLBACK_HEIGHT = 220;
+const UNDO_GLYPH = "↶";
+const RESTART_GLYPH = "↻";
 
 function useHoldToRepeat(action: () => void, delay = 160, interval = 95) {
     const actionRef = React.useRef(action);
@@ -284,7 +286,9 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
                     className={style.mobileControlActionButton}
                     {...undoHandlers}
                 >
-                    {t("mobileControls.undo.label")}
+                    <span className={style.mobileControlActionGlyph} aria-hidden="true">
+                        {UNDO_GLYPH}
+                    </span>
                 </button>
                 <button
                     type="button"
@@ -293,7 +297,9 @@ function MobileControls({ onMove, onUndo, onRestart }: MobileControlsProps) {
                     onClick={onRestart}
                     onContextMenu={onRestartContextMenu}
                 >
-                    {t("mobileControls.restart.label")}
+                    <span className={style.mobileControlActionGlyph} aria-hidden="true">
+                        {RESTART_GLYPH}
+                    </span>
                 </button>
             </div>
 

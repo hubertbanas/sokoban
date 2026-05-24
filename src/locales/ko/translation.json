@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "터치 조작",
         "undo": {
-            "aria": "이동 되돌리기",
-            "label": "되돌리기"
+            "aria": "이동 되돌리기"
         },
         "restart": {
-            "aria": "레벨 다시 시작",
-            "label": "다시 시작"
+            "aria": "레벨 다시 시작"
         },
         "move": {
             "up": "위로 이동",

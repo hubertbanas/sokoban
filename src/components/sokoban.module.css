@@ -1237,13 +1237,21 @@
     color: var(--foreground);
     border-radius: 12px;
     padding: 8px 6px;
-    font-size: 0.72rem;
+    font-size: 1.2rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.mobileControlActionGlyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mobileControlActionButton:focus-visible {

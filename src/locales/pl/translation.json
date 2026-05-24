@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "Sterowanie dotykowe",
         "undo": {
-            "aria": "Cofnij ruch",
-            "label": "Cofnij"
+            "aria": "Cofnij ruch"
         },
         "restart": {
-            "aria": "Restartuj poziom",
-            "label": "Restartuj"
+            "aria": "Restartuj poziom"
         },
         "move": {
             "up": "Ruch w górę",

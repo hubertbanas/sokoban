@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "触控操作",
         "undo": {
-            "aria": "撤销一步",
-            "label": "撤销"
+            "aria": "撤销一步"
         },
         "restart": {
-            "aria": "重新开始本关",
-            "label": "重开"
+            "aria": "重新开始本关"
         },
         "move": {
             "up": "向上移动",

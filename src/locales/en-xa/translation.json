@@ -155,12 +155,10 @@
     "mobileControls": {
         "groupLabel": "[!! Touch controls !!]",
         "undo": {
-            "aria": "[!! Undo move !!]",
-            "label": "[!! Undo !!]"
+            "aria": "[!! Undo move !!]"
         },
         "restart": {
-            "aria": "[!! Restart level !!]",
-            "label": "[!! Restart !!]"
+            "aria": "[!! Restart level !!]"
         },
         "move": {
             "up": "[!! Move up !!]",
