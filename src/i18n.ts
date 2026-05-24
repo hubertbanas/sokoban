@@ -5,6 +5,14 @@ import enTranslation from "./locales/en/translation.json";
 import esTranslation from "./locales/es/translation.json";
 import frTranslation from "./locales/fr/translation.json";
 import plTranslation from "./locales/pl/translation.json";
+import ptBrTranslation from "./locales/pt-BR/translation.json";
+import deTranslation from "./locales/de/translation.json";
+import itTranslation from "./locales/it/translation.json";
+import zhCnTranslation from "./locales/zh-CN/translation.json";
+import jaTranslation from "./locales/ja/translation.json";
+import koTranslation from "./locales/ko/translation.json";
+import ruTranslation from "./locales/ru/translation.json";
+import ukTranslation from "./locales/uk/translation.json";
 import pseudoTranslation from "./locales/en-xa/translation.json";
 
 void i18n
@@ -24,12 +32,58 @@ void i18n
             fr: {
                 translation: frTranslation,
             },
+            "pt-BR": {
+                translation: ptBrTranslation,
+            },
+            pt: {
+                translation: ptBrTranslation,
+            },
+            de: {
+                translation: deTranslation,
+            },
+            it: {
+                translation: itTranslation,
+            },
+            "zh-CN": {
+                translation: zhCnTranslation,
+            },
+            zh: {
+                translation: zhCnTranslation,
+            },
+            ja: {
+                translation: jaTranslation,
+            },
+            ko: {
+                translation: koTranslation,
+            },
+            ru: {
+                translation: ruTranslation,
+            },
+            uk: {
+                translation: ukTranslation,
+            },
             "en-xa": {
                 translation: pseudoTranslation,
             },
         },
         fallbackLng: "en",
-        supportedLngs: ["en", "pl", "es", "fr", "en-xa"],
+        supportedLngs: [
+            "en",
+            "pl",
+            "es",
+            "fr",
+            "pt-BR",
+            "pt",
+            "de",
+            "it",
+            "zh-CN",
+            "zh",
+            "ja",
+            "ko",
+            "ru",
+            "uk",
+            "en-xa",
+        ],
         nonExplicitSupportedLngs: true,
         defaultNS: "translation",
         interpolation: {

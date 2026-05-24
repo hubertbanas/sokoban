@@ -1,0 +1,187 @@
+{
+    "common": {
+        "close": "Fechar",
+        "cancel": "Cancelar",
+        "continue": "Continuar",
+        "about": "Sobre",
+        "levelPacks": "Pacotes de níveis",
+        "playPack": "Jogar pacote",
+        "on": "Ligado",
+        "off": "Desligado",
+        "show": "Mostrar",
+        "hide": "Ocultar",
+        "version": "Versão {{version}}",
+        "language": "Idioma"
+    },
+    "game": {
+        "menu": {
+            "open": "Abrir menu",
+            "close": "Fechar menu"
+        },
+        "levelPicker": {
+            "label": "Seletor de nível",
+            "previous": "Nível anterior",
+            "next": "Próximo nível",
+            "openSelector": "Abrir seletor de níveis",
+            "fallbackPackName": "Níveis"
+        },
+        "playStats": {
+            "regionLabel": "Estatísticas de jogo",
+            "runAndBestLabel": "Partida atual e melhores resultados"
+        },
+        "board": {
+            "label": "Tabuleiro Sokoban"
+        },
+        "stats": {
+            "header": {
+                "run": "Partida",
+                "moves": "Movimentos",
+                "pushes": "Empurrões",
+                "undos": "Desfazer",
+                "time": "Tempo"
+            },
+            "run": {
+                "current": "Atual",
+                "best": "Melhor"
+            },
+            "aria": {
+                "current": "Atual: Movimentos {{moves}} Empurrões {{pushes}} Desfazer {{undos}} Tempo {{time}}",
+                "best": "Melhor: Movimentos {{moves}} Empurrões {{pushes}} Desfazer {{undos}} Tempo {{time}}"
+            }
+        },
+        "confirmation": {
+            "restart": {
+                "title": "Reiniciar nível?",
+                "ariaLabel": "Confirmação de reinício de nível",
+                "warning": "Reiniciar agora apagará seu progresso neste nível.",
+                "confirm": "Reiniciar nível"
+            },
+            "switch": {
+                "title": "Mudar de nível?",
+                "warning": "Mudar de nível agora apagará seu progresso neste nível.",
+                "previousAriaLabel": "Confirmação para ir ao nível anterior",
+                "previousConfirm": "Ir para o nível anterior",
+                "nextAriaLabel": "Confirmação para ir ao próximo nível",
+                "nextConfirm": "Ir para o próximo nível",
+                "selectedAriaLabel": "Confirmação para ir ao nível selecionado",
+                "selectedConfirm": "Ir para o nível selecionado"
+            },
+            "resetStats": {
+                "title": "Redefinir estatísticas?",
+                "ariaLabel": "Confirmação de redefinição de estatísticas",
+                "warning": "Redefinir estatísticas removerá permanentemente seus movimentos, empurrões, desfazer e tempos salvos.",
+                "confirm": "Redefinir estatísticas"
+            }
+        },
+        "completion": {
+            "ariaLabel": "Nível concluído",
+            "title": {
+                "congratulations": "Parabéns!",
+                "packComplete": "Pacote de níveis concluído!"
+            },
+            "message": {
+                "levelComplete": "Você concluiu este nível.",
+                "packComplete": "Você concluiu o último nível deste pacote.",
+                "packSwitch": "Mude para um pacote de níveis diferente no seletor de <levelPacks>Pacotes de níveis</levelPacks> ou pressione <continue>Continuar</continue> para voltar ao Nível 1 deste pacote."
+            }
+        }
+    },
+    "menu": {
+        "ariaLabel": "Menu do jogo",
+        "title": "Menu",
+        "theme": "Tema",
+        "language": {
+            "label": "Idioma",
+            "options": {
+                "en": "Inglês",
+                "pl": "Polonês",
+                "es": "Espanhol",
+                "fr": "Francês",
+                "pt-BR": "Português (Brasil)",
+                "de": "Alemão",
+                "it": "Italiano",
+                "zh-CN": "Chinês (simplificado)",
+                "ja": "Japonês",
+                "ko": "Coreano",
+                "ru": "Russo",
+                "uk": "Ucraniano",
+                "en-xa": "Pseudo (Teste)"
+            }
+        },
+        "playStats": {
+            "title": "Estatísticas de jogo",
+            "visible": "Visível",
+            "visibleGameUi": "Durante a partida",
+            "visibleCompletionModal": "Após concluir um nível",
+            "enable": "Mostrar estatísticas de jogo",
+            "disable": "Ocultar estatísticas de jogo",
+            "enableCompletion": "Mostrar estatísticas de conclusão",
+            "disableCompletion": "Ocultar estatísticas de conclusão",
+            "reset": "Redefinir estatísticas"
+        },
+        "sfx": {
+            "title": "Configurações de SFX",
+            "mute": "Silenciar SFX",
+            "volume": "Volume",
+            "volumeAria": "Volume de SFX"
+        }
+    },
+    "help": {
+        "title": "Sobre",
+        "ariaLabel": "Sobre o Sokoban",
+        "sections": {
+            "projectLinks": "Links do projeto",
+            "controls": "Controles"
+        },
+        "builtWithTitle": "Feito com",
+        "builtWithText": "React, TypeScript e Vite.",
+        "projectTitle": "Projeto",
+        "controlsTitle": "Controles",
+        "controlLabels": {
+            "moveUp": "Mover para cima",
+            "moveLeftRight": "Mover para esquerda / direita",
+            "moveDown": "Mover para baixo",
+            "undo": "Desfazer",
+            "restartLevel": "Reiniciar nível",
+            "previousNextLevel": "Nível anterior / próximo"
+        }
+    },
+    "levelSelector": {
+        "title": "Pacotes de níveis",
+        "ariaLabel": "Seletor de pacotes de níveis",
+        "meta": "{{count}} níveis disponíveis",
+        "playPack": "Jogar pacote"
+    },
+    "mobileControls": {
+        "groupLabel": "Controles por toque",
+        "undo": {
+            "aria": "Desfazer movimento",
+            "label": "Desfazer"
+        },
+        "restart": {
+            "aria": "Reiniciar nível",
+            "label": "Reiniciar"
+        },
+        "move": {
+            "up": "Mover para cima",
+            "left": "Mover para esquerda",
+            "right": "Mover para direita",
+            "down": "Mover para baixo"
+        },
+        "handle": {
+            "aria": "Arraste para mover os controles",
+            "title": "Arraste para reposicionar. Toque duas vezes para redefinir.",
+            "screenReader": "Reposicionar controles"
+        },
+        "buttonGlyphs": {
+            "up": "U",
+            "left": "L",
+            "right": "R",
+            "down": "D"
+        }
+    },
+    "theme": {
+        "switchToLight": "Alternar para modo claro",
+        "switchToDark": "Alternar para modo escuro"
+    }
+}

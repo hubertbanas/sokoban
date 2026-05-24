@@ -1,0 +1,187 @@
+{
+    "common": {
+        "close": "Schließen",
+        "cancel": "Abbrechen",
+        "continue": "Weiter",
+        "about": "Über",
+        "levelPacks": "Levelpakete",
+        "playPack": "Paket spielen",
+        "on": "Ein",
+        "off": "Aus",
+        "show": "Anzeigen",
+        "hide": "Ausblenden",
+        "version": "Version {{version}}",
+        "language": "Sprache"
+    },
+    "game": {
+        "menu": {
+            "open": "Menü öffnen",
+            "close": "Menü schließen"
+        },
+        "levelPicker": {
+            "label": "Levelauswahl",
+            "previous": "Vorheriges Level",
+            "next": "Nächstes Level",
+            "openSelector": "Levelauswahl öffnen",
+            "fallbackPackName": "Level"
+        },
+        "playStats": {
+            "regionLabel": "Spielstatistik",
+            "runAndBestLabel": "Aktueller Durchlauf und Bestwerte"
+        },
+        "board": {
+            "label": "Sokoban-Spielfeld"
+        },
+        "stats": {
+            "header": {
+                "run": "Durchlauf",
+                "moves": "Züge",
+                "pushes": "Schübe",
+                "undos": "Rückgängig",
+                "time": "Zeit"
+            },
+            "run": {
+                "current": "Aktuell",
+                "best": "Beste"
+            },
+            "aria": {
+                "current": "Aktuell: Züge {{moves}} Schübe {{pushes}} Rückgängig {{undos}} Zeit {{time}}",
+                "best": "Beste: Züge {{moves}} Schübe {{pushes}} Rückgängig {{undos}} Zeit {{time}}"
+            }
+        },
+        "confirmation": {
+            "restart": {
+                "title": "Level neu starten?",
+                "ariaLabel": "Bestätigung zum Neustart des Levels",
+                "warning": "Ein Neustart löscht deinen Fortschritt in diesem Level.",
+                "confirm": "Level neu starten"
+            },
+            "switch": {
+                "title": "Level wechseln?",
+                "warning": "Ein Wechsel löscht deinen Fortschritt in diesem Level.",
+                "previousAriaLabel": "Bestätigung zum Wechsel zum vorherigen Level",
+                "previousConfirm": "Zum vorherigen Level",
+                "nextAriaLabel": "Bestätigung zum Wechsel zum nächsten Level",
+                "nextConfirm": "Zum nächsten Level",
+                "selectedAriaLabel": "Bestätigung zum Wechsel zum ausgewählten Level",
+                "selectedConfirm": "Zum ausgewählten Level"
+            },
+            "resetStats": {
+                "title": "Statistiken zurücksetzen?",
+                "ariaLabel": "Bestätigung zum Zurücksetzen der Statistiken",
+                "warning": "Beim Zurücksetzen werden gespeicherte Züge, Schübe, Rückgängig-Aktionen und Zeiten dauerhaft gelöscht.",
+                "confirm": "Statistiken zurücksetzen"
+            }
+        },
+        "completion": {
+            "ariaLabel": "Level abgeschlossen",
+            "title": {
+                "congratulations": "Glückwunsch!",
+                "packComplete": "Levelpaket abgeschlossen!"
+            },
+            "message": {
+                "levelComplete": "Du hast dieses Level abgeschlossen.",
+                "packComplete": "Du hast das letzte Level in diesem Paket abgeschlossen.",
+                "packSwitch": "Wechsle im <levelPacks>Levelpakete</levelPacks>-Auswahlmenü zu einem anderen Paket oder drücke <continue>Weiter</continue>, um zu Level 1 dieses Pakets zurückzukehren."
+            }
+        }
+    },
+    "menu": {
+        "ariaLabel": "Spielmenü",
+        "title": "Menü",
+        "theme": "Thema",
+        "language": {
+            "label": "Sprache",
+            "options": {
+                "en": "Englisch",
+                "pl": "Polnisch",
+                "es": "Spanisch",
+                "fr": "Französisch",
+                "pt-BR": "Portugiesisch (Brasilien)",
+                "de": "Deutsch",
+                "it": "Italienisch",
+                "zh-CN": "Chinesisch (Vereinfacht)",
+                "ja": "Japanisch",
+                "ko": "Koreanisch",
+                "ru": "Russisch",
+                "uk": "Ukrainisch",
+                "en-xa": "Pseudo (Test)"
+            }
+        },
+        "playStats": {
+            "title": "Spielstatistik",
+            "visible": "Sichtbar",
+            "visibleGameUi": "Während des Spiels",
+            "visibleCompletionModal": "Nach Abschluss eines Levels",
+            "enable": "Spielstatistik anzeigen",
+            "disable": "Spielstatistik ausblenden",
+            "enableCompletion": "Abschlussstatistik anzeigen",
+            "disableCompletion": "Abschlussstatistik ausblenden",
+            "reset": "Statistiken zurücksetzen"
+        },
+        "sfx": {
+            "title": "SFX-Einstellungen",
+            "mute": "SFX stummschalten",
+            "volume": "Lautstärke",
+            "volumeAria": "SFX-Lautstärke"
+        }
+    },
+    "help": {
+        "title": "Über",
+        "ariaLabel": "Über Sokoban",
+        "sections": {
+            "projectLinks": "Projektlinks",
+            "controls": "Steuerung"
+        },
+        "builtWithTitle": "Erstellt mit",
+        "builtWithText": "React, TypeScript und Vite.",
+        "projectTitle": "Projekt",
+        "controlsTitle": "Steuerung",
+        "controlLabels": {
+            "moveUp": "Nach oben bewegen",
+            "moveLeftRight": "Nach links / rechts bewegen",
+            "moveDown": "Nach unten bewegen",
+            "undo": "Rückgängig",
+            "restartLevel": "Level neu starten",
+            "previousNextLevel": "Vorheriges / Nächstes Level"
+        }
+    },
+    "levelSelector": {
+        "title": "Levelpakete",
+        "ariaLabel": "Auswahl für Levelpakete",
+        "meta": "{{count}} verfügbare Level",
+        "playPack": "Paket spielen"
+    },
+    "mobileControls": {
+        "groupLabel": "Touch-Steuerung",
+        "undo": {
+            "aria": "Zug rückgängig machen",
+            "label": "Rückgängig"
+        },
+        "restart": {
+            "aria": "Level neu starten",
+            "label": "Neustart"
+        },
+        "move": {
+            "up": "Nach oben bewegen",
+            "left": "Nach links bewegen",
+            "right": "Nach rechts bewegen",
+            "down": "Nach unten bewegen"
+        },
+        "handle": {
+            "aria": "Ziehen, um die Steuerung zu bewegen",
+            "title": "Ziehen zum Positionieren. Doppeltippen zum Zurücksetzen.",
+            "screenReader": "Steuerung neu positionieren"
+        },
+        "buttonGlyphs": {
+            "up": "U",
+            "left": "L",
+            "right": "R",
+            "down": "D"
+        }
+    },
+    "theme": {
+        "switchToLight": "Zum hellen Modus wechseln",
+        "switchToDark": "Zum dunklen Modus wechseln"
+    }
+}
