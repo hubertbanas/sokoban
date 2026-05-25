@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.18.0-rc.3] - 2026-05-25
+
+### Added
+- Touch Control Glyphs: Replaced text labels on mobile "Undo" and "Restart" buttons with intuitive, language-agnostic glyphs (↶ and ↻) to streamline the mobile interface.
+
+### Changed
+- UI Styling: Increased touch control button sizes and optimized padding for improved visibility and interaction accuracy on mobile devices.
+- Localization Optimization: Removed redundant text labels for touch control actions from all language files, relying solely on established ARIA labels for accessibility. This keeps the mobile interface clean across all supported languages.
+
 ## [1.18.0-rc.2] - 2026-05-24
 
 ### Added
