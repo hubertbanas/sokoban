@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.18.0] - 2026-05-26
+
+### Added
+- Internationalization (i18n) Engine: Implemented a highly scalable translation architecture utilizing `i18next` and `react-i18next`.
+- Global Language Support: Added complete localization for 12 languages: English, Polish, Spanish, French, Brazilian Portuguese, German, Italian, Simplified Chinese, Japanese, Korean, Russian, and Ukrainian.
+- Push Tracking Metric: The game now actively tracks crate "Pushes" as a distinct gameplay metric separate from general moves, saving all-time best push records to local storage.
+- Granular Stats Toggles: Segmented the statistics visibility settings into two independent toggles, allowing players to customize whether stats appear "While playing" (HUD), "After finishing a level" (Completion Modal), or both.
+- Touch Control Glyphs: Replaced text labels on mobile "Undo" and "Restart" buttons with intuitive, language-agnostic glyphs (↶ and ↻) to streamline the mobile interface.
+
+### Changed
+- Level Pack Architecture: Migrated to dynamic level loading, replacing the flat global index with segmented `packId` progression boundaries. Added a dedicated 3-level Tutorial pack designed to onboard new players, set as the default starting sequence. Introduced an interactive `LevelSelectorModal` allowing players to seamlessly browse and transition between different level packs.
+- Stats UI Overhaul: Completely refactored the statistics display to utilize semantic HTML `<table>` elements. It now leverages tabular number spacing and specific column alignments to ensure the layout remains perfectly aligned regardless of how drastically translation text lengths expand.
+- Menu Settings UI: Replaced text-based "On/Off" toggle labels in the Hamburger menu with intuitive, language-agnostic SVG power symbols for improved global accessibility.
+- Mobile UI Styling: Increased touch control button sizes and optimized padding for improved visibility and interaction accuracy on mobile devices.
+- Settings Migration: Implemented a smooth fallback mechanism in local storage to automatically migrate older player settings to the new dual-toggle stats architecture.
+- Documentation: Updated `README.md` and `development.md` to thoroughly document the new localization standards, UI toggles, and performance tracking metrics.
+- Localization Optimization: Removed redundant text labels for touch control actions from all language files, relying solely on established ARIA labels for accessibility. This keeps the mobile interface clean across all supported languages.
+
+### Fixed
+- Dark Mode Dropdowns: Forced a light color scheme specifically on the `<select>` element to prevent a known rendering bug on certain Linux desktop environments where native popup menus become unreadable in dark mode.
+- Production Safeguards: Configured environment-aware rendering to cleanly strip the `en-xa` developer pseudo-locale from production builds, including a self-healing `useEffect` to reset the language if a development toggle accidentally bleeds into a production state.
+
+### Maintenance
+- Dependency Updates: Updated all non-major dependencies via Renovate, including updates to Vite (v8.0.14), Vitest (v4.1.7), and Capacitor.
+- Persistence Migration: Migrated local storage progression keys to `sokoban.level-id.v1`.
+
 ## [1.18.0-rc.3] - 2026-05-25
 
 ### Added
