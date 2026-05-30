@@ -1,4 +1,4 @@
-name: Build and Publish Android APK
+name: Build and Publish Android Artifacts
 
 on:
   workflow_call:
@@ -29,6 +29,7 @@ on:
 
 jobs:
   build-and-publish:
+    name: Build and Publish Android Artifacts
     runs-on: ubuntu-latest
     permissions:
       contents: write
