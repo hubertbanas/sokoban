@@ -19,8 +19,9 @@ Click the [**Latest Release**](https://github.com/hubertbanas/sokoban/releases/l
 | **Mac (Apple Silicon)** | `Sokoban-<version>-arm64.dmg` |
 | **Mac (Intel)** | `Sokoban-<version>-x64.dmg` |
 | **Android** | `Sokoban-<version>.apk` |
+| **iOS Simulator (macOS)** | `Sokoban-<version>-ios-simulator.zip` |
 
-*(Note: Power users can find portable `.exe` files and native Linux packages like `.deb`, `.rpm`, and `.flatpak` in the full assets list).*
+*(Note: The iOS Simulator asset works only in Xcode Simulator on macOS and cannot be installed on a physical iPhone. Power users can find portable `.exe` files and native Linux packages like `.deb`, `.rpm`, and `.flatpak` in the full assets list).*
 
 ## Quick Controls
 

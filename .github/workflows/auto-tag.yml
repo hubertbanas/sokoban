@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   create-tag:
+    name: Create Tag and Release
     runs-on: ubuntu-latest
     permissions:
       contents: write # Grants the action permission to push tags and create releases
@@ -175,6 +176,7 @@ jobs:
   # Publish targets for a newly created release tag.
   # Add more publish jobs here (for example Docker Hub, ECR, or ACR).
   publish-ghcr:
+    name: Publish Container Image
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true'
     permissions:
@@ -189,6 +191,7 @@ jobs:
   # Deployment targets for a newly created release tag.
   # Add more deploy jobs here (for example Netlify, Cloudflare Pages, or S3/CDN).
   deploy-github-pages:
+    name: Deploy GitHub Pages
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true' && needs.create-tag.outputs.is_prerelease == 'false'
     permissions:
@@ -201,6 +204,7 @@ jobs:
     secrets: inherit
 
   publish-desktop:
+    name: Publish Desktop Artifacts
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true'
     permissions:
@@ -211,11 +215,23 @@ jobs:
     secrets: inherit
 
   publish-android:
+    name: Publish Android Artifacts
     needs: create-tag
     if: needs.create-tag.outputs.tag_created == 'true'
     permissions:
       contents: write
     uses: ./.github/workflows/publish-android.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.current_version }}
+    secrets: inherit
+
+  publish-ios:
+    name: Publish iOS Simulator Artifact
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-ios.yml
     with:
       tag: ${{ needs.create-tag.outputs.current_version }}
     secrets: inherit

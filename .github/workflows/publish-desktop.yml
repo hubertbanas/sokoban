@@ -21,6 +21,7 @@ on:
 
 jobs:
   build-and-publish:
+    name: Build and Publish Desktop Artifacts
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write

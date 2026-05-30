@@ -201,6 +201,7 @@ All builds are containerized for reproducibility. Use `--help` for advanced opti
 - `publish-ghcr.yml`: Reusable GHCR publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; also supports manual dispatch.
 - `publish-desktop.yml`: Reusable desktop packaging workflow (`workflow_call`) invoked by `auto-tag.yml`; builds and publishes desktop release assets with `.sha256` checksums and `.asc` detached signatures.
 - `publish-android.yml`: Reusable Android publish workflow (`workflow_call`) invoked by `auto-tag.yml`; builds signed Android release artifacts (`.apk` and `.aab`) and publishes them with `.sha256` checksums and `.asc` detached signatures.
+- `publish-ios.yml`: Reusable iOS publishing workflow (`workflow_call`) invoked by `auto-tag.yml`; builds an unsigned iOS Simulator `.app` bundle, packages it as a `.zip`, and publishes it with `.sha256` checksums and `.asc` detached signatures.
 - `codeql-analysis.yml`: Static security analysis.
 
 Docs-only changes (for example README edits) do not create release tags, so they do not trigger Docker publish or Pages deployment.
@@ -216,6 +217,11 @@ Docs-only changes (for example README edits) do not create release tags, so they
 - `ANDROID_KEY_ALIAS`: Keystore key alias.
 - `ANDROID_KEYSTORE_PASSWORD`: Keystore password.
 - `ANDROID_KEY_PASSWORD`: Key password.
+
+### CI Secrets (iOS Simulator Publish)
+
+- No Apple certificates or provisioning-profile secrets are required because the iOS artifact is a Simulator build.
+- The workflow reuses release-signing secrets (`RELEASE_GPG_PRIVATE_KEY`, optional `RELEASE_GPG_PASSPHRASE`) for `.zip` and checksum signatures.
 
 Release note extraction expects changelog headings in this format:
 
@@ -284,6 +290,15 @@ gpg --verify "$APK.asc" "$APK"
 sha256sum -c "$AAB.sha256"
 gpg --verify "$AAB.sha256.asc" "$AAB.sha256"
 gpg --verify "$AAB.asc" "$AAB"
+```
+
+iOS Simulator (unsigned bundle):
+
+```bash
+ASSET="Sokoban-<version>-ios-simulator.zip"
+shasum -a 256 -c "$ASSET.sha256"
+gpg --verify "$ASSET.sha256.asc" "$ASSET.sha256"
+gpg --verify "$ASSET.asc" "$ASSET"
 ```
 
 Signed source archive:
