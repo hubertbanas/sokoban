@@ -45,8 +45,8 @@
                 "best": "Meilleure"
             },
             "aria": {
-                "current": "Actuelle: Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}",
-                "best": "Meilleure: Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}"
+                "current": "Actuelle : Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}",
+                "best": "Meilleure : Mouvements {{moves}} Poussées {{pushes}} Annulations {{undos}} Temps {{time}}"
             }
         },
         "confirmation": {
