@@ -82,7 +82,7 @@
             "message": {
                 "levelComplete": "このレベルをクリアしました。",
                 "packComplete": "このパックの最後のレベルをクリアしました。",
-                "packSwitch": "<levelPacks>レベルパック</levelPacks>セレクターで別のパックに切り替えるか、<continue>続ける</continue>を押してこのパックのレベル 1 に戻ってください。"
+                "packSwitch": "<levelPacks>レベルパック</levelPacks> セレクターで別のパックに切り替えるか、<continue>続ける</continue>を押してこのパックのレベル 1 に戻ってください。"
             }
         }
     },
