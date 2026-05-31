@@ -47,6 +47,11 @@ The game UI is currently available in:
 - Russian (`ru`)
 - Ukrainian (`uk`)
 
+## Translations
+
+Translations for this project are hosted by [Weblate](https://weblate.org/).
+If you would like to help translate Sokoban into your language, please visit the [Sokoban Weblate project](https://hosted.weblate.org/projects/sokoban/).
+
 ## Statistics
 
 - The game UI can show statistics in two places via `Menu -> Play Stats`.
