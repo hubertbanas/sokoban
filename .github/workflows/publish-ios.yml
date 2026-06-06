@@ -61,21 +61,50 @@ jobs:
 
                   npx cap sync ios
 
+                  if [ ! -d ios/App/App.xcodeproj ]; then
+                    echo "Expected Xcode project not found at ios/App/App.xcodeproj"
+                    echo "Available iOS files:"
+                    find ios/App -maxdepth 2 -type d | sort || true
+                    exit 1
+                  fi
+
             - name: Build unsigned iOS app for Simulator
               run: |
+
                   set -euo pipefail
 
-                  xcodebuild \
-                    -workspace ios/App/App.xcworkspace \
-                    -scheme App \
-                    -configuration Debug \
-                    -destination 'generic/platform=iOS Simulator' \
-                    -derivedDataPath "$DERIVED_DATA_DIR" \
-                    CODE_SIGN_IDENTITY="" \
-                    CODE_SIGNING_REQUIRED=NO \
-                    CODE_SIGNING_ALLOWED=NO \
-                    COMPILER_INDEX_STORE_ENABLE=NO \
-                    build
+                  if [ -d ios/App/App.xcworkspace ]; then
+                    echo "Using Xcode workspace"
+                    xcodebuild \
+                      -workspace ios/App/App.xcworkspace \
+                      -scheme App \
+                      -configuration Debug \
+                      -destination 'generic/platform=iOS Simulator' \
+                      -derivedDataPath "$DERIVED_DATA_DIR" \
+                      CODE_SIGN_IDENTITY="" \
+                      CODE_SIGNING_REQUIRED=NO \
+                      CODE_SIGNING_ALLOWED=NO \
+                      COMPILER_INDEX_STORE_ENABLE=NO \
+                      build
+                  elif [ -d ios/App/App.xcodeproj ]; then
+                    echo "Using Xcode project"
+                    xcodebuild \
+                      -project ios/App/App.xcodeproj \
+                      -scheme App \
+                      -configuration Debug \
+                      -destination 'generic/platform=iOS Simulator' \
+                      -derivedDataPath "$DERIVED_DATA_DIR" \
+                      CODE_SIGN_IDENTITY="" \
+                      CODE_SIGNING_REQUIRED=NO \
+                      CODE_SIGNING_ALLOWED=NO \
+                      COMPILER_INDEX_STORE_ENABLE=NO \
+                      build
+                  else
+                    echo "Neither ios/App/App.xcworkspace nor ios/App/App.xcodeproj exists"
+                    echo "Available iOS files:"
+                    find ios/App -maxdepth 2 -type d | sort || true
+                    exit 1
+                  fi
 
             - name: Package iOS Simulator app bundle
               run: |
