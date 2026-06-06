@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0-rc.2] - 2026-06-06
+
+### CI/CD
+- Enhance iOS Simulator build process to dynamically detect project structure.
+- Add conditional checks to execute builds using either `.xcworkspace` or `.xcodeproj` depending on the Capacitor version structure.
+- Improve error handling and logging to output directory contents if expected Xcode project files are missing.
+
 ## [1.19.0-rc.1] - 2026-06-06
 
 ### Features
