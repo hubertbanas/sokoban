@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.19.0-rc.1] - 2026-06-06
+
+### Features
+- Enhance CI workflows with iOS Simulator publishing support and improve job naming (#164)
+- Add translations section with Weblate information to README (#165)
+
+### Translations
+- Update Polish, Japanese, and French translations from Hosted Weblate (#166)
+
+### Dependencies
+- Update all non-major dependencies (#163, #167)
+
 ## [1.18.0] - 2026-05-26
 
 ### Added
