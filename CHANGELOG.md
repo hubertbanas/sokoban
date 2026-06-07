@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.19.0] - 2026-06-07
+
+### Features & CI
+- Enhance CI workflows with an iOS publishing workflow for building and packaging iOS Simulator artifacts (#164)
+- Enhance the iOS Simulator build process to dynamically detect whether an Xcode workspace or project exists before building, improving error handling (#170)
+- Improve existing CI workflow job names for clarity (#164)
+
+### Documentation
+- Add a translations section to the README with Weblate project information (#165)
+- Update the README and development documentation to reflect the new iOS Simulator support (#164)
+
+### Translations
+- Update Polish, Japanese, and French translations from Hosted Weblate (#166)
+
+### Dependencies
+- Add `@capacitor/ios` dependency to support iOS builds (#164)
+- Update all non-major dependencies (#163, #167)
+
 ## [1.19.0-rc.2] - 2026-06-06
 
 ### CI/CD
