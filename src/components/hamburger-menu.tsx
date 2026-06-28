@@ -9,6 +9,7 @@ const BASE_SELECTABLE_LANGUAGES = [
     "es",
     "fr",
     "pt-BR",
+    "pt",
     "de",
     "it",
     "zh-CN",

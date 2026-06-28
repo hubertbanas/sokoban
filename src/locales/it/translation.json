@@ -1,185 +1,186 @@
 {
-    "common": {
-        "close": "Chiudi",
-        "cancel": "Annulla",
-        "continue": "Continua",
-        "about": "Informazioni",
-        "levelPacks": "Pacchetti livelli",
-        "playPack": "Gioca pacchetto",
-        "on": "Attivo",
-        "off": "Disattivo",
-        "show": "Mostra",
-        "hide": "Nascondi",
-        "version": "Versione {{version}}",
-        "language": "Lingua"
-    },
-    "game": {
-        "menu": {
-            "open": "Apri menu",
-            "close": "Chiudi menu"
-        },
-        "levelPicker": {
-            "label": "Selettore livello",
-            "previous": "Livello precedente",
-            "next": "Livello successivo",
-            "openSelector": "Apri selettore livelli",
-            "fallbackPackName": "Livelli"
-        },
-        "playStats": {
-            "regionLabel": "Statistiche di gioco",
-            "runAndBestLabel": "Partita corrente e migliori risultati"
-        },
-        "board": {
-            "label": "Tabellone di Sokoban"
-        },
-        "stats": {
-            "header": {
-                "run": "Partita",
-                "moves": "Mosse",
-                "pushes": "Spinte",
-                "undos": "Annullamenti",
-                "time": "Tempo"
-            },
-            "run": {
-                "current": "Corrente",
-                "best": "Migliore"
-            },
-            "aria": {
-                "current": "Corrente: Mosse {{moves}} Spinte {{pushes}} Annullamenti {{undos}} Tempo {{time}}",
-                "best": "Migliore: Mosse {{moves}} Spinte {{pushes}} Annullamenti {{undos}} Tempo {{time}}"
-            }
-        },
-        "confirmation": {
-            "restart": {
-                "title": "Riavviare il livello?",
-                "ariaLabel": "Conferma riavvio livello",
-                "warning": "Riavviare ora cancellerà i tuoi progressi in questo livello.",
-                "confirm": "Riavvia livello"
-            },
-            "switch": {
-                "title": "Cambiare livello?",
-                "warning": "Cambiare livello ora cancellerà i tuoi progressi in questo livello.",
-                "previousAriaLabel": "Conferma passaggio al livello precedente",
-                "previousConfirm": "Vai al livello precedente",
-                "nextAriaLabel": "Conferma passaggio al livello successivo",
-                "nextConfirm": "Vai al livello successivo",
-                "selectedAriaLabel": "Conferma passaggio al livello selezionato",
-                "selectedConfirm": "Vai al livello selezionato"
-            },
-            "resetStats": {
-                "title": "Reimpostare le statistiche?",
-                "ariaLabel": "Conferma reimpostazione statistiche",
-                "warning": "La reimpostazione rimuoverà definitivamente mosse, spinte, annullamenti e tempi salvati.",
-                "confirm": "Reimposta statistiche"
-            }
-        },
-        "completion": {
-            "ariaLabel": "Livello completato",
-            "title": {
-                "congratulations": "Complimenti!",
-                "packComplete": "Pacchetto livelli completato!"
-            },
-            "message": {
-                "levelComplete": "Hai completato questo livello.",
-                "packComplete": "Hai completato l'ultimo livello di questo pacchetto.",
-                "packSwitch": "Passa a un altro pacchetto livelli dal selettore <levelPacks>Pacchetti livelli</levelPacks>, oppure premi <continue>Continua</continue> per tornare al Livello 1 di questo pacchetto."
-            }
-        }
-    },
+  "common": {
+    "close": "Chiudi",
+    "cancel": "Annulla",
+    "continue": "Continua",
+    "about": "Informazioni",
+    "levelPacks": "Pacchetti livelli",
+    "playPack": "Gioca pacchetto",
+    "on": "Attivo",
+    "off": "Disattivo",
+    "show": "Mostra",
+    "hide": "Nascondi",
+    "version": "Versione {{version}}",
+    "language": "Lingua"
+  },
+  "game": {
     "menu": {
-        "ariaLabel": "Menu di gioco",
-        "title": "Menu",
-        "theme": "Tema",
-        "language": {
-            "label": "Lingua",
-            "options": {
-                "en": "Inglese",
-                "pl": "Polacco",
-                "es": "Spagnolo",
-                "fr": "Francese",
-                "pt-BR": "Portoghese (Brasile)",
-                "de": "Tedesco",
-                "it": "Italiano",
-                "zh-CN": "Cinese (semplificato)",
-                "ja": "Giapponese",
-                "ko": "Coreano",
-                "ru": "Russo",
-                "uk": "Ucraino",
-                "en-xa": "Pseudo (Test)"
-            }
-        },
-        "playStats": {
-            "title": "Statistiche di gioco",
-            "visible": "Visibile",
-            "visibleGameUi": "Durante il gioco",
-            "visibleCompletionModal": "Dopo aver completato un livello",
-            "enable": "Mostra statistiche di gioco",
-            "disable": "Nascondi statistiche di gioco",
-            "enableCompletion": "Mostra statistiche di completamento",
-            "disableCompletion": "Nascondi statistiche di completamento",
-            "reset": "Reimposta statistiche"
-        },
-        "sfx": {
-            "title": "Impostazioni SFX",
-            "mute": "Disattiva SFX",
-            "volume": "Volume",
-            "volumeAria": "Volume SFX"
-        }
+      "open": "Apri menu",
+      "close": "Chiudi menu"
     },
-    "help": {
-        "title": "Informazioni",
-        "ariaLabel": "Informazioni su Sokoban",
-        "sections": {
-            "projectLinks": "Link del progetto",
-            "controls": "Comandi"
-        },
-        "builtWithTitle": "Realizzato con",
-        "builtWithText": "React, TypeScript e Vite.",
-        "projectTitle": "Progetto",
-        "controlsTitle": "Comandi",
-        "controlLabels": {
-            "moveUp": "Muovi su",
-            "moveLeftRight": "Muovi a sinistra / destra",
-            "moveDown": "Muovi giù",
-            "undo": "Annulla",
-            "restartLevel": "Riavvia livello",
-            "previousNextLevel": "Livello precedente / successivo"
-        }
+    "levelPicker": {
+      "label": "Selettore livello",
+      "previous": "Livello precedente",
+      "next": "Livello successivo",
+      "openSelector": "Apri selettore livelli",
+      "fallbackPackName": "Livelli"
     },
-    "levelSelector": {
-        "title": "Pacchetti livelli",
-        "ariaLabel": "Selettore pacchetti livelli",
-        "meta": "{{count}} livelli disponibili",
-        "playPack": "Gioca pacchetto"
+    "playStats": {
+      "regionLabel": "Statistiche di gioco",
+      "runAndBestLabel": "Partita corrente e migliori risultati"
     },
-    "mobileControls": {
-        "groupLabel": "Controlli touch",
-        "undo": {
-            "aria": "Annulla mossa"
-        },
-        "restart": {
-            "aria": "Riavvia livello"
-        },
-        "move": {
-            "up": "Muovi su",
-            "left": "Muovi a sinistra",
-            "right": "Muovi a destra",
-            "down": "Muovi giù"
-        },
-        "handle": {
-            "aria": "Trascina per spostare i controlli",
-            "title": "Trascina per riposizionare. Tocca due volte per ripristinare.",
-            "screenReader": "Riposiziona controlli"
-        },
-        "buttonGlyphs": {
-            "up": "U",
-            "left": "L",
-            "right": "R",
-            "down": "D"
-        }
+    "board": {
+      "label": "Tabellone di Sokoban"
     },
-    "theme": {
-        "switchToLight": "Passa alla modalità chiara",
-        "switchToDark": "Passa alla modalità scura"
+    "stats": {
+      "header": {
+        "run": "Partita",
+        "moves": "Mosse",
+        "pushes": "Spinte",
+        "undos": "Annullamenti",
+        "time": "Tempo"
+      },
+      "run": {
+        "current": "Corrente",
+        "best": "Migliore"
+      },
+      "aria": {
+        "current": "Corrente: Mosse {{moves}} Spinte {{pushes}} Annullamenti {{undos}} Tempo {{time}}",
+        "best": "Migliore: Mosse {{moves}} Spinte {{pushes}} Annullamenti {{undos}} Tempo {{time}}"
+      }
+    },
+    "confirmation": {
+      "restart": {
+        "title": "Riavviare il livello?",
+        "ariaLabel": "Conferma riavvio livello",
+        "warning": "Riavviare ora cancellerà i tuoi progressi in questo livello.",
+        "confirm": "Riavvia livello"
+      },
+      "switch": {
+        "title": "Cambiare livello?",
+        "warning": "Cambiare livello ora cancellerà i tuoi progressi in questo livello.",
+        "previousAriaLabel": "Conferma passaggio al livello precedente",
+        "previousConfirm": "Vai al livello precedente",
+        "nextAriaLabel": "Conferma passaggio al livello successivo",
+        "nextConfirm": "Vai al livello successivo",
+        "selectedAriaLabel": "Conferma passaggio al livello selezionato",
+        "selectedConfirm": "Vai al livello selezionato"
+      },
+      "resetStats": {
+        "title": "Reimpostare le statistiche?",
+        "ariaLabel": "Conferma reimpostazione statistiche",
+        "warning": "La reimpostazione rimuoverà definitivamente mosse, spinte, annullamenti e tempi salvati.",
+        "confirm": "Reimposta statistiche"
+      }
+    },
+    "completion": {
+      "ariaLabel": "Livello completato",
+      "title": {
+        "congratulations": "Complimenti!",
+        "packComplete": "Pacchetto livelli completato!"
+      },
+      "message": {
+        "levelComplete": "Hai completato questo livello.",
+        "packComplete": "Hai completato l'ultimo livello di questo pacchetto.",
+        "packSwitch": "Passa a un altro pacchetto livelli dal selettore <levelPacks>Pacchetti livelli</levelPacks>, oppure premi <continue>Continua</continue> per tornare al Livello 1 di questo pacchetto."
+      }
     }
+  },
+  "menu": {
+    "ariaLabel": "Menu di gioco",
+    "title": "Menu",
+    "theme": "Tema",
+    "language": {
+      "label": "Lingua",
+      "options": {
+        "en": "Inglese",
+        "pl": "Polacco",
+        "es": "Spagnolo",
+        "fr": "Francese",
+        "pt-BR": "Portoghese (Brasile)",
+        "pt": "Portoghese",
+        "de": "Tedesco",
+        "it": "Italiano",
+        "zh-CN": "Cinese (semplificato)",
+        "ja": "Giapponese",
+        "ko": "Coreano",
+        "ru": "Russo",
+        "uk": "Ucraino",
+        "en-xa": "Pseudo (Test)"
+      }
+    },
+    "playStats": {
+      "title": "Statistiche di gioco",
+      "visible": "Visibile",
+      "visibleGameUi": "Durante il gioco",
+      "visibleCompletionModal": "Dopo aver completato un livello",
+      "enable": "Mostra statistiche di gioco",
+      "disable": "Nascondi statistiche di gioco",
+      "enableCompletion": "Mostra statistiche di completamento",
+      "disableCompletion": "Nascondi statistiche di completamento",
+      "reset": "Reimposta statistiche"
+    },
+    "sfx": {
+      "title": "Impostazioni SFX",
+      "mute": "Disattiva SFX",
+      "volume": "Volume",
+      "volumeAria": "Volume SFX"
+    }
+  },
+  "help": {
+    "title": "Informazioni",
+    "ariaLabel": "Informazioni su Sokoban",
+    "sections": {
+      "projectLinks": "Link del progetto",
+      "controls": "Comandi"
+    },
+    "builtWithTitle": "Realizzato con",
+    "builtWithText": "React, TypeScript e Vite.",
+    "projectTitle": "Progetto",
+    "controlsTitle": "Comandi",
+    "controlLabels": {
+      "moveUp": "Muovi su",
+      "moveLeftRight": "Muovi a sinistra / destra",
+      "moveDown": "Muovi giù",
+      "undo": "Annulla",
+      "restartLevel": "Riavvia livello",
+      "previousNextLevel": "Livello precedente / successivo"
+    }
+  },
+  "levelSelector": {
+    "title": "Pacchetti livelli",
+    "ariaLabel": "Selettore pacchetti livelli",
+    "meta": "{{count}} livelli disponibili",
+    "playPack": "Gioca pacchetto"
+  },
+  "mobileControls": {
+    "groupLabel": "Controlli touch",
+    "undo": {
+      "aria": "Annulla mossa"
+    },
+    "restart": {
+      "aria": "Riavvia livello"
+    },
+    "move": {
+      "up": "Muovi su",
+      "left": "Muovi a sinistra",
+      "right": "Muovi a destra",
+      "down": "Muovi giù"
+    },
+    "handle": {
+      "aria": "Trascina per spostare i controlli",
+      "title": "Trascina per riposizionare. Tocca due volte per ripristinare.",
+      "screenReader": "Riposiziona controlli"
+    },
+    "buttonGlyphs": {
+      "up": "U",
+      "left": "L",
+      "right": "R",
+      "down": "D"
+    }
+  },
+  "theme": {
+    "switchToLight": "Passa alla modalità chiara",
+    "switchToDark": "Passa alla modalità scura"
+  }
 }

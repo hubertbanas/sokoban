@@ -1,42 +1,49 @@
 {
-    "common": {
-        "close": "Sulge",
-        "cancel": "Katkesta",
-        "continue": "Jätka",
-        "about": "Rakenduse teave",
-        "levelPacks": "Tasemepakid",
-        "playPack": "Mängi seda pakki",
-        "on": "Sees",
-        "off": "Väljas",
-        "show": "Näita",
-        "hide": "Peida",
-        "version": "Versioon {{version}}",
-        "language": "Keel"
+  "common": {
+    "close": "Sulge",
+    "cancel": "Katkesta",
+    "continue": "Jätka",
+    "about": "Rakenduse teave",
+    "levelPacks": "Tasemepakid",
+    "playPack": "Mängi seda pakki",
+    "on": "Sees",
+    "off": "Väljas",
+    "show": "Näita",
+    "hide": "Peida",
+    "version": "Versioon {{version}}",
+    "language": "Keel"
+  },
+  "game": {
+    "menu": {
+      "open": "Ava menüü",
+      "close": "Sulge menüü"
     },
-    "game": {
-        "menu": {
-            "open": "Ava menüü",
-            "close": "Sulge menüü"
-        },
-        "levelPicker": {
-            "label": "Tasemevalija",
-            "previous": "Eelmine tase",
-            "next": "Järgmine tase",
-            "openSelector": "Ava tasemevalija",
-            "fallbackPackName": "Tasemed"
-        },
-        "playStats": {
-            "regionLabel": "Mängimise statistika",
-            "runAndBestLabel": "Parimad tulemused"
-        },
-        "board": {
-            "label": "Sokobani laud"
-        },
-        "stats": {
-            "header": {
-                "run": "Käivita",
-                "moves": "Käigud"
-            }
-        }
+    "levelPicker": {
+      "label": "Tasemevalija",
+      "previous": "Eelmine tase",
+      "next": "Järgmine tase",
+      "openSelector": "Ava tasemevalija",
+      "fallbackPackName": "Tasemed"
+    },
+    "playStats": {
+      "regionLabel": "Mängimise statistika",
+      "runAndBestLabel": "Parimad tulemused"
+    },
+    "board": {
+      "label": "Sokobani laud"
+    },
+    "stats": {
+      "header": {
+        "run": "Käivita",
+        "moves": "Käigud"
+      }
     }
+  },
+  "menu": {
+    "language": {
+      "options": {
+        "pt": "Portugali"
+      }
+    }
+  }
 }
