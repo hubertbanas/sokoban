@@ -1,185 +1,186 @@
 {
-    "common": {
-        "close": "閉じる",
-        "cancel": "キャンセル",
-        "continue": "続ける",
-        "about": "このゲームについて",
-        "levelPacks": "レベルパック",
-        "playPack": "このパックで遊ぶ",
-        "on": "オン",
-        "off": "オフ",
-        "show": "表示",
-        "hide": "非表示",
-        "version": "バージョン {{version}}",
-        "language": "言語"
-    },
-    "game": {
-        "menu": {
-            "open": "メニューを開く",
-            "close": "メニューを閉じる"
-        },
-        "levelPicker": {
-            "label": "レベル選択",
-            "previous": "前のレベル",
-            "next": "次のレベル",
-            "openSelector": "レベル選択を開く",
-            "fallbackPackName": "レベル"
-        },
-        "playStats": {
-            "regionLabel": "プレイ統計",
-            "runAndBestLabel": "現在の記録とベスト記録"
-        },
-        "board": {
-            "label": "Sokoban 盤面"
-        },
-        "stats": {
-            "header": {
-                "run": "プレイ",
-                "moves": "移動",
-                "pushes": "押し回数",
-                "undos": "元に戻す回数",
-                "time": "時間"
-            },
-            "run": {
-                "current": "現在",
-                "best": "ベスト"
-            },
-            "aria": {
-                "current": "現在: 移動 {{moves}} 押し回数 {{pushes}} 元に戻す回数 {{undos}} 時間 {{time}}",
-                "best": "ベスト: 移動 {{moves}} 押し回数 {{pushes}} 元に戻す回数 {{undos}} 時間 {{time}}"
-            }
-        },
-        "confirmation": {
-            "restart": {
-                "title": "レベルをやり直しますか？",
-                "ariaLabel": "レベル再開確認",
-                "warning": "今やり直すとこのレベルの進行状況が消去されます。",
-                "confirm": "レベルをやり直す"
-            },
-            "switch": {
-                "title": "レベルを切り替えますか？",
-                "warning": "今レベルを切り替えるとこのレベルの進行状況が消去されます。",
-                "previousAriaLabel": "前のレベルへの切り替え確認",
-                "previousConfirm": "前のレベルへ",
-                "nextAriaLabel": "次のレベルへの切り替え確認",
-                "nextConfirm": "次のレベルへ",
-                "selectedAriaLabel": "選択したレベルへの切り替え確認",
-                "selectedConfirm": "選択したレベルへ"
-            },
-            "resetStats": {
-                "title": "統計をリセットしますか？",
-                "ariaLabel": "統計リセット確認",
-                "warning": "統計をリセットすると保存された移動回数、押し回数、元に戻す回数、時間が完全に削除されます。",
-                "confirm": "統計をリセット"
-            }
-        },
-        "completion": {
-            "ariaLabel": "レベルクリア",
-            "title": {
-                "congratulations": "おめでとうございます！",
-                "packComplete": "レベルパックをクリアしました！"
-            },
-            "message": {
-                "levelComplete": "このレベルをクリアしました。",
-                "packComplete": "このパックの最後のレベルをクリアしました。",
-                "packSwitch": "<levelPacks>レベルパック</levelPacks> セレクターで別のパックに切り替えるか、<continue>続ける</continue>を押してこのパックのレベル 1 に戻ってください。"
-            }
-        }
-    },
+  "common": {
+    "close": "閉じる",
+    "cancel": "キャンセル",
+    "continue": "続ける",
+    "about": "このゲームについて",
+    "levelPacks": "レベルパック",
+    "playPack": "このパックで遊ぶ",
+    "on": "オン",
+    "off": "オフ",
+    "show": "表示",
+    "hide": "非表示",
+    "version": "バージョン {{version}}",
+    "language": "言語"
+  },
+  "game": {
     "menu": {
-        "ariaLabel": "ゲームメニュー",
-        "title": "メニュー",
-        "theme": "テーマ",
-        "language": {
-            "label": "言語",
-            "options": {
-                "en": "英語",
-                "pl": "ポーランド語",
-                "es": "スペイン語",
-                "fr": "フランス語",
-                "pt-BR": "ポルトガル語（ブラジル）",
-                "de": "ドイツ語",
-                "it": "イタリア語",
-                "zh-CN": "中国語（簡体字）",
-                "ja": "日本語",
-                "ko": "韓国語",
-                "ru": "ロシア語",
-                "uk": "ウクライナ語",
-                "en-xa": "疑似ローカライズ（テスト）"
-            }
-        },
-        "playStats": {
-            "title": "プレイ統計",
-            "visible": "表示",
-            "visibleGameUi": "プレイ中",
-            "visibleCompletionModal": "レベルクリア後",
-            "enable": "プレイ統計を表示",
-            "disable": "プレイ統計を非表示",
-            "enableCompletion": "クリア時の統計を表示",
-            "disableCompletion": "クリア時の統計を非表示",
-            "reset": "統計をリセット"
-        },
-        "sfx": {
-            "title": "効果音設定",
-            "mute": "効果音をミュート",
-            "volume": "音量",
-            "volumeAria": "効果音の音量"
-        }
+      "open": "メニューを開く",
+      "close": "メニューを閉じる"
     },
-    "help": {
-        "title": "このゲームについて",
-        "ariaLabel": "Sokoban について",
-        "sections": {
-            "projectLinks": "プロジェクトリンク",
-            "controls": "操作方法"
-        },
-        "builtWithTitle": "使用技術",
-        "builtWithText": "React、TypeScript、Vite。",
-        "projectTitle": "プロジェクト",
-        "controlsTitle": "操作方法",
-        "controlLabels": {
-            "moveUp": "上へ移動",
-            "moveLeftRight": "左 / 右へ移動",
-            "moveDown": "下へ移動",
-            "undo": "元に戻す",
-            "restartLevel": "レベルをやり直す",
-            "previousNextLevel": "前のレベル / 次のレベル"
-        }
+    "levelPicker": {
+      "label": "レベル選択",
+      "previous": "前のレベル",
+      "next": "次のレベル",
+      "openSelector": "レベル選択を開く",
+      "fallbackPackName": "レベル"
     },
-    "levelSelector": {
-        "title": "レベルパック",
-        "ariaLabel": "レベルパックセレクター",
-        "meta": "{{count}} レベルが利用可能",
-        "playPack": "このパックで遊ぶ"
+    "playStats": {
+      "regionLabel": "プレイ統計",
+      "runAndBestLabel": "現在の記録とベスト記録"
     },
-    "mobileControls": {
-        "groupLabel": "タッチ操作",
-        "undo": {
-            "aria": "操作を元に戻す"
-        },
-        "restart": {
-            "aria": "レベルをやり直す"
-        },
-        "move": {
-            "up": "上へ移動",
-            "left": "左へ移動",
-            "right": "右へ移動",
-            "down": "下へ移動"
-        },
-        "handle": {
-            "aria": "ドラッグして操作ボタンを移動",
-            "title": "ドラッグで位置変更。ダブルタップでリセット。",
-            "screenReader": "操作ボタンを再配置"
-        },
-        "buttonGlyphs": {
-            "up": "U",
-            "left": "L",
-            "right": "R",
-            "down": "D"
-        }
+    "board": {
+      "label": "Sokoban 盤面"
     },
-    "theme": {
-        "switchToLight": "ライトモードに切り替える",
-        "switchToDark": "ダークモードに切り替える"
+    "stats": {
+      "header": {
+        "run": "プレイ",
+        "moves": "移動",
+        "pushes": "押し回数",
+        "undos": "元に戻す回数",
+        "time": "時間"
+      },
+      "run": {
+        "current": "現在",
+        "best": "ベスト"
+      },
+      "aria": {
+        "current": "現在: 移動 {{moves}} 押し回数 {{pushes}} 元に戻す回数 {{undos}} 時間 {{time}}",
+        "best": "ベスト: 移動 {{moves}} 押し回数 {{pushes}} 元に戻す回数 {{undos}} 時間 {{time}}"
+      }
+    },
+    "confirmation": {
+      "restart": {
+        "title": "レベルをやり直しますか？",
+        "ariaLabel": "レベル再開確認",
+        "warning": "今やり直すとこのレベルの進行状況が消去されます。",
+        "confirm": "レベルをやり直す"
+      },
+      "switch": {
+        "title": "レベルを切り替えますか？",
+        "warning": "今レベルを切り替えるとこのレベルの進行状況が消去されます。",
+        "previousAriaLabel": "前のレベルへの切り替え確認",
+        "previousConfirm": "前のレベルへ",
+        "nextAriaLabel": "次のレベルへの切り替え確認",
+        "nextConfirm": "次のレベルへ",
+        "selectedAriaLabel": "選択したレベルへの切り替え確認",
+        "selectedConfirm": "選択したレベルへ"
+      },
+      "resetStats": {
+        "title": "統計をリセットしますか？",
+        "ariaLabel": "統計リセット確認",
+        "warning": "統計をリセットすると保存された移動回数、押し回数、元に戻す回数、時間が完全に削除されます。",
+        "confirm": "統計をリセット"
+      }
+    },
+    "completion": {
+      "ariaLabel": "レベルクリア",
+      "title": {
+        "congratulations": "おめでとうございます！",
+        "packComplete": "レベルパックをクリアしました！"
+      },
+      "message": {
+        "levelComplete": "このレベルをクリアしました。",
+        "packComplete": "このパックの最後のレベルをクリアしました。",
+        "packSwitch": "<levelPacks>レベルパック</levelPacks> セレクターで別のパックに切り替えるか、<continue>続ける</continue>を押してこのパックのレベル 1 に戻ってください。"
+      }
     }
+  },
+  "menu": {
+    "ariaLabel": "ゲームメニュー",
+    "title": "メニュー",
+    "theme": "テーマ",
+    "language": {
+      "label": "言語",
+      "options": {
+        "en": "英語",
+        "pl": "ポーランド語",
+        "es": "スペイン語",
+        "fr": "フランス語",
+        "pt-BR": "ポルトガル語（ブラジル）",
+        "pt": "ポルトガル語",
+        "de": "ドイツ語",
+        "it": "イタリア語",
+        "zh-CN": "中国語（簡体字）",
+        "ja": "日本語",
+        "ko": "韓国語",
+        "ru": "ロシア語",
+        "uk": "ウクライナ語",
+        "en-xa": "疑似ローカライズ（テスト）"
+      }
+    },
+    "playStats": {
+      "title": "プレイ統計",
+      "visible": "表示",
+      "visibleGameUi": "プレイ中",
+      "visibleCompletionModal": "レベルクリア後",
+      "enable": "プレイ統計を表示",
+      "disable": "プレイ統計を非表示",
+      "enableCompletion": "クリア時の統計を表示",
+      "disableCompletion": "クリア時の統計を非表示",
+      "reset": "統計をリセット"
+    },
+    "sfx": {
+      "title": "効果音設定",
+      "mute": "効果音をミュート",
+      "volume": "音量",
+      "volumeAria": "効果音の音量"
+    }
+  },
+  "help": {
+    "title": "このゲームについて",
+    "ariaLabel": "Sokoban について",
+    "sections": {
+      "projectLinks": "プロジェクトリンク",
+      "controls": "操作方法"
+    },
+    "builtWithTitle": "使用技術",
+    "builtWithText": "React、TypeScript、Vite。",
+    "projectTitle": "プロジェクト",
+    "controlsTitle": "操作方法",
+    "controlLabels": {
+      "moveUp": "上へ移動",
+      "moveLeftRight": "左 / 右へ移動",
+      "moveDown": "下へ移動",
+      "undo": "元に戻す",
+      "restartLevel": "レベルをやり直す",
+      "previousNextLevel": "前のレベル / 次のレベル"
+    }
+  },
+  "levelSelector": {
+    "title": "レベルパック",
+    "ariaLabel": "レベルパックセレクター",
+    "meta": "{{count}} レベルが利用可能",
+    "playPack": "このパックで遊ぶ"
+  },
+  "mobileControls": {
+    "groupLabel": "タッチ操作",
+    "undo": {
+      "aria": "操作を元に戻す"
+    },
+    "restart": {
+      "aria": "レベルをやり直す"
+    },
+    "move": {
+      "up": "上へ移動",
+      "left": "左へ移動",
+      "right": "右へ移動",
+      "down": "下へ移動"
+    },
+    "handle": {
+      "aria": "ドラッグして操作ボタンを移動",
+      "title": "ドラッグで位置変更。ダブルタップでリセット。",
+      "screenReader": "操作ボタンを再配置"
+    },
+    "buttonGlyphs": {
+      "up": "U",
+      "left": "L",
+      "right": "R",
+      "down": "D"
+    }
+  },
+  "theme": {
+    "switchToLight": "ライトモードに切り替える",
+    "switchToDark": "ダークモードに切り替える"
+  }
 }

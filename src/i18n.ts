@@ -6,6 +6,7 @@ import esTranslation from "./locales/es/translation.json";
 import frTranslation from "./locales/fr/translation.json";
 import plTranslation from "./locales/pl/translation.json";
 import ptBrTranslation from "./locales/pt-BR/translation.json";
+import ptTranslation from "./locales/pt/translation.json";
 import deTranslation from "./locales/de/translation.json";
 import itTranslation from "./locales/it/translation.json";
 import zhCnTranslation from "./locales/zh-CN/translation.json";
@@ -36,7 +37,7 @@ void i18n
                 translation: ptBrTranslation,
             },
             pt: {
-                translation: ptBrTranslation,
+                translation: ptTranslation,
             },
             de: {
                 translation: deTranslation,

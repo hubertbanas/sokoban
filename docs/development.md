@@ -67,7 +67,7 @@ The pre-commit guard blocks staged files that commonly contain secrets:
 ### Included Content
 
 - 493 bundled puzzle levels across six packs (`Tutorial`, `Original`, `Atlas01` to `Atlas04`)
-- Localized UI support for `en`, `pl`, `es`, `fr`, `pt-BR`, `de`, `it`, `zh-CN`, `ja`, `ko`, `ru`, and `uk`
+- Localized UI support for `en`, `pl`, `es`, `fr`, `pt`, `pt-BR`, `de`, `it`, `zh-CN`, `ja`, `ko`, `ru`, and `uk`
 - Keyboard gameplay controls (move, undo, restart, level navigation)
 - Mobile/coarse-pointer touch controls with a draggable dpad
 - Hold-to-repeat behavior for level and direction controls
