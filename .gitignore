@@ -69,8 +69,16 @@ pnpm-debug.log*
 # Local scratch notes
 notes.md
 
-# Editor/IDE metadata
-.vscode/
+# VS Code workspace settings
+# Commit project-wide settings and recommendations; ignore local state
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+!.vscode/cspell.json
+
+# Other Editor/IDE metadata
 .idea/
 *.iml
 *.swp
