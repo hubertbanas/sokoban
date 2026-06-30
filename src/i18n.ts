@@ -3,6 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import enTranslation from "./locales/en/translation.json";
 import esTranslation from "./locales/es/translation.json";
+import etTranslation from "./locales/et/translation.json";
 import frTranslation from "./locales/fr/translation.json";
 import plTranslation from "./locales/pl/translation.json";
 import ptBrTranslation from "./locales/pt-BR/translation.json";
@@ -29,6 +30,9 @@ void i18n
             },
             es: {
                 translation: esTranslation,
+            },
+            et: {
+                translation: etTranslation,
             },
             fr: {
                 translation: frTranslation,
@@ -72,6 +76,7 @@ void i18n
             "en",
             "pl",
             "es",
+            "et",
             "fr",
             "pt-BR",
             "pt",
