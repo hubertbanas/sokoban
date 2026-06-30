@@ -37,6 +37,7 @@ The game UI is currently available in:
 - English (`en`)
 - Polish (`pl`)
 - Spanish (`es`)
+- Estonian (`et`)
 - French (`fr`)
 - Portuguese (`pt`)
 - Portuguese, Brazil (`pt-BR`)

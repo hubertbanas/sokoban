@@ -1,11 +1,11 @@
 {
   "common": {
     "close": "Sulge",
-    "cancel": "Katkesta",
+    "cancel": "Tühista",
     "continue": "Jätka",
-    "about": "Rakenduse teave",
-    "levelPacks": "Tasemepakid",
-    "playPack": "Mängi seda pakki",
+    "about": "Teave",
+    "levelPacks": "Tasemepaketid",
+    "playPack": "Mängi pakki",
     "on": "Sees",
     "off": "Väljas",
     "show": "Näita",
@@ -19,31 +19,169 @@
       "close": "Sulge menüü"
     },
     "levelPicker": {
-      "label": "Tasemevalija",
+      "label": "Taseme valija",
       "previous": "Eelmine tase",
       "next": "Järgmine tase",
-      "openSelector": "Ava tasemevalija",
+      "openSelector": "Ava taseme valija",
       "fallbackPackName": "Tasemed"
     },
     "playStats": {
-      "regionLabel": "Mängimise statistika",
-      "runAndBestLabel": "Parimad tulemused"
+      "regionLabel": "Mängustatistika",
+      "runAndBestLabel": "Praegune ja parim tulemus"
     },
     "board": {
-      "label": "Sokobani laud"
+      "label": "Sokobani mängulaud"
     },
     "stats": {
       "header": {
-        "run": "Käivita",
-        "moves": "Käigud"
+        "run": "Tulemus",
+        "moves": "Käigud",
+        "pushes": "Lükked",
+        "undos": "Tagasivõtmised",
+        "time": "Aeg"
+      },
+      "run": {
+        "current": "Praegune",
+        "best": "Parim"
+      },
+      "aria": {
+        "current": "Praegune: Käigud {{moves}} Lükked {{pushes}} Tagasivõtmised {{undos}} Aeg {{time}}",
+        "best": "Parim: Käigud {{moves}} Lükked {{pushes}} Tagasivõtmised {{undos}} Aeg {{time}}"
+      }
+    },
+    "confirmation": {
+      "restart": {
+        "title": "Alustada taset uuesti?",
+        "ariaLabel": "Taseme uuesti alustamise kinnitus",
+        "warning": "Taseme uuesti alustamine kustutab selle taseme edenemise.",
+        "confirm": "Alusta taset uuesti"
+      },
+      "switch": {
+        "title": "Vahetada taset?",
+        "warning": "Taseme vahetamine kustutab selle taseme edenemise.",
+        "previousAriaLabel": "Eelmisele tasemele liikumise kinnitus",
+        "previousConfirm": "Mine eelmisele tasemele",
+        "nextAriaLabel": "Järgmisele tasemele liikumise kinnitus",
+        "nextConfirm": "Mine järgmisele tasemele",
+        "selectedAriaLabel": "Valitud tasemele liikumise kinnitus",
+        "selectedConfirm": "Mine valitud tasemele"
+      },
+      "resetStats": {
+        "title": "Lähtestada statistika?",
+        "ariaLabel": "Statistika lähtestamise kinnitus",
+        "warning": "Statistika lähtestamine eemaldab jäädavalt salvestatud käigud, lükked, tagasivõtmised ja ajad.",
+        "confirm": "Lähtesta statistika"
+      }
+    },
+    "completion": {
+      "ariaLabel": "Tase lõpetatud",
+      "title": {
+        "congratulations": "Õnnitleme!",
+        "packComplete": "Tasemepakett lõpetatud!"
+      },
+      "message": {
+        "levelComplete": "Läbisid selle taseme.",
+        "packComplete": "Läbisid selle paketi viimase taseme.",
+        "packSwitch": "Vali menüüst <levelPacks>Tasemepaketid</levelPacks> mõni teine pakett või vajuta <continue>Jätka</continue>, et naasta selles paketis tasemele 1."
       }
     }
   },
   "menu": {
+    "ariaLabel": "Mängumenüü",
+    "title": "Menüü",
+    "theme": "Teema",
     "language": {
+      "label": "Keel",
       "options": {
-        "pt": "Portugali"
+        "en": "Inglise",
+        "pl": "Poola",
+        "es": "Hispaania",
+        "et": "Eesti",
+        "fr": "Prantsuse",
+        "pt-BR": "Portugali (Brasiilia)",
+        "pt": "Portugali",
+        "de": "Saksa",
+        "it": "Itaalia",
+        "zh-CN": "Hiina (lihtsustatud)",
+        "ja": "Jaapani",
+        "ko": "Korea",
+        "ru": "Vene",
+        "uk": "Ukraina",
+        "en-xa": "Pseudo (test)"
       }
+    },
+    "playStats": {
+      "title": "Mängustatistika",
+      "visible": "Nähtav",
+      "visibleGameUi": "Mängimise ajal",
+      "visibleCompletionModal": "Pärast taseme lõpetamist",
+      "enable": "Näita mängustatistikat",
+      "disable": "Peida mängustatistika",
+      "enableCompletion": "Näita lõpetamise statistikat",
+      "disableCompletion": "Peida lõpetamise statistika",
+      "reset": "Lähtesta statistika"
+    },
+    "sfx": {
+      "title": "Heliefektide seaded",
+      "mute": "Vaigista heliefektid",
+      "volume": "Helitugevus",
+      "volumeAria": "Heliefektide helitugevus"
     }
+  },
+  "help": {
+    "title": "Teave",
+    "ariaLabel": "Teave Sokobani kohta",
+    "sections": {
+      "projectLinks": "Projekti lingid",
+      "controls": "Juhtnupud"
+    },
+    "builtWithTitle": "Loodud kasutades",
+    "builtWithText": "React, TypeScript ja Vite.",
+    "projectTitle": "Projekt",
+    "controlsTitle": "Juhtnupud",
+    "controlLabels": {
+      "moveUp": "Liigu üles",
+      "moveLeftRight": "Liigu vasakule / paremale",
+      "moveDown": "Liigu alla",
+      "undo": "Võta tagasi",
+      "restartLevel": "Alusta taset uuesti",
+      "previousNextLevel": "Eelmine / järgmine tase"
+    }
+  },
+  "levelSelector": {
+    "title": "Tasemepaketid",
+    "ariaLabel": "Tasemepaketi valija",
+    "meta": "{{count}} taset saadaval",
+    "playPack": "Mängi pakki"
+  },
+  "mobileControls": {
+    "groupLabel": "Puutejuhtnupud",
+    "undo": {
+      "aria": "Võta käik tagasi"
+    },
+    "restart": {
+      "aria": "Alusta taset uuesti"
+    },
+    "move": {
+      "up": "Liigu üles",
+      "left": "Liigu vasakule",
+      "right": "Liigu paremale",
+      "down": "Liigu alla"
+    },
+    "handle": {
+      "aria": "Lohista juhtnuppude liigutamiseks",
+      "title": "Lohista ümberpaigutamiseks. Topeltpuuduta lähtestamiseks.",
+      "screenReader": "Paiguta juhtnupud ümber"
+    },
+    "buttonGlyphs": {
+      "up": "U",
+      "left": "L",
+      "right": "R",
+      "down": "D"
+    }
+  },
+  "theme": {
+    "switchToLight": "Lülitu heledale režiimile",
+    "switchToDark": "Lülitu tumedale režiimile"
   }
 }
