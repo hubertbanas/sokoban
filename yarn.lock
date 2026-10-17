@@ -1743,9 +1743,9 @@ i18next-browser-languagedetector@^8.2.1:
     "@babel/runtime" "^7.23.2"
 
 i18next@^26.1.0:
-  version "26.4.7"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.4.7.tgz#9e366d66690f03c1793563d7060703f5edaa3ecd"
-  integrity sha512-p/3hqy6EcuqRs6wNwBYwGGC1fzBJSMxV9zMuN814ab/7QjdZbXfjXwuPZdQbngX6KDOTxM01uUiZyqmMB8ghZg==
+  version "26.5.2"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.5.2.tgz#30397dd37a4e887a00eee9bf6f979a11fca9004a"
+  integrity sha512-6fIXt//2MZNok3tULyjnypxe3vbsy3pV1bVg8p2x3yKrzZvp7z3T+wXx/88LQsATRdhyJeAUAvUxEtxsHdJ29w==
 
 indent-string@^4.0.0:
   version "4.0.0"
@@ -2440,9 +2440,9 @@ react-dom@19:
     scheduler "^0.28.0"
 
 react-i18next@^17.0.7:
-  version "17.0.19"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-17.0.19.tgz#aba317f5167a2c1180399bce7e1faf7b2b333c0d"
-  integrity sha512-BRHqiqOfW4J/LBVtbBFHoBoZm/Ez2/tkHPitYtn0CSpkYhEaEAsZMPsg7hZlomu30UJYQ6ZKiP3pwa3QnxGvQw==
+  version "17.1.0"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-17.1.0.tgz#e39d8d7e7ab830489d0db2e5d0f561fdf061f6e6"
+  integrity sha512-4VouOnTDyvhvqXx6WZ+s3/cgSiaLutILdYkO3P1Ms+4qcKR7At+JP4Vi7IeHkVLyVV+DmN1l23Pn73UcwSGGPA==
   dependencies:
     "@babel/runtime" "^7.29.7"
     html-parse-stringify "^4.0.1"
