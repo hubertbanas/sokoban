@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Build the React application
 # ==========================================
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 
 # Mute Node 24 deprecation warnings caused by Yarn v1
 ENV NODE_OPTIONS="--no-deprecation"
